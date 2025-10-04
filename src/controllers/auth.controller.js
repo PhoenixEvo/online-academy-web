@@ -3,10 +3,31 @@ import dayjs from 'dayjs';
 import { body, validationResult } from 'express-validator';
 import { db } from '../models/db.js';
 import { hashOtp } from '../services/otp.service.js';
-import { sendOtpEmail } from '../services/mail.service.js';
+import { sendOtpEmail, sendResetPasswordEmail } from '../services/mail.service.js';
 
 export function showLogin(req,res){ res.render('auth/login', { layout: 'auth', page: 'login', title: 'Login' }); }
 export function showRegister(req,res){ res.render('auth/register', { layout: 'auth', page: 'register', title: 'Register' }); }
+export function showForgotPassword(req,res){ 
+  const formData = req.session.forgotPasswordForm || {};
+  delete req.session.forgotPasswordForm; // clear after use
+  res.render('auth/forgot-password', { 
+    layout: 'auth', 
+    page: 'forgot-password', 
+    title: 'Forgot Password',
+    // values: formData
+  }); 
+}
+export function showResetPassword(req,res){ 
+  const formData = req.session.resetPasswordForm || {};
+  delete req.session.resetPasswordForm; // clear after use
+  res.render('auth/reset-password', { 
+    layout: 'auth', 
+    page: 'reset-password', 
+    title: 'Reset Password',
+    email: formData.email || '',
+    // values: formData
+  }); 
+}
 
 // validation rules for registration
 export const validateRegister = [
@@ -97,6 +118,36 @@ export const validateOtp = [
     .isLength({ min: 6, max: 6 })
     .isNumeric()
     .withMessage('OTP code must be 6 digits')
+];
+
+// validation rules for forgot password
+export const validateForgotPassword = [
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Invalid email')
+];
+
+// validation rules for reset password
+export const validateResetPassword = [
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Invalid email'),
+  body('code')
+    .isLength({ min: 6, max: 6 })
+    .isNumeric()
+    .withMessage('OTP code must be 6 digits'),
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters'),
+  body('confirmPassword')
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error('Passwords do not match');
+      }
+      return true;
+    })
 ];
 
 // resend OTP
@@ -198,6 +249,109 @@ export async function verifyOtp(req, res, next) {
     res.redirect('/auth/login');
   } catch (e) { 
     console.error('OTP verification error:', e);
+    next(e); 
+  }
+}
+
+// send reset password OTP
+export async function sendResetOtp(req, res, next) {
+  try {
+    // check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      req.flash('error', 'Please enter a valid email address');
+      req.session.forgotPasswordForm = req.body;
+      return res.redirect('/auth/forgot-password');
+    }
+
+    const { email } = req.body;
+    
+    // find user by email
+    const user = await db('users').where({ email }).first();
+    if (!user) {
+      req.flash('error', 'Email not found in our system');
+      req.session.forgotPasswordForm = { email };
+      return res.redirect('/auth/forgot-password');
+    }
+
+    // generate and store OTP for password reset
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // delete any existing reset OTPs for this email
+    await db('otp_tokens')
+      .where({ email, consumed: false })
+      .del();
+    
+    await db('otp_tokens').insert({
+      user_id: user.id,
+      email: email,
+      otp_hash: await hashOtp(otp),
+      expires_at: dayjs().add(10, 'minute').toDate()
+    });
+
+    // send reset password OTP email
+    await sendResetPasswordEmail(email, otp);
+
+    res.render('auth/reset-password', { 
+      layout: 'auth',
+      page: 'reset-password',
+      title: 'Reset Password',
+      email,
+      success: 'Reset OTP code has been sent to your email'
+    });
+  } catch (e) {
+    console.error('Send reset OTP error:', e);
+    next(e);
+  }
+}
+
+// reset password
+export async function doResetPassword(req, res, next) {
+  try {
+    // check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorMessages = errors.array().map(error => error.msg);
+      req.flash('error', errorMessages.join(', '));
+      req.session.resetPasswordForm = req.body;
+      return res.redirect('/auth/reset-password');
+    }
+
+    const { email, code, password } = req.body;
+    
+    // find valid OTP token
+    const token = await db('otp_tokens')
+      .where({ email, consumed: false })
+      .andWhere('expires_at', '>', new Date())
+      .orderBy('created_at', 'desc')
+      .first();
+
+    if (!token) {
+      req.flash('error', 'Invalid or expired OTP code');
+      req.session.resetPasswordForm = req.body;
+      return res.redirect('/auth/reset-password');
+    }
+
+    // verify OTP
+    const isValidOtp = await bcrypt.compare(code, token.otp_hash);
+    if (!isValidOtp) {
+      req.flash('error', 'Incorrect OTP code');
+      req.session.resetPasswordForm = req.body;
+      return res.redirect('/auth/reset-password');
+    }
+
+    // Mark OTP as consumed
+    await db('otp_tokens').where({ id: token.id }).update({ consumed: true });
+    
+    // Update user password
+    const password_hash = await bcrypt.hash(password, 10);
+    await db('users').where({ id: token.user_id }).update({ password_hash });
+
+    // Set flash message and redirect
+    req.flash('success', 'Password reset successful! You can now log in with your new password.');
+    res.redirect('/auth/login');
+  } catch (e) { 
+    console.error('Reset password error:', e);
     next(e); 
   }
 }

@@ -52,7 +52,19 @@
     <script src="/js/main.js"></script>
 
     <!-- Auth animation JS (kept last to allow overrides) -->
+    {{#if (eq page 'login')}}
     <script src="/js/auth-animation.js"></script>
+    {{/if}}
+    
+    <!-- Forgot password animation JS -->
+    {{#if (eq page 'forgot-password')}}
+    <script src="/js/forgot-password-animation.js"></script>
+    {{/if}}
+    
+    <!-- Reset password animation JS -->
+    {{#if (eq page 'reset-password')}}
+    <script src="/js/reset-password-animation.js"></script>
+    {{/if}}
     
     <!-- Register page JS (only load on register page) -->
     {{#if (eq page 'register')}}

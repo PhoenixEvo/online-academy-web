@@ -396,3 +396,26 @@ body>form .inputGroup2 #showPasswordToggle input:disabled~.indicator:after {
 	font-weight: 400;
 	transition: color 0.2s ease;
 }
+
+/* Forgot Password and Back to Login Links */
+.forgotPassword, .backToLogin {
+	display: block;
+	text-align: center;
+	color: #4eb8dd;
+	text-decoration: none;
+	font-size: 0.9em;
+	font-weight: 500;
+	margin-top: 15px;
+	transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.forgotPassword:hover, .backToLogin:hover {
+	color: #2a9fd6;
+	text-decoration: underline;
+}
+
+.forgotPassword:focus, .backToLogin:focus {
+	outline: 2px solid #4eb8dd;
+	outline-offset: 2px;
+	border-radius: 4px;
+}

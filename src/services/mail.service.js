@@ -106,6 +106,29 @@ export async function sendOtpEmail(to, otpCode) {
 }
 
 /**
+ * Send reset password OTP email
+ * @param {string} to
+ * @param {string} otpCode
+ */
+export async function sendResetPasswordEmail(to, otpCode) {
+  const subject = 'Password Reset OTP - Mentor Online Academy';
+  const text = `Your password reset OTP code is: ${otpCode}. The code will expire in 10 minutes.`;
+  const html = baseHtmlTemplate(
+    'Password Reset',
+    `
+      <h2>Password Reset Request</h2>
+      <p>You have requested to reset your password. Your reset code is:</p>
+      <p style="font-size:22px;margin:8px 0 16px;">
+        <code>${otpCode}</code>
+      </p>
+      <p>The code will expire in <strong>10 minutes</strong>.</p>
+      <p>If you did not request this password reset, please ignore this email.</p>
+    `
+  );
+  return sendMail({ to, subject, text, html });
+}
+
+/**
  * Send course notice email
  */
 export async function sendCourseNotice(to, { title, message, ctaUrl, ctaText='View Details' }) {

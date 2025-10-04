@@ -21,6 +21,12 @@ r.post("/register", authCtrl.validateRegister, authCtrl.doRegister);
 r.post("/resend-otp", authCtrl.resendOtp);
 r.post("/verify-otp", authCtrl.validateOtp, authCtrl.verifyOtp);
 
+// forgot password
+r.get("/forgot-password", authCtrl.showForgotPassword);
+r.post("/forgot-password", authCtrl.validateForgotPassword, authCtrl.sendResetOtp);
+r.get("/reset-password", authCtrl.showResetPassword);
+r.post("/reset-password", authCtrl.validateResetPassword, authCtrl.doResetPassword);
+
 // logout
 r.get("/logout", (req, res) => {
   req.logout(() => res.redirect("/"));
