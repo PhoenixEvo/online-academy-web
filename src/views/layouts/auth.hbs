@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#if title}}{{title}} - {{/if}}Mentor</title>
+    <meta http-equiv="Content-Security-Policy"
+        content="script-src 'self' https://cdnjs.cloudflare.com 'unsafe-eval'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';">
+
+   
+    <!-- Favicons -->
+    <link href="/img/favicon.ico" rel="icon">
+    <link href="/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Vendor CSS Files (from home layout) -->
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/vendor/aos/aos.css" rel="stylesheet">
+    <link href="/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+    <!-- Main site CSS -->
+    <link href="/css/main.css" rel="stylesheet">
+
+    <!-- Auth page CSS (kept last to allow overrides) -->
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <!-- Page-specific libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+    {{!--
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/plugins/MorphSVGPlugin.min.js"></script> --}}
+</head>
+
+<body>
+    <!-- Header -->
+    {{> header}}
+    <!-- Flash messages -->
+    {{> flash}}
+    <!-- Body -->
+    {{{body}}}
+
+    <!-- Vendor JS Files (from home layout) -->
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/vendor/php-email-form/validate.js"></script>
+    <script src="/vendor/aos/aos.js"></script>
+    <script src="/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="/vendor/purecounter/purecounter_vanilla.js"></script>
+    <script src="/vendor/swiper/swiper-bundle.min.js"></script>
+
+    <!-- Main site JS -->
+    <script src="/js/main.js"></script>
+
+    <!-- Auth animation JS (kept last to allow overrides) -->
+    <script src="/js/auth-animation.js"></script>
+    
+    <!-- Register page JS (only load on register page) -->
+    {{#if (eq page 'register')}}
+    <script src="/js/register.js"></script>
+    {{/if}}
+    
+    <!-- Verify OTP page JS (only load on verify-otp page) -->
+    {{#if (eq page 'verify-otp')}}
+    <script src="/js/verify-otp.js"></script>
+    {{/if}}
+</body>
+
+</html>

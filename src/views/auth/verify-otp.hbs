@@ -1,0 +1,72 @@
+<form action="/auth/verify-otp" method="POST" novalidate>
+  <input type="hidden" name="_csrf" value="{{csrfToken}}">
+  <input type="hidden" name="email" value="{{email}}">
+
+  <!-- Local success message (only show if no flash messages) -->
+  {{#if success}}
+  {{#unless flash}}
+  <div class="inputGroup inputGroup1">
+    <div style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 0.5em; padding: 1em; margin-bottom: 1em; font-size: 0.9em;">
+      {{success}}
+    </div>
+  </div>
+  {{/unless}}
+  {{/if}}
+
+  <!-- Local error message (only show if no flash messages) -->
+  {{#if error}}
+  {{#unless flash}}
+  <div class="inputGroup inputGroup1">
+    <div style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 0.5em; padding: 1em; margin-bottom: 1em; font-size: 0.9em;">
+      {{error}}
+    </div>
+  </div>
+  {{/unless}}
+  {{/if}}
+
+  <!-- Email info -->
+  <div class="inputGroup">
+    <div class="helper helperAlt" style="font-size: 1em; margin-bottom: 0.5em; text-align: center;">
+      OTP Code has been sent to:<br>
+      <strong style="color: #007bff;">{{email}}</strong>
+    </div>
+  </div>
+
+  <!-- OTP Code -->
+  <div class="inputGroup inputGroup1">
+    <label for="otpCode" id="otpCodeLabel">OTP Code</label>
+    <input
+      type="text"
+      id="otpCode"
+      name="code"
+      maxlength="6"
+      required
+      autocomplete="one-time-code"
+      aria-labelledby="otpCodeLabel"
+    />
+    <p class="helper helper1">Input 6 digits</p>
+  </div>
+
+  <!-- Submit -->
+  <div class="inputGroup inputGroup3">
+    <button type="submit" id="verifyOtp">Verify OTP</button>
+  </div>
+
+  <!-- Resend and Back links -->
+  <div class="inputGroup inputGroup6">
+    <p class="helper helperAlt" style="font-size: 0.9em; margin-top: 0.75em; text-align: center;">
+      Don't receive the code? 
+      <a href="#" id="resendOtpLink" style="color: #007bff; text-decoration: underline; cursor: pointer;">
+        Resend OTP
+      </a>
+    </p>
+    <p class="helper helperAlt" style="font-size: 0.9em; margin-top: 0.5em; text-align: center;">
+      <a href="/auth/login" style="color: #6c757d;">← Back to login</a>
+    </p>
+  </div>
+</form>
+<!-- Hidden form for resend OTP -->
+  <form id="resendOtpForm" action="/auth/resend-otp" method="POST" style="display: none;">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <input type="hidden" name="email" value="{{email}}">
+  </form>

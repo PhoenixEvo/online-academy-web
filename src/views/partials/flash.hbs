@@ -1,0 +1,37 @@
+<div class="flash-container">
+  {{#if success}}
+    {{#each success}}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{this}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {{/each}}
+  {{/if}}
+
+  {{#if error}}
+    {{#each error}}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{this}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {{/each}}
+  {{/if}}
+
+  {{#if warning}}
+    {{#each warning}}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{this}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {{/each}}
+  {{/if}}
+
+  {{#if info}}
+    {{#each info}}
+      <div class="alert alert-info alert-dismissible fade show" role="alert">
+        {{this}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {{/each}}
+  {{/if}}
+</div>

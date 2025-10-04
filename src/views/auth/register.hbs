@@ -1,0 +1,118 @@
+<form action="/auth/register" method="POST" novalidate>
+  <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+  <!-- Full name -->
+  <div class="inputGroup inputGroup1">
+    <label for="registerName" id="registerNameLabel">Full name</label>
+    <input
+      type="text"
+      id="registerName"
+      name="name"
+      maxlength="100"
+      required
+      autocomplete="name"
+      aria-labelledby="registerNameLabel"
+    />
+    <p class="helper helper1">e.g. John Doe</p>
+  </div>
+
+  <!-- Email -->
+  <div class="inputGroup inputGroup1">
+    <label for="registerEmail" id="registerEmailLabel">Email</label>
+    <input
+      type="email"
+      id="registerEmail"
+      name="email"
+      maxlength="254"
+      required
+      autocomplete="email"
+      aria-labelledby="registerEmailLabel"
+    />
+    <p class="helper helper1">email@domain.com</p>
+  </div>
+
+  <!-- Password -->
+  <div class="inputGroup inputGroup2">
+    <label for="registerPassword" id="registerPasswordLabel">Password</label>
+    <input
+      type="password"
+      id="registerPassword"
+      name="password"
+      required
+      minlength="8"
+      autocomplete="new-password"
+      aria-labelledby="registerPasswordLabel"
+    />
+    <!-- uses your existing CSS for #showPasswordToggle -->
+    <label id="showPasswordToggle" for="showPasswordCheck">
+      Show
+      <input id="showPasswordCheck" type="checkbox" />
+      <div class="indicator"></div>
+    </label>
+    <p class="helper helper3">At least 8 characters (mix of upper/lowercase &amp; digits recommended)</p>
+  </div>
+
+  <!-- Confirm password (no toggle to keep CSS unchanged) -->
+  <div class="inputGroup inputGroup3">
+    <label for="registerPasswordConfirm" id="registerPasswordConfirmLabel">Confirm password</label>
+    <input
+      type="password"
+      id="registerPasswordConfirm"
+      name="passwordConfirm"
+      required
+      minlength="8"
+      autocomplete="new-password"
+      aria-labelledby="registerPasswordConfirmLabel"
+    />
+  </div>
+
+  <!-- Role selection -->
+  <div class="inputGroup inputGroup3-5">
+    <label id="registerRoleLabel">I want to register as:</label>
+    <div class="radioGroup">
+      <label for="roleStudent" class="radioOption">
+        <input 
+          type="radio" 
+          id="roleStudent" 
+          name="role" 
+          value="student" 
+          required 
+          checked
+        />
+        <span class="radioLabel">Student - Learn courses</span>
+      </label>
+      <label for="roleInstructor" class="radioOption">
+        <input 
+          type="radio" 
+          id="roleInstructor" 
+          name="role" 
+          value="instructor" 
+          required
+        />
+        <span class="radioLabel">Instructor - Create courses</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Terms -->
+  <div class="inputGroup inputGroup4">
+    <label for="termsCheck" style="font-weight:400;">
+      <input id="termsCheck" name="acceptTerms" type="checkbox" required />
+      I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a> &amp;
+      <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+    </label>
+  </div>
+
+  <!-- Submit -->
+  <div class="inputGroup inputGroup5">
+    <button type="submit" id="register">Create account</button>
+  </div>
+
+  <!-- Link to login -->
+  <div class="inputGroup inputGroup6">
+    <p class="helper helperAlt" style="font-size:1em; margin-top:0.75em;">
+      Already have an account? <a href="/auth/login">Log in</a>
+    </p>
+  </div>
+</form>
+
