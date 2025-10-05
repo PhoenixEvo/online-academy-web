@@ -88,13 +88,15 @@
         : scrollTop.classList.remove("active");
     }
   }
-  scrollTop.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
+  if (scrollTop) {
+    scrollTop.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     });
-  });
+  }
 
   window.addEventListener("load", toggleScrollTop);
   document.addEventListener("scroll", toggleScrollTop);
@@ -142,4 +144,58 @@
   }
 
   window.addEventListener("load", initSwiper);
+  
+  /**
+   * Password visibility toggle (delegated)
+   * Works across pages without inline scripts (CSP friendly)
+   */
+  document.addEventListener('click', function (event) {
+    const btn = event.target.closest('.toggle-password');
+    if (!btn) return;
+    const targetId = btn.getAttribute('data-target');
+    if (!targetId) return;
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    const isPassword = input.getAttribute('type') === 'password';
+    input.setAttribute('type', isPassword ? 'text' : 'password');
+    const icon = btn.querySelector('i');
+    if (icon) {
+      icon.classList.toggle('bi-eye');
+      icon.classList.toggle('bi-eye-slash');
+    }
+  });
+
+  /**
+   * Bootstrap-like form validation for forms with .needs-validation (CSP friendly)
+   */
+  document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (!form.classList.contains('needs-validation')) return;
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    form.classList.add('was-validated');
+  }, true);
+
+  /**
+   * Password confirmation live validation on profile page (CSP friendly)
+   */
+  document.addEventListener('input', function (e) {
+    const target = e.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.id === 'confirmPassword') {
+      const password = document.getElementById('newPassword');
+      if (password && target) {
+        target.setCustomValidity(password.value !== target.value ? 'Passwords do not match' : '');
+      }
+    }
+    if (target.id === 'newPassword') {
+      const confirm = document.getElementById('confirmPassword');
+      if (confirm && confirm.value) {
+        confirm.dispatchEvent(new Event('input'));
+      }
+    }
+  });
 })();

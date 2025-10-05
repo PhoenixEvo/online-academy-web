@@ -29,6 +29,21 @@ export function setupHandlebars(app) {
           for (let i = from; i <= to; i++) out.push(i);
           return out;
         },
+        formatDate(date) {
+          if (!date || date === null || date === undefined) return 'N/A';
+          try {
+            const dateObj = new Date(date);
+            if (isNaN(dateObj.getTime())) return 'N/A';
+            return dateObj.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          } catch (error) {
+            console.error('formatDate error:', error);
+            return 'N/A';
+          }
+        },
       },
     })
   );
