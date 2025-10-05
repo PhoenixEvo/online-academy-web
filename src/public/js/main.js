@@ -198,4 +198,61 @@
       }
     }
   });
+
+  /**
+   * Newsletter subscription form handler (CSP friendly)
+   */
+  document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (form.id !== 'newsletter-form') return;
+    
+    e.preventDefault();
+    handleNewsletterSubmission(form);
+  });
+
+  /**
+   * Handle newsletter form submission
+   */
+  async function handleNewsletterSubmission(form) {
+    const emailInput = document.getElementById('newsletter-email');
+    const email = emailInput.value;
+    const csrfToken = form.querySelector('input[name="_csrf"]').value;
+    const loadingDiv = form.querySelector('.loading');
+    const errorDiv = form.querySelector('.error-message');
+    const sentDiv = form.querySelector('.sent-message');
+    
+    // Hide previous messages
+    errorDiv.classList.remove('show');
+    sentDiv.classList.remove('show');
+    loadingDiv.classList.add('show');
+    
+    try {
+      const response = await fetch('/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ email: email })
+      });
+      
+      const result = await response.json();
+      
+      loadingDiv.classList.remove('show');
+      
+      if (result.success) {
+        sentDiv.classList.add('show');
+        emailInput.value = '';
+      } else {
+        errorDiv.textContent = result.message || 'An error occurred, please try again!';
+        errorDiv.classList.add('show');
+      }
+    } catch (error) {
+      loadingDiv.classList.remove('show');
+      errorDiv.textContent = 'Network error. Please check your connection and try again.';
+      errorDiv.classList.add('show');
+      console.error('Newsletter subscription error:', error);
+    }
+  }
 })();

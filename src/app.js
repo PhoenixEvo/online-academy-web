@@ -51,6 +51,13 @@ app.use(csurf());
 // error handler
 app.use((err, req, res, next) => {
   if (err.code === 'EBADCSRFTOKEN') {
+    // Handle AJAX requests differently
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Session expired or CSRF is invalid. Please try again.' 
+      });
+    }
     req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
     return res.redirect('back');
   }

@@ -2421,5 +2421,40 @@ body {
 }
 
 /*--------------------------------------------------------------
+# Newsletter Form Messages
+--------------------------------------------------------------*/
+.footer .footer-newsletter .loading,
+.footer .footer-newsletter .error-message,
+.footer .footer-newsletter .sent-message {
+  display: none !important;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.footer .footer-newsletter .loading {
+  color: var(--accent-color);
+  background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
+}
+
+.footer .footer-newsletter .error-message {
+  color: #dc3545;
+  background-color: color-mix(in srgb, #dc3545, transparent 90%);
+}
+
+.footer .footer-newsletter .sent-message {
+  color: #28a745;
+  background-color: color-mix(in srgb, #28a745, transparent 90%);
+}
+
+.footer .footer-newsletter .loading.show,
+.footer .footer-newsletter .error-message.show,
+.footer .footer-newsletter .sent-message.show {
+  display: block !important;
+}
+
+/*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
