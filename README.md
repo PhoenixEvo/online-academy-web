@@ -1,4 +1,4 @@
-## Online Academy — PTUDW Final Project
+## Mentor - Online Academy — PTUDW Final Project
 
 ### Overview
 Online Academy is a web application that enables learners to discover, enroll in, and study online courses while instructors can publish and manage their courses. The system follows the MVC pattern with Express.js and Handlebars, uses PostgreSQL via Knex for persistence, and implements authentication, session management, CSRF protection, and email-based OTP verification.
