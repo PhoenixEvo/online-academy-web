@@ -9,11 +9,12 @@ import flash from 'connect-flash';
 import { setupHandlebars } from './config/handlebars.js';
 import { setupSession } from './config/session.js';
 import { setupPassport } from './config/passport.js';
+import { addCategoriesToLocals } from './middlewares/categories.js';
 
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
-//import courseRoute from './routes/course.route.js';
+import courseRoute from './routes/course.route.js';
 
 
 const app = express();
@@ -25,7 +26,7 @@ app.use(
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
       styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"], 
+      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
     },
   })
 );
@@ -65,7 +66,7 @@ app.use((err, req, res, next) => {
 });
 
 // locals for website
-app.use((req,res,next)=>{
+app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken();
   res.locals.user = req.user || null;
   res.locals.isAuthenticated = req.isAuthenticated?.() || false;
@@ -74,6 +75,9 @@ app.use((req,res,next)=>{
   res.locals.error = req.flash('error');
   next();
 });
+
+// Add categories to locals for guest users
+app.use(addCategoriesToLocals);
 
 
 // ROUTES (thin, no logic)
