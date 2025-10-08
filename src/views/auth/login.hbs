@@ -196,6 +196,24 @@
 
 	<!-- Forgot Password Link -->
 	<div class="inputGroup inputGroup4">
-		<a href="/auth/forgot-password" class="forgotPassword">Forgot Password?</a>
+		<a href="/auth/forgot-password" class="forgotPassword" style="text-align:start;">Forgot Password?</a>
 	</div>
+
+	<!-- Or divider -->
+	<div class="inputGroup inputGroup3 or-divider">
+		<div style="text-align:center;margin:0px 0;color:#666;">or</div>
+	</div>
+
+	<!-- Google Login -->
+	<div class="inputGroup inputGroup3" style="text-align:center;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+		<a href="/auth/google?role=student" id="loginGoogleStudent" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border:1px solid #ddd;border-radius:4px;text-decoration:none;color:#333;">
+			<img src="/img/google.png" alt="Google" style="width:18px;height:18px;display:block;" />
+			<span>Sign in with Google (Student)</span>
+		</a>
+		<a href="/auth/google?role=instructor" id="loginGoogleInstructor" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border:1px solid #ddd;border-radius:4px;text-decoration:none;color:#333;">
+			<img src="/img/google.png" alt="Google" style="width:18px;height:18px;display:block;" />
+			<span>Sign in with Google (Instructor)</span>
+		</a>
+	</div>
+
 </form>

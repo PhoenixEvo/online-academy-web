@@ -27,6 +27,7 @@ app.use(
       scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
       styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "http:"],  // Allow images from any HTTPS source
     },
   })
 );
@@ -54,9 +55,9 @@ app.use((err, req, res, next) => {
   if (err.code === 'EBADCSRFTOKEN') {
     // Handle AJAX requests differently
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Session expired or CSRF is invalid. Please try again.' 
+      return res.status(403).json({
+        success: false,
+        message: 'Session expired or CSRF is invalid. Please try again.'
       });
     }
     req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
@@ -84,7 +85,7 @@ app.use(addCategoriesToLocals);
 app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
-//app.use('/courses', courseRoute);
+app.use('/courses', courseRoute);
 
 // 404 handler
 app.use((req, res) => {

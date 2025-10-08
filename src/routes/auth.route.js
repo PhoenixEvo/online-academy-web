@@ -15,6 +15,26 @@ r.post(
   })
 );
 
+// Google OAuth: capture desired role then start auth
+r.get("/google", (req, res, next) => {
+  const desiredRole = req.query.role;
+  if (desiredRole === "student" || desiredRole === "instructor") {
+    req.session.oauthDesiredRole = desiredRole;
+  } else {
+    req.session.oauthDesiredRole = "student";
+  }
+  next();
+}, passport.authenticate("google", { scope: ["profile", "email"], prompt: "select_account" }));
+
+r.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    successRedirect: "/",
+    failureRedirect: "/auth/login",
+    failureFlash: true,
+  })
+);
+
 // register
 r.get("/register", authCtrl.showRegister);
 r.post("/register", authCtrl.validateRegister, authCtrl.doRegister);

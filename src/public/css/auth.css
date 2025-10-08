@@ -78,6 +78,15 @@ body>form .inputGroup {
 	position: relative;
 }
 
+body>form .inputGroup3.or-divider {
+	margin: 7px 0;
+}
+
+body>form .inputGroup3.or-divider div {
+	margin: 0;
+}
+
+
 body>form .inputGroup:last-of-type {
 	margin-bottom: 0;
 }
@@ -379,7 +388,7 @@ body>form .inputGroup2 #showPasswordToggle input:disabled~.indicator:after {
 	accent-color: #4eb8dd;
 }
 
-.radioOption input[type="radio"]:checked + .radioLabel {
+.radioOption input[type="radio"]:checked+.radioLabel {
 	color: #217093;
 	font-weight: 600;
 }
@@ -398,7 +407,8 @@ body>form .inputGroup2 #showPasswordToggle input:disabled~.indicator:after {
 }
 
 /* Forgot Password and Back to Login Links */
-.forgotPassword, .backToLogin {
+.forgotPassword,
+.backToLogin {
 	display: block;
 	text-align: center;
 	color: #4eb8dd;
@@ -409,12 +419,14 @@ body>form .inputGroup2 #showPasswordToggle input:disabled~.indicator:after {
 	transition: color 0.2s ease, text-decoration 0.2s ease;
 }
 
-.forgotPassword:hover, .backToLogin:hover {
+.forgotPassword:hover,
+.backToLogin:hover {
 	color: #2a9fd6;
 	text-decoration: underline;
 }
 
-.forgotPassword:focus, .backToLogin:focus {
+.forgotPassword:focus,
+.backToLogin:focus {
 	outline: 2px solid #4eb8dd;
 	outline-offset: 2px;
 	border-radius: 4px;
