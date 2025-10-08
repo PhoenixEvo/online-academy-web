@@ -22,57 +22,6 @@
       </div>
     </section><!-- /About Section -->
 
-    <!-- Categories Section - Udemy Style -->
-    <section id="categories" class="categories section py-5" style="background-color: #f8f9fa;">
-      <div class="container">
-        <div class="row">
-          <div class="col-12">
-            <h2 class="h3 fw-bold mb-4"></h2>
-          </div>
-        </div>
-        <div class="row g-3">
-          {{#each categories}}
-          <div class="col-lg-3 col-md-4 col-sm-6" data-aos="fade-up" data-aos-delay="100">
-            <a href="/courses?category={{id}}" class="text-decoration-none">
-              <div class="category-card bg-white rounded p-4 h-100 shadow-sm border-0"
-                style="transition: all 0.3s ease;">
-                <div class="d-flex align-items-center">
-                  <div class="category-icon me-3"
-                    style="width: 48px; height: 48px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-code-slash text-white fs-4"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-1 fw-bold text-dark">{{name}}</h6>
-                    <small class="text-muted">{{course_count}} courses</small>
-                  </div>
-                </div>
-              </div>
-            </a>
-          </div>
-          {{#each children}}
-          <div class="col-lg-3 col-md-4 col-sm-6" data-aos="fade-up" data-aos-delay="200">
-            <a href="/courses?category={{id}}" class="text-decoration-none">
-              <div class="category-card bg-white rounded p-4 h-100 shadow-sm border-0"
-                style="transition: all 0.3s ease;">
-                <div class="d-flex align-items-center">
-                  <div class="category-icon me-3"
-                    style="width: 48px; height: 48px; background: linear-gradient(45deg, #ff6b6b, #ee5a24); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-laptop text-white fs-5"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-1 fw-bold text-dark">{{name}}</h6>
-                    <small class="text-muted">{{course_count}} courses</small>
-                  </div>
-                </div>
-              </div>
-            </a>
-          </div>
-          {{/each}}
-          {{/each}}
-        </div>
-      </div>
-    </section><!-- /Categories Section -->
-
     <!-- Featured Courses Section - Udemy Style -->
     <section id="featured-courses" class="featured-courses section py-5">
       <div class="container">
@@ -87,7 +36,10 @@
             <div class="course-card bg-white rounded shadow-sm border-0 h-100"
               style="transition: all 0.3s ease; overflow: hidden;">
               <div class="course-thumbnail position-relative">
-                <img src="{{thumbnail_url}}" class="img-fluid w-100" alt="{{title}}"
+                <img src="{{thumbnail_url}}"
+                  onerror="console.log('Error loading image:', this.src); this.src='/img/course/course-1.webp';"
+                  onload="console.log('Image loaded successfully:', this.src)" crossorigin="anonymous"
+                  referrerpolicy="no-referrer" class="img-fluid w-100" alt="{{title}}"
                   style="height: 200px; object-fit: cover;">
                 <div
                   class="course-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
@@ -148,7 +100,8 @@
           {{#each newest}}
           <div class="col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="zoom-in" data-aos-delay="100">
             <div class="course-item">
-              <img src="{{thumbnail_url}}" class="img-fluid" alt="{{title}}">
+              <img src="{{thumbnail_url}}" onerror="this.src='/img/course/course-1.webp';" class="img-fluid"
+                alt="{{title}}">
               <div class="course-content">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <p class="category">{{category_name}}</p>
