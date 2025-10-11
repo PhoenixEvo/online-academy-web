@@ -1,0 +1,217 @@
+<body class="course-search-page">
+
+    <main class="main">
+
+        <!-- Search Hero Section -->
+        <div class="page-title section light-background">
+            <div class="container">
+                <h1 data-aos="fade-up" data-aos-delay="100">Tìm kiếm khóa học</h1>
+                <p data-aos="fade-up" data-aos-delay="200">
+                    {{#if currentSearch}}
+                    Kết quả tìm kiếm cho "{{currentSearch}}"
+                    {{else}}
+                    Tìm kiếm khóa học phù hợp với bạn
+                    {{/if}}
+                </p>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <section class="courses section">
+            <div class="container">
+
+                <!-- Search Form -->
+                <div class="row mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="col-12">
+                        <form method="GET" class="search-form">
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" name="q" class="form-control form-control-lg"
+                                            placeholder="Nhập từ khóa tìm kiếm..." value="{{currentSearch}}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select name="category" class="form-select form-select-lg">
+                                        <option value="">Tất cả lĩnh vực</option>
+                                        {{#each categories}}
+                                        <option value="{{id}}" {{#if (eq id ../currentCategory)}}selected{{/if}}>
+                                            {{name}}</option>
+                                        {{#each children}}
+                                        <option value="{{id}}" {{#if (eq id ../../currentCategory)}}selected{{/if}}>
+                                            &nbsp;&nbsp;{{name}}</option>
+                                        {{/each}}
+                                        {{/each}}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="sort" class="form-select form-select-lg">
+                                        <option value="rating_desc" {{#if (eq currentSort "rating_desc"
+                                            )}}selected{{/if}}>Đánh giá cao</option>
+                                        <option value="price_asc" {{#if (eq currentSort "price_asc" )}}selected{{/if}}>
+                                            Giá thấp</option>
+                                        <option value="newest" {{#if (eq currentSort "newest" )}}selected{{/if}}>Mới
+                                            nhất</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="bi bi-search me-2"></i>Tìm kiếm
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Search Results Info -->
+                <div class="row mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="text-muted mb-0">
+                                {{#if currentSearch}}
+                                Tìm thấy {{courses.length}} khóa học cho "{{currentSearch}}"
+                                {{else}}
+                                Hiển thị {{courses.length}} khóa học
+                                {{/if}}
+                            </p>
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted me-2">Sắp xếp theo:</span>
+                                <div class="btn-group" role="group">
+                                    <a href="{{baseUrl}}sort=rating_desc"
+                                        class="btn btn-outline-secondary btn-sm {{#if (eq currentSort "
+                                        rating_desc")}}active{{/if}}">
+                                        Đánh giá
+                                    </a>
+                                    <a href="{{baseUrl}}sort=price_asc"
+                                        class="btn btn-outline-secondary btn-sm {{#if (eq currentSort "
+                                        price_asc")}}active{{/if}}">
+                                        Giá
+                                    </a>
+                                    <a href="{{baseUrl}}sort=newest"
+                                        class="btn btn-outline-secondary btn-sm {{#if (eq currentSort "
+                                        newest")}}active{{/if}}">
+                                        Mới nhất
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div class="row">
+                    {{#each courses}}
+                    <div class="col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="course-item">
+                            <img src="{{thumbnail_url}}" class="img-fluid" alt="{{title}}">
+                            <div class="course-content">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <p class="category">{{category_name}}</p>
+                                    <p class="price">
+                                        {{#if sale_price}}
+                                        <span class="text-decoration-line-through text-muted">{{formatPrice
+                                            price}}đ</span>
+                                        <span class="text-danger fw-bold">{{formatPrice sale_price}}đ</span>
+                                        {{else}}
+                                        {{formatPrice price}}đ
+                                        {{/if}}
+                                    </p>
+                                </div>
+
+                                <h3><a href="/courses/{{id}}">{{title}}</a></h3>
+                                <p class="description">{{short_desc}}</p>
+
+                                <div class="course-meta mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="rating me-3">
+                                            {{#range 1 5}}
+                                            <i
+                                                class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning"></i>
+                                            {{/range}}
+                                            <span class="ms-1">{{rating_avg}} ({{rating_count}} đánh giá)</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-eye me-1"></i>
+                                        <span class="me-3">{{views}} lượt xem</span>
+                                        <i class="bi bi-person me-1"></i>
+                                        <span>{{instructor_name}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="trainer d-flex justify-content-between align-items-center">
+                                    <div class="trainer-profile d-flex align-items-center">
+                                        <img src="/img/person/person-m-7.webp" class="img-fluid rounded-circle me-2"
+                                            alt="{{instructor_name}}" style="width: 30px; height: 30px;">
+                                        <a href="#" class="trainer-link">{{instructor_name}}</a>
+                                    </div>
+                                    <a href="/courses/{{id}}" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-search display-1 text-muted"></i>
+                        <h3 class="mt-3">Không tìm thấy khóa học nào</h3>
+                        <p class="text-muted mb-4">
+                            {{#if currentSearch}}
+                            Không có kết quả nào cho "{{currentSearch}}". Hãy thử với từ khóa khác.
+                            {{else}}
+                            Hãy nhập từ khóa tìm kiếm để tìm khóa học phù hợp.
+                            {{/if}}
+                        </p>
+                        <a href="/courses" class="btn btn-primary">Xem tất cả khóa học</a>
+                    </div>
+                    {{/each}}
+                </div>
+
+                <!-- Pagination -->
+                {{#if (gt totalPages 1)}}
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <nav aria-label="Search pagination">
+                            <ul class="pagination justify-content-center">
+                                {{#if (gt page 1)}}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{baseUrl}}page={{decrement page}}">Trước</a>
+                                </li>
+                                {{/if}}
+
+                                {{#range 1 totalPages}}
+                                {{#if (or (eq this 1) (eq this ../totalPages) (and (gte this (subtract ../page 2)) (lte
+                                this (add ../page 2))))}}
+                                <li class="page-item {{#if (eq this ../page)}}active{{/if}}">
+                                    <a class="page-link" href="{{../baseUrl}}page={{this}}">{{this}}</a>
+                                </li>
+                                {{else if (or (eq this 2) (eq this (subtract ../totalPages 1)))}}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {{/if}}
+                                {{/range}}
+
+                                {{#if (lt page totalPages)}}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{baseUrl}}page={{increment page}}">Sau</a>
+                                </li>
+                                {{/if}}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {{/if}}
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
+
+</body>

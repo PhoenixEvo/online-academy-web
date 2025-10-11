@@ -1,0 +1,229 @@
+<body class="course-list-page">
+
+    <main class="main">
+
+        <!-- Page Title - Udemy Style -->
+        <div class="page-title section" style="background-color: #f8f9fa; padding: 2rem 0;">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="h2 fw-bold mb-2" data-aos="fade-up" data-aos-delay="100">All courses</h1>
+                        <p class="text-muted mb-0" data-aos="fade-up" data-aos-delay="200">Discover courses from our
+                            expert instructors</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <div class="d-flex align-items-center justify-content-lg-end">
+                            <span class="text-muted me-3">{{courses.length}} courses</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses Section -->
+        <section class="courses section py-5">
+            <div class="container">
+
+                <!-- Filters - Udemy Style -->
+                <div class="row mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="col-12">
+                        <form method="GET" class="row g-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" name="search" class="form-control"
+                                        placeholder="Search courses..." value="{{currentSearch}}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="category" class="form-select">
+                                    <option value="">All categories</option>
+                                    {{#each categories}}
+                                    <option value="{{id}}" {{#if (eq id ../currentCategory)}}selected{{/if}}>{{name}}
+                                    </option>
+                                    {{#each children}}
+                                    <option value="{{id}}" {{#if (eq id ../../currentCategory)}}selected{{/if}}>
+                                        &nbsp;&nbsp;{{name}}</option>
+                                    {{/each}}
+                                    {{/each}}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="sort" class="form-select">
+                                    <option value="rating_desc" {{#if (eq currentSort "rating_desc" )}}selected{{/if}}>
+                                        Highest rated</option>
+                                    <option value="price_asc" {{#if (eq currentSort "price_asc" )}}selected{{/if}}>
+                                        Lowest price</option>
+                                    <option value="newest" {{#if (eq currentSort "newest" )}}selected{{/if}}>Newest
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search me-1"></i>Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Results Info -->
+                <div class="row mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="text-muted mb-0">
+                                {{#if currentSearch}}
+                                {{courses.length}} results for "{{currentSearch}}"
+                                {{else}}
+                                {{courses.length}} courses available
+                                {{/if}}
+                            </p>
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted me-2">Sort by:</span>
+                                <div class="btn-group" role="group">
+                                    <a href="{{baseUrl}}sort=rating_desc"
+                                        class="btn btn-outline-secondary btn-sm {{#if (eq currentSort "
+                                        rating_desc")}}active{{/if}}">
+                                        Rating
+                                    </a>
+                                    <a href="{{baseUrl}}sort=price_asc"
+                                        class="btn btn-outline-secondary btn-sm {{#if (eq currentSort "
+                                        price_asc")}}active{{/if}}">
+                                        Price
+                                    </a>
+                                    <a href="{{baseUrl}}sort=newest"
+                                        class="btn btn-outline-secondary btn-sm {{#if (eq currentSort "
+                                        newest")}}active{{/if}}">
+                                        Newest
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Courses Grid - Udemy Style -->
+                <div class="row g-4">
+                    {{#each courses}}
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                        <div class="course-card bg-white rounded shadow-sm border-0 h-100"
+                            style="transition: all 0.3s ease; overflow: hidden;">
+                            <div class="course-thumbnail position-relative">
+                                <img src="{{thumbnail_url}}" class="img-fluid w-100" alt="{{title}}"
+                                    style="height: 200px; object-fit: cover;">
+                                <div class="course-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                                    style="background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s ease;">
+                                    <a href="/courses/{{id}}" class="btn btn-warning btn-sm">View Course</a>
+                                </div>
+                                {{#if sale_price}}
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-danger">Sale</span>
+                                </div>
+                                {{/if}}
+                            </div>
+                            <div class="course-content p-3">
+                                <h6 class="course-title fw-bold mb-2"
+                                    style="font-size: 0.9rem; line-height: 1.3; height: 2.6rem; overflow: hidden;">
+                                    <a href="/courses/{{id}}" class="text-decoration-none text-dark">{{title}}</a>
+                                </h6>
+                                <p class="course-instructor text-muted small mb-2">{{instructor_name}}</p>
+                                <div class="course-rating d-flex align-items-center mb-2">
+                                    <div class="rating me-2">
+                                        {{#range 1 5}}
+                                        <i class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning"
+                                            style="font-size: 0.8rem;"></i>
+                                        {{/range}}
+                                    </div>
+                                    <span class="text-muted small">{{rating_avg}} ({{rating_count}})</span>
+                                </div>
+                                <div class="course-price d-flex align-items-center justify-content-between">
+                                    <div>
+                                        {{#if sale_price}}
+                                        <span class="h6 text-dark fw-bold mb-0">{{formatPrice sale_price}}đ</span>
+                                        <span class="text-decoration-line-through text-muted small ms-2">{{formatPrice
+                                            price}}đ</span>
+                                        {{else}}
+                                        <span class="h6 text-dark fw-bold mb-0">{{formatPrice price}}đ</span>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                                <div class="course-meta mt-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-eye me-1"></i>{{views}} views
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-search display-1 text-muted"></i>
+                        <h3 class="mt-3">No courses found</h3>
+                        <p class="text-muted">Try adjusting your search or filter criteria</p>
+                        <a href="/courses" class="btn btn-primary">Browse all courses</a>
+                    </div>
+                    {{/each}}
+                </div>
+
+                <!-- Pagination -->
+                {{#if (gt totalPages 1)}}
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <nav aria-label="Course pagination">
+                            <ul class="pagination justify-content-center">
+                                {{#if (gt page 1)}}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{baseUrl}}page={{decrement page}}">Previous</a>
+                                </li>
+                                {{/if}}
+
+                                {{#range 1 totalPages}}
+                                {{#if (or (eq this 1) (eq this ../totalPages) (and (gte this (subtract ../page 2)) (lte
+                                this (add ../page 2))))}}
+                                <li class="page-item {{#if (eq this ../page)}}active{{/if}}">
+                                    <a class="page-link" href="{{../baseUrl}}page={{this}}">{{this}}</a>
+                                </li>
+                                {{else if (or (eq this 2) (eq this (subtract ../totalPages 1)))}}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {{/if}}
+                                {{/range}}
+
+                                {{#if (lt page totalPages)}}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{baseUrl}}page={{increment page}}">Next</a>
+                                </li>
+                                {{/if}}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {{/if}}
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
+
+    <style>
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .course-card:hover .course-overlay {
+            opacity: 1 !important;
+        }
+
+        .course-title a:hover {
+            color: #5624d0 !important;
+        }
+    </style>
+
+</body>
