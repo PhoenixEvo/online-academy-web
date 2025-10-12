@@ -1,0 +1,81 @@
+<main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title" data-aos="fade">
+
+        <nav class="breadcrumbs">
+            <div class="container">
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li class="current">Courses</li>
+                </ol>
+            </div>
+        </nav>
+
+        <div class="heading">
+            <div class="container">
+                <div class="row d-flex justify-content-center text-center">
+                    <div class="col-lg-8">
+                        <h1>Watchlist</h1>
+                        <p class="mb-0">
+                            Save your favorite courses and revisit them anytime!
+                            Manage all your saved courses conveniently in one place.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- End Page Title -->
+
+
+    <!-- Courses Section -->
+    <section id="courses" class="courses section">
+
+        <div class="container">
+
+            <div class="row">
+                {{#if courses.length}}
+                {{#each courses}}
+                <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0" data-aos="zoom-in"
+                    data-aos-delay="300">
+                    <div class="course-item">
+                        <form action="/watchlist/remove/{{this.id}}" method="POST" class="remove-btn-form">
+                            <button type="submit" class="remove-btn" title="Remove from watchlist">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </form>
+
+                        <img src="{{this.thumbnail_url}}" class="img-fluid" alt="">
+                        <div class="course-content">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <p class="category">{{this.category}}</p>
+                                <p class="price">${{this.price}}</p>
+                            </div>
+
+                            <h3><a href="">{{this.title}}</a></h3>
+                            <p class="description">{{this.short_desc}}</p>
+                            <div class="instructor d-flex justify-content-between align-items-center">
+                                <div class="instructor-profile d-flex align-items-center">
+                                    <img src="{{this.instructor.image_50x50}}" class="img-fluid" alt="">
+                                    <a href="" class="instructor-link">{{this.instructor.name}}</a>
+                                </div>
+                                <div class="instructor-rank d-flex align-items-center">
+                                    <i class="bi bi-star yellow-star-icon"></i>&nbsp;{{this.rating_avg}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> {{/each}}
+                {{else}}
+                <div class="col-12 text-center">
+                    <p>You haven't saved any courses yet.</p>
+                </div>
+                {{/if}}
+
+            </div>
+
+        </div>
+
+    </section><!-- /Courses Section -->
+
+</main>

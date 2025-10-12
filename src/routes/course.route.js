@@ -7,14 +7,16 @@ const r = Router();
 
 // Guest
 r.get("/", courseCtrl.list); // /courses?page=1&sort=rating_desc
-r.get("/:id(\\d+)", courseCtrl.detail); // /courses/123
+r.get("/watchlist", requireLogin, courseCtrl.showWatchlist);
+r.get("/:id", courseCtrl.detail); // /courses/123
 
 // Student actions
-r.post("/:id(\\d+)/watch", requireLogin, courseCtrl.addToWatchlist);
-r.delete("/:id(\\d+)/watch", requireLogin, courseCtrl.removeFromWatchlist);
-r.post("/:id(\\d+)/enroll", requireLogin, courseCtrl.enroll);
+
+r.post("/:id/watch", requireLogin, courseCtrl.addToWatchlist);
+r.delete("/:id/watch", requireLogin, courseCtrl.removeFromWatchlist);
+r.post("/:id/enroll", requireLogin, courseCtrl.enroll);
 
 // Reviews (only enrolled)
-r.post("/:id(\\d+)/reviews", requireLogin, courseCtrl.createReview);
+r.post("/:id/reviews", requireLogin, courseCtrl.createReview);
 
 export default r;

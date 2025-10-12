@@ -802,7 +802,7 @@ h6 {
 }
 
 .page-title .heading {
-  padding: 80px 0;
+  padding: 20px 0;
   border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
 }
 
@@ -847,7 +847,7 @@ section,
 .section {
   color: var(--default-color);
   background-color: var(--background-color);
-  padding: 60px 0;
+  padding: 20px 0;
   scroll-margin-top: 900px;
   overflow: clip;
 }
@@ -1188,8 +1188,10 @@ section,
 .courses .course-item {
   background-color: var(--surface-color);
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
-  border-radius: 5px;
+  border-radius: 10px;
+  position: relative;
 }
+
 
 .courses .course-content {
   padding: 15px;
@@ -2455,6 +2457,50 @@ body {
   display: block !important;
 }
 
+.remove-btn-form {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+.remove-btn {
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d; /* xám nhạt */
+  font-size: 16px;
+  transition: all 0.25s ease;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 0, 0, 0.85);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Chỉ hiện khi hover card */
+.remove-btn-form {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.course-item:hover .remove-btn-form {
+  opacity: 1;
+}
+
+/* Ảnh */
+.course-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px 10px 0 0;
+}
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/

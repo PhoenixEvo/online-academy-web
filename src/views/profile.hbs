@@ -1,221 +1,108 @@
-<!-- ======= Page Title ======= -->
-<div class="page-title">
-  <div class="heading">
-    <div class="container">
-      <h1>Profile Settings</h1>
-      <p>Manage your personal information and account settings</p>
-    </div>
-  </div>
-</div><!-- End Page Title -->
+<main class="main">
+  <!-- Page Title -->
+  <div class="page-title" data-aos="fade">
 
-<!-- ======= Profile Section ======= -->
-<section id="profile" class="section profile">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <!-- Profile Information Card -->
-        <div class="card mb-4">
-          <div class="card-header">
-            <h4 class="mb-0">
-              <i class="bi bi-person-circle me-2"></i>
-              Personal Information
-            </h4>
+    <nav class="profile-breadcrumbs">
+      <div class="container d-flex justify-content-between align-items-center">
+        <ol>
+          <li><a href="/">Home</a></li>
+          <li class="current">Profile</li>
+        </ol>
+      </div>
+    </nav>
+
+    <div class="heading">
+      <div class="container">
+        <div class="row d-flex justify-content-center text-center">
+          <div class="col-lg-8">
+            <h1>Profile Settings</h1>
+            <p class="mb-0">
+              Update your profile information and manage your account settings.
+            </p>
           </div>
-          <div class="card-body">
-            
-            <!-- Display errors if any -->
-            {{#if errors}}
-              <div class="alert alert-danger">
-                <ul class="mb-0">
-                  {{#each errors}}
-                    <li>{{this.msg}}</li>
-                  {{/each}}
-                </ul>
-              </div>
-            {{/if}}
-            
-            {{#if error}}
-              <div class="alert alert-danger">
-                {{error}}
-              </div>
-            {{/if}}
+        </div>
+      </div>
+    </div>
+  </div><!-- End Page Title -->
 
-            <!-- Profile Update Form -->
-            <form action="/profile/update" method="POST" class="needs-validation" novalidate>
-              <input type="hidden" name="_csrf" value="{{csrfToken}}">
-              
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                  <input 
-                    type="text" 
-                    class="form-control" 
-                    id="name" 
-                    name="name" 
-                    value="{{#if values.name}}{{values.name}}{{else}}{{user.name}}{{/if}}"
-                    required
-                  >
-                  <div class="invalid-feedback">
-                    Please provide a valid name (2-50 characters).
-                  </div>
-                </div>
-                
-                <div class="col-md-6 mb-3">
-                  <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                  <input 
-                    type="email" 
-                    class="form-control" 
-                    id="email" 
-                    name="email" 
-                    value="{{#if values.email}}{{values.email}}{{else}}{{user.email}}{{/if}}"
-                    required
-                  >
-                  <div class="invalid-feedback">
-                    Please provide a valid email address.
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="role" class="form-label">Account Type</label>
-                  <input 
-                    type="text" 
-                    class="form-control" 
-                    id="role" 
-                    value="{{user.role}}"
-                    readonly
-                  >
-                  <small class="form-text text-muted">
-                    Account type cannot be changed
-                  </small>
-                </div>
-                
-                <div class="col-md-6 mb-3">
-                  <label for="created_at" class="form-label">Member Since</label>
-                  <input 
-                    type="text" 
-                    class="form-control" 
-                    id="created_at" 
-                    value="{{formatDate user.created_at}}"
-                    readonly
-                  >
-                </div>
-              </div>
-
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" class="btn btn-primary">
-                  <i class="bi bi-check-circle me-2"></i>
-                  Update Profile
-                </button>
-              </div>
-            </form>
+  <section class="section profile">
+    <div class="container" data-aos="fade-up">
+      <div class="row">
+        <!-- Left column -->
+        <div class="col-12 col-md-4">
+          <div class="card">
+            <div class="card-body text-center">
+              <img src="img/person/{{avatar_url}}" alt="Profile" class="rounded-circle mb-3" width="120">
+              <h4>{{user.name}}</h4>
+            </div>
           </div>
         </div>
 
-        <!-- Change Password Card -->
-        <div class="card">
-          <div class="card-header">
-            <h4 class="mb-0">
-              <i class="bi bi-shield-lock me-2"></i>
-              Change Password
-            </h4>
-          </div>
-          <div class="card-body">
-            
-            <!-- Display password errors if any -->
-            {{#if passwordErrors}}
-              <div class="alert alert-danger">
-                <ul class="mb-0">
-                  {{#each passwordErrors}}
-                    <li>{{this.msg}}</li>
-                  {{/each}}
-                </ul>
-              </div>
-            {{/if}}
-            
-            {{#if passwordError}}
-              <div class="alert alert-danger">
-                {{passwordError}}
-              </div>
-            {{/if}}
+        <!-- Right column -->
+        <div class="col-12 col-md-8">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title text-center">Profile Details</h5>
+              <p class="text-center">Add information about yourself</p>
 
-            <!-- Password Change Form -->
-            <form action="/profile/change-password" method="POST" class="needs-validation" novalidate>
-              <input type="hidden" name="_csrf" value="{{csrfToken}}">
-              
-              <div class="mb-3">
-                <label for="currentPassword" class="form-label">Current Password <span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <input 
-                    type="password" 
-                    class="form-control" 
-                    id="currentPassword" 
-                    name="currentPassword" 
-                    required
-                  >
-                  <button type="button" class="btn btn-outline-secondary toggle-password" data-target="currentPassword" aria-label="Show password">
-                    <i class="bi bi-eye"></i>
-                  </button>
+              <form>
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label">Full Name</label>
+                  <div class="col-md-8 col-lg-9">
+                    <input name="fullName" type="text" class="form-control" value="{{user.name}}">
+                  </div>
                 </div>
-                <div class="invalid-feedback">
-                  Please enter your current password.
-                </div>
-              </div>
 
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="newPassword" class="form-label">New Password <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                  <input 
-                    type="password" 
-                    class="form-control" 
-                    id="newPassword" 
-                    name="newPassword" 
-                    minlength="8"
-                    required
-                  >
-                    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="newPassword" aria-label="Show password">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                  </div>
-                  <div class="invalid-feedback">
-                    Password must be at least 6 characters long.
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label">Email</label>
+                  <div class="col-md-8 col-lg-9">
+                    <input name="email" type="email" class="form-control" value="{{user.email}}">
                   </div>
                 </div>
-                
-                <div class="col-md-6 mb-3">
-                  <label for="confirmPassword" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                  <input 
-                    type="password" 
-                    class="form-control" 
-                    id="confirmPassword" 
-                    name="confirmPassword" 
-                    minlength="8"
-                    required
-                  >
-                    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="confirmPassword" aria-label="Show password">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                  </div>
-                  <div class="invalid-feedback">
-                    Passwords must match.
+                <div class="row mb-3">
+                  <div class="col-md-8 offset-md-4 col-lg-9 offset-lg-3 text-start">
+                    <button type="submit" class="btn btn-success px-4">Save Changes</button>
                   </div>
                 </div>
-              </div>
+              </form>
 
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" class="btn btn-warning">
-                  <i class="bi bi-key me-2"></i>
-                  Change Password
-                </button>
-              </div>
-            </form>
+              <hr class="my-4">
+
+              <h5 class="card-title">Change Password</h5>
+              <form>
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label">Current Password</label>
+                  <div class="col-md-8 col-lg-9">
+                    <input name="currentPassword" type="password" class="form-control">
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label">New Password</label>
+                  <div class="col-md-8 col-lg-9">
+                    <input name="newPassword" type="password" class="form-control">
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label">Confirm New Password</label>
+                  <div class="col-md-8 col-lg-9">
+                    <input name="confirmPassword" type="password" class="form-control">
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-8 offset-md-4 col-lg-9 offset-lg-3 text-start">
+                    <button type="submit" class="btn btn-warning px-4">Change Password</button>
+                  </div>
+                </div>
+              </form>
+
+            </div>
           </div>
         </div>
 
       </div>
     </div>
-  </div>
-</section><!-- End Profile Section -->
+  </section>
+</main>

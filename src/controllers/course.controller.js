@@ -1,9 +1,8 @@
 // Change if needed to fit the project
 import { validationResult, query, body, param } from "express-validator";
 import * as Course from "../models/course.model.js";
-import * as Review from "../models/review.model.js";
-import * as Watchlist from "../models/watchlist.model.js";
-import * as Enrollment from "../models/enrollment.model.js";
+// import * as Review from "../models/review.model.js";
+// import * as Enrollment from "../models/enrollment.model.js";
 
 function buildBaseUrl(req) {
   const q = new URLSearchParams(req.query);
@@ -147,6 +146,22 @@ export async function createReview(req, res, next) {
     await Course.updateRatingStats(courseId);
 
     res.redirect("/courses/" + courseId + "#reviews");
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /courses/watchlist
+export async function showWatchlist(req, res, next) {
+  try {
+    const userId = req.user.id;
+    // Gọi hàm trong model để lấy danh sách khóa học yêu thích của user
+    const courses = await Course.listWatchlistByUser(userId);
+
+    res.render("students/watchlist", {
+      title: "Danh sách yêu thích",
+      courses,
+    });
   } catch (e) {
     next(e);
   }
