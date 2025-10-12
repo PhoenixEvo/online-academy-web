@@ -3,18 +3,13 @@
     <main class="main">
 
         <!-- Page Title - Udemy Style -->
-        <div class="page-title section" style="background-color: #f8f9fa; padding: 2rem 0;">
+        <div class="page-title section" style="background-color: #247acf; padding: 2rem 0;">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-8">
                         <h1 class="h2 fw-bold mb-2" data-aos="fade-up" data-aos-delay="100">All courses</h1>
                         <p class="text-muted mb-0" data-aos="fade-up" data-aos-delay="200">Discover courses from our
                             expert instructors</p>
-                    </div>
-                    <div class="col-lg-4 text-lg-end">
-                        <div class="d-flex align-items-center justify-content-lg-end">
-                            <span class="text-muted me-3">{{courses.length}} courses</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -24,7 +19,7 @@
         <section class="courses section py-5">
             <div class="container">
 
-                <!-- Filters - Udemy Style -->
+                <!-- Filters -->
                 <div class="row mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="col-12">
                         <form method="GET" class="row g-3">
@@ -102,14 +97,14 @@
                     </div>
                 </div>
 
-                <!-- Courses Grid - Udemy Style -->
+                <!-- Courses Grid -->
                 <div class="row g-4">
                     {{#each courses}}
                     <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
                         <div class="course-card bg-white rounded shadow-sm border-0 h-100"
                             style="transition: all 0.3s ease; overflow: hidden;">
                             <div class="course-thumbnail position-relative">
-                                <img src="{{thumbnail_url}}" class="img-fluid w-100" alt="{{title}}"
+                                <img src="{{thumbnail_url}}" loading="lazy" class="img-fluid w-100" alt="{{title}}"
                                     style="height: 200px; object-fit: cover;">
                                 <div class="course-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
                                     style="background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s ease;">
@@ -167,63 +162,118 @@
 
                 <!-- Pagination -->
                 {{#if (gt totalPages 1)}}
-                <div class="row mt-5">
-                    <div class="col-12">
-                        <nav aria-label="Course pagination">
-                            <ul class="pagination justify-content-center">
-                                {{#if (gt page 1)}}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{baseUrl}}page={{decrement page}}">Previous</a>
-                                </li>
-                                {{/if}}
+                <nav aria-label="Page navigation" style="padding-top: 20px;">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous button -->
+                        <li class="page-item {{#if (eq page 1)}}disabled{{/if}}">
+                            <a class="page-link" href="{{baseUrl}}page={{decrement page}}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
 
-                                {{#range 1 totalPages}}
-                                {{#if (or (eq this 1) (eq this ../totalPages) (and (gte this (subtract ../page 2)) (lte
-                                this (add ../page 2))))}}
-                                <li class="page-item {{#if (eq this ../page)}}active{{/if}}">
-                                    <a class="page-link" href="{{../baseUrl}}page={{this}}">{{this}}</a>
-                                </li>
-                                {{else if (or (eq this 2) (eq this (subtract ../totalPages 1)))}}
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                                {{/if}}
-                                {{/range}}
+                        <!-- First page -->
+                        <li class="page-item {{#if (isAtPage page 1)}}active{{/if}}">
+                            <a class="page-link" href="{{baseUrl}}page=1">1</a>
+                        </li>
 
-                                {{#if (lt page totalPages)}}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{baseUrl}}page={{increment page}}">Next</a>
-                                </li>
-                                {{/if}}
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
+                        <!-- Page 2 -->
+                        <li class="page-item {{#if (isAtPage page 2)}}active{{/if}}">
+                            <a class="page-link" href="{{baseUrl}}page=2">2</a>
+                        </li>
+
+                        <!-- Page 3 -->
+                        <li class="page-item {{#if (isAtPage page 3)}}active{{/if}}">
+                            <a class="page-link" href="{{baseUrl}}page=3">3</a>
+                        </li>
+
+                        <!-- Show dots if more than 3 pages -->
+                        {{#if (gt totalPages 3)}}
+                        <li class="page-item disabled">
+                            <a class="page-link">...</a>
+                        </li>
+                        {{/if}}
+
+                        <!-- Last page -->
+                        {{#if (gt totalPages 3)}}
+                        <li class="page-item {{#if (isAtPage page totalPages)}}active{{/if}}">
+                            <a class="page-link" href="{{baseUrl}}page={{totalPages}}">{{totalPages}}</a>
+                        </li>
+                        {{/if}}
+
+                        <!-- Next button -->
+                        <li class="page-item {{#if (eq page totalPages)}}disabled{{/if}}">
+                            <a class="page-link" href="{{baseUrl}}page={{increment page}}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
                 {{/if}}
 
             </div>
         </section>
-
     </main>
-
     <!-- Scroll Top -->
     <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
         <i class="bi bi-arrow-up-short"></i>
     </a>
 
     <style>
+        .course-card {
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
         .course-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            transition: transform 0.3s ease;
         }
 
-        .course-card:hover .course-overlay {
-            opacity: 1 !important;
+        .pagination {
+            gap: 5px;
         }
 
-        .course-title a:hover {
-            color: #5624d0 !important;
+        .pagination .page-link {
+            width: 35px;
+            height: 35px;
+            padding: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            margin: 0 2px;
+            color: #0d6efd;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Active state - trang hiện tại */
+        .pagination .page-item.active .page-link {
+            z-index: 3;
+            color: #dc3545 !important;
+            /* Màu đỏ */
+            background-color: #fff;
+            /* Nền trắng */
+            border-color: #dc3545;
+            /* Viền đỏ */
+            font-weight: 700;
+            /* In đậm hơn */
+            box-shadow: none;
+            /* Bỏ bóng */
+        }
+
+        /* Hover effect */
+        .pagination .page-link:hover:not(.active) {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        /* Disabled state */
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            background-color: #fff;
+            border-color: #dee2e6;
+            opacity: 0.7;
         }
     </style>
-
 </body>

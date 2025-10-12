@@ -1,5 +1,6 @@
 // Change if needed to fit the project
 import { db } from "../models/db.js";
+import { getPopular } from "../models/category.model.js";
 
 // home page
 export async function home(req, res, next) {
@@ -35,9 +36,13 @@ export async function home(req, res, next) {
       thumbnail_url: transformImageUrl(course.thumbnail_url)
     }));
 
+    // Get popular categories
+    const popularCategories = await getPopular(6);
+
     res.render("home", {
       mostViewed: transformedMostViewed,
       newest: transformedNewest,
+      popularCategories: popularCategories,
       title: "Online Academy"
     });
   } catch (e) {
@@ -48,37 +53,4 @@ export async function home(req, res, next) {
 // about page
 export async function about(req, res, next) {
   res.render("about", { title: "About" });
-}
-
-// newsletter subscription
-export async function subscribeNewsletter(req, res, next) {
-  try {
-    const { email } = req.body;
-
-    // Basic email validation
-    if (!email || !email.includes('@')) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide a valid email address.'
-      });
-    }
-
-    // Here you can add database logic to store the email
-    // For now, we'll just log it and return success
-    console.log('Newsletter subscription:', email);
-
-    // You can add email to database here if you have a newsletter table
-    // await db('newsletter').insert({ email, subscribed_at: new Date() });
-
-    res.json({
-      success: true,
-      message: 'Thank you for subscribing to our newsletter!'
-    });
-  } catch (e) {
-    console.error('Newsletter subscription error:', e);
-    res.status(500).json({
-      success: false,
-      message: 'An error occurred, please try again!'
-    });
-  }
 }

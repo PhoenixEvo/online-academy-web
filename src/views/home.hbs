@@ -70,10 +70,7 @@
             <div class="course-card bg-white rounded shadow-sm border-0 h-100"
               style="transition: all 0.3s ease; overflow: hidden;">
               <div class="course-thumbnail position-relative">
-                <img src="{{thumbnail_url}}"
-                  onerror="console.log('Error loading image:', this.src); this.src='/img/course/course-1.webp';"
-                  onload="console.log('Image loaded successfully:', this.src)" crossorigin="anonymous"
-                  referrerpolicy="no-referrer" class="img-fluid w-100" alt="{{title}}"
+                <img src="{{thumbnail_url}}" referrerpolicy="no-referrer" class="img-fluid w-100" alt="{{title}}"
                   style="height: 200px; object-fit: cover;">
                 <div
                   class="course-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"

@@ -24,7 +24,15 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
 
     let query = db('courses')
         .select(
-            'courses.*',
+            'courses.id',
+            'courses.title',
+            'courses.short_desc',
+            'courses.price',
+            'courses.sale_price',
+            'courses.rating_avg',
+            'courses.rating_count',
+            'courses.views',
+            'courses.thumbnail_url',
             'users.name as instructor_name',
             'categories.name as category_name'
         )
@@ -60,15 +68,29 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
         default:
             query = query.orderBy('courses.rating_avg', 'desc');
     }
+    const countQuery = db('courses')
+        .where('courses.status', 'published');
 
-    // Get total count
-    const countQuery = query.clone().clearSelect().clearOrder().count('* as total');
-    const [{ total }] = await countQuery;
+    if (categoryId) {
+        countQuery.where('courses.category_id', categoryId);
+    }
 
-    // Get paginated results
-    const rows = await query.limit(pageSize).offset(offset);
+    if (search) {
+        countQuery.where(function () {
+            this.where('courses.title', 'ilike', `%${search}%`)
+                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
+                .orWhere('categories.name', 'ilike', `%${search}%`);
+        });
+    }
 
-    return { rows, total: parseInt(total) };
+    const [countResult, rows] = await Promise.all([
+        countQuery.count('* as total'),
+        query.limit(pageSize).offset(offset)
+    ]);
+
+    const total = parseInt(countResult[0].total);
+
+    return { rows, total };
 }
 
 // Get most viewed courses

@@ -1,12 +1,12 @@
-import { Router } from 'express';
+import express from 'express';
 import * as courseCtrl from '../controllers/course.controller.js';
 import { authGuard } from '../middlewares/authGuard.js';
 
-const r = Router();
+const r = express.Router();
 
 // Public routes (Guest access)
-r.get('/', courseCtrl.list);                    // GET /courses - List all courses
 r.get('/search', courseCtrl.search);            // GET /courses/search - Search courses
+r.get('/', courseCtrl.list);                    // GET /courses - List all courses
 r.get('/:id', courseCtrl.detail);               // GET /courses/:id - Course detail
 
 // Protected routes (Authenticated users only)
