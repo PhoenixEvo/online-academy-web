@@ -1,0 +1,27 @@
+<div class="container mt-4">
+  <h2 class="mb-3">Add New Category</h2>
+
+  <form action="/admins/categories/add" method="POST" class="p-3 border rounded bg-light">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+    <div class="mb-3">
+      <label class="form-label">Category Name</label>
+      <input type="text" class="form-control" name="name" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Parent Category (if any)</label>
+      <select class="form-select" name="parent_id">
+        <option value="">-- None --</option>
+        {{#each parentCategories}}
+          <option value="{{id}}">{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div class="text-end">
+      <a href="/admins/categories" class="btn btn-secondary">Back</a>
+      <button type="submit" class="btn btn-success">Add</button>
+    </div>
+  </form>
+</div>

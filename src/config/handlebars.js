@@ -9,6 +9,9 @@ export function setupHandlebars(app) {
         eq(a, b) {
           return a === b;
         },
+        ifCond(v1, v2, options) {
+    return v1 == v2 ? options.fn(this) : options.inverse(this);
+        },
         formatPrice(v) {
           try {
             return Number(v || 0).toLocaleString("vi-VN");
