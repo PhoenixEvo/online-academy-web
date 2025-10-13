@@ -44,7 +44,36 @@ export function setupHandlebars(app) {
             return 'N/A';
           }
         },
+        gt(a, b) {
+          return a > b;
+        },
+        lt(a, b) {
+          return a < b;
+        },
+        gte(a, b) {
+          return a >= b;
+        },
+        lte(a, b) {
+          return a <= b;
+        },
+
+        subtract(a, b) {
+          return Number(a) - Number(b);
+        },
+        add(a, b) {
+          return Number(a) + Number(b);
+        },
+        max(a, b) {
+          return Math.max(Number(a), Number(b));
+        },
+        min(a, b) {
+          return Math.min(Number(a), Number(b));
+        },
+        isAtPage(currentPage, pageNum) {
+          return parseInt(currentPage) === parseInt(pageNum);
+        },
       },
+
     })
   );
   app.set("view engine", "hbs");

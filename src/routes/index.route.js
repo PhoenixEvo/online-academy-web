@@ -9,7 +9,4 @@ r.get("/", homeCtrl.home);
 // about page
 r.get("/about", homeCtrl.about);
 
-// newsletter subscription
-r.post("/newsletter", homeCtrl.subscribeNewsletter);
-
 export default r;
