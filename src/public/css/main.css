@@ -2455,6 +2455,43 @@ body {
   display: block !important;
 }
 
+.remove-btn-form {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+.remove-btn {
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d; 
+  font-size: 16px;
+  transition: all 0.25s ease;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 0, 0, 0.85);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+
+.remove-btn-form {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.course-item:hover .remove-btn-form {
+  opacity: 1;
+}
+
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/

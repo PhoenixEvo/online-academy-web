@@ -1,0 +1,75 @@
+<main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title" data-aos="fade">
+
+        <nav class="breadcrumbs">
+            <div class="container">
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li class="current">Your Courses</li>
+                </ol>
+            </div>
+        </nav>
+
+        <div class="heading">
+            <div class="container">
+                <div class="row d-flex justify-content-center text-center">
+                    <div class="col-lg-8">
+                        <h1>Your Enrollments</h1>
+                        <p class="mb-0">
+                            View and manage all your enrolled courses.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- End Page Title -->
+
+
+    <!-- Courses Section -->
+    <section id="courses" class="courses section">
+
+        <div class="container">
+
+            <div class="row">
+                {{#if courses.length}}
+                {{#each courses}}
+                <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0" data-aos="zoom-in"
+                    data-aos-delay="300">
+                    <div class="course-item">
+                        <img src="{{Courses.thumbnail_url}}" class="img-fluid" alt="">
+                        <div class="course-content">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <p class="category">{{Courses.category}}</p>
+                                <p class="price">${{Courses.price}}</p>
+                            </div>
+
+                            <h3><a href="">{{Courses.title}}</a></h3>
+                            <p class="description">{{Courses.short_desc}}</p>
+                            <div class="instructor d-flex justify-content-between align-items-center">
+                                <div class="instructor-profile d-flex align-items-center">
+                                    <img src="{{Courses.instructor.image_50x50}}" class="img-fluid" alt="">
+                                    <a href="" class="instructor-link">{{Courses.instructor.name}}</a>
+                                </div>
+                                <div class="instructor-rank d-flex align-items-center">
+                                    <i class="bi bi-star yellow-star-icon"></i>&nbsp;{{Courses.rating_avg}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+                {{else}}
+                <div class="col-12">
+                    <p class="text-center">No courses found.</p>
+                </div>
+                {{/if}}
+
+            </div>
+
+        </div>
+
+    </section><!-- /Courses Section -->
+
+</main>
