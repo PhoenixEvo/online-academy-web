@@ -1,0 +1,19 @@
+<div class="container mt-4">
+  <h2>{{title}}</h2>
+  
+  <div class="row">
+    {{#each instructors}}
+    <div class="col-md-4 mb-4">
+      <div class="card instructor-card">
+        <img src="{{image_100x100}}" class="card-img-top" alt="{{display_name}}">
+        <div class="card-body">
+          <h5 class="card-title">{{display_name}}</h5>
+          <p class="card-text">{{job_title}}</p>
+          <p class="text-muted">{{user_name}}</p>
+          <a href="/instructors/{{user_id}}" class="btn btn-primary">Xem Profile</a>
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>

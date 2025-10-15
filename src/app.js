@@ -13,6 +13,7 @@ import { setupPassport } from './config/passport.js';
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
+import instructorRoute from './routes/instructor.route.js';
 //import courseRoute from './routes/course.route.js';
 
 
@@ -81,6 +82,9 @@ app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 //app.use('/courses', courseRoute);
+app.use('/instructors', instructorRoute);
+
+
 
 // 404 handler
 app.use((req, res) => {

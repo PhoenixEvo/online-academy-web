@@ -46,11 +46,29 @@ export async function up(knex) {
       t.string('thumbnail_url');
       t.timestamps(true, true);
     });
+
+    //new 
+    await knex.schema.createTable('instructors', t => {
+    t.increments('id').primary();
+    t.string('_class');
+    t.string('title');
+    t.string('name').notNullable();
+    t.string('display_name');
+    t.string('job_title');
+    t.string('image_50x50');
+    t.string('image_100x100');
+    t.string('initials');
+    t.string('url');
+    t.integer('user_id').unsigned().unique();
+    t.foreign('user_id').references('id').inTable('users');
+    t.timestamps(true, true);
+    });
   }
   
   export async function down(knex) {
     await knex.schema.dropTableIfExists('courses');
     await knex.schema.dropTableIfExists('categories');
     await knex.schema.dropTableIfExists('users');
+    await knex.schema.dropTableIfExists('instructors'); //new
   }
   
