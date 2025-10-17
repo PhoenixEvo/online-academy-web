@@ -118,3 +118,7 @@ app.use((err, req, res, next) => {
 // server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
+
+import studentRoutes from './routes/student.route.js';
+app.use('/students', studentRoutes);

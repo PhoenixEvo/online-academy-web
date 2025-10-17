@@ -8,3 +8,4 @@ Handlebars.registerHelper("format_number", (value) => {
 });
 
 export default Handlebars;
+export default Handlebars;

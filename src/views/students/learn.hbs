@@ -3,6 +3,8 @@
 <main class="main">
 
 <main class="main">
+<main class="main">
+
     <!-- Page Title -->
     <div class="page-title" data-aos="fade">
         <nav class="breadcrumbs">
@@ -10,6 +12,7 @@
                 <ol>
                     <li><a href="/">Home</a></li>
                     <li class="current">{{title}}</li>
+                    <li class="current">{{Course.title}}</li>
                 </ol>
             </div>
         </nav>
@@ -19,6 +22,7 @@
                 <div class="row d-flex justify-content-center text-center">
                     <div class="col-lg-8">
                         <h1>Learning Progress</h1>
+                        <h1>{{Course.title}}</h1>
                     </div>
                 </div>
             </div>
@@ -38,12 +42,15 @@
                     <div class="course-header mb-4">
                         <video id="lesson-video" class="w-100 rounded shadow" controls>
                             <source src="{{video_url}}" type="video/mp4">
+                            <source src="{{lesson.video_url}}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     </div>
 
                     <h2 class="fw-bold">{{title}}</h2>
                     <p class="text-muted">{{description}}</p>
+                    <h2 class="fw-bold">{{lesson.title}}</h2>
+                    <p class="text-muted">{{lesson.description}}</p>
 
                     <!-- Progress -->
                     <div class="mt-4">
