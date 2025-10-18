@@ -16,6 +16,7 @@ import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
 import courseRoute from './routes/course.route.js';
 import categoryRoute from './routes/category.route.js';
+//import courseRoute from './routes/course.route.js';
 import studentRoutes from './routes/student.route.js';
 
 const app = express();
@@ -89,7 +90,6 @@ app.use('/profile', profileRoute);
 app.use('/courses', courseRoute);
 app.use('/categories', categoryRoute);
 app.use('/students', studentRoutes);
-
 
 // 404 handler
 app.use((req, res) => {
