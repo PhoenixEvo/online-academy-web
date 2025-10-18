@@ -102,6 +102,7 @@ app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 // app.use('/courses', courseRoute);
+//app.use('/courses', courseRoute);
 app.use('/students', studentRoutes);
 
 // 404 handler

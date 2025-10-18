@@ -2535,6 +2535,31 @@ body {
   color: #c4960d;
 }
 
+.remove-btn-form {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+    opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.remove-btn {
+    background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: #b30000;
+}
+
+.course-item:hover .remove-btn-form {
+  opacity: 1;
+}
 /*--------------------------------------------------------------
 # Popular Categories Section
 --------------------------------------------------------------*/
