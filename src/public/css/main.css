@@ -1189,6 +1189,7 @@ section,
   background-color: var(--surface-color);
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
   border-radius: 5px;
+  position: relative;
 }
 
 .courses .course-content {
@@ -2455,6 +2456,31 @@ body {
   display: block !important;
 }
 
+.remove-btn-form {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+    opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.remove-btn {
+    background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: #b30000;
+}
+
+.course-item:hover .remove-btn-form {
+  opacity: 1;
+}
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
