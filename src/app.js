@@ -14,7 +14,7 @@ import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
 //import courseRoute from './routes/course.route.js';
-
+import studentRoutes from './routes/student.route.js';
 
 const app = express();
 
@@ -81,6 +81,7 @@ app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 //app.use('/courses', courseRoute);
+app.use('/students', studentRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -97,3 +98,4 @@ app.use((err, req, res, next) => {
 // server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
+
