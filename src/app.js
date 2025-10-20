@@ -16,8 +16,8 @@ import profileRoute from './routes/profile.route.js';
 //import courseRoute from './routes/course.route.js';
 import adminCategoryRoute from './routes/adminCategory.route.js';
 import { requireAdmin } from './middlewares/authGuard.js';
-
-
+import adminCoursesRouter from './routes/admincourse.route.js';
+import adminUserRouter from './routes/adminuser.route.js'; 
 const app = express();
 
 // helmet for website security
@@ -84,11 +84,12 @@ app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 //app.use('/courses', courseRoute);
 app.use('/admins/categories', requireAdmin, adminCategoryRoute);
+app.use('/admins/courses', adminCoursesRouter);
+app.use('/admins/users', requireAdmin, adminUserRouter);
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('404.hbs');
 });
-
 
 // error handler
 app.use((err, req, res, next) => {

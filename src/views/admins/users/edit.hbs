@@ -1,43 +1,67 @@
 <div class="admin-wrapper">
   <div class="admin-header">
     <h1 class="admin-title">
-      <i class="bi bi-pencil-square me-2"></i>Edit Category
+      <i class="bi bi-person-gear me-2"></i>Edit User
     </h1>
-    <a href="/admins/categories" class="btn-back">
+    <a href="/admins/users" class="btn-back">
       <i class="bi bi-arrow-left"></i> Back
     </a>
   </div>
 
   <div class="form-container">
-    <form action="/admins/categories/edit/{{category.id}}" method="POST">
+    <form action="/admins/users/{{editUser.id}}/update" method="POST">
       <input type="hidden" name="_csrf" value="{{csrfToken}}">
       
       <div class="form-group">
         <label class="form-label">
-          <i class="bi bi-tag"></i> Category Name
+          <i class="bi bi-person"></i> Name
         </label>
-        <input type="text" class="form-input" name="name" required 
-               value="{{category.name}}" placeholder="Enter category name...">
+        <input type="text" class="form-input" name="name" value="{{editUser.name}}" required placeholder="Enter name...">
       </div>
 
       <div class="form-group">
         <label class="form-label">
-          <i class="bi bi-folder2"></i> Parent Category
+          <i class="bi bi-envelope"></i> Email
         </label>
-        <select class="form-select" name="parent_id">
-          <option value="">-- Root Category --</option>
-          {{#each parentCategories}}
-          <option value="{{id}}" {{#ifCond id ../category.parent_id}}selected{{/ifCond}}>
-            {{name}}
-          </option>
-          {{/each}}
+        <input type="email" class="form-input" name="email" value="{{editUser.email}}" required placeholder="Enter email...">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-lock"></i> Password (Leave blank to keep current)
+        </label>
+        <input type="password" class="form-input" name="password" placeholder="••••••••">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-shield"></i> Role
+        </label>
+        <select class="form-select" name="role" required>
+          <option value="student" {{eq editUser.role 'student'}}>Student</option>
+          <option value="instructor" {{eq editUser.role 'instructor'}}>Instructor</option>
+          <option value="admin" {{eq editUser.role 'admin'}}>Admin</option>
         </select>
       </div>
 
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-image"></i> Avatar URL
+        </label>
+        <input type="url" class="form-input" name="avatar_url" value="{{editUser.avatar_url}}" placeholder="https://example.com/avatar.jpg">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-check-circle"></i> Verified
+        </label>
+        <input type="checkbox" name="is_verified" {{checked editUser.is_verified}}>
+      </div>
+
       <div class="form-actions">
-        <a href="/admins/categories" class="btn-secondary">Cancel</a>
+        <a href="/admins/users" class="btn-secondary">Cancel</a>
         <button type="submit" class="btn-primary">
-          <i class="bi bi-check-circle"></i> Update Category
+          <i class="bi bi-check-circle"></i> Update User
         </button>
       </div>
     </form>
@@ -78,6 +102,7 @@
 .form-input:focus, .form-select:focus { 
   border-color: var(--accent-color); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color), transparent 75%); 
 }
+.form-check { display: flex; align-items: center; gap: 10px; }
 .form-actions { display: flex; gap: 12px; justify-content: flex-end; }
 .btn-primary, .btn-secondary { 
   padding: 12px 24px; border-radius: 20px; 

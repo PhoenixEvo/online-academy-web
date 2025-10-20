@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}} | Mentor Online Academy</title>
+  <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <!-- Flash Messages -->
+    {{#if error}}
+      <div class="alert alert-danger alert-dismissible fade show mb-3">
+        {{error}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {{/if}}
+
+    {{#if success}}
+      <div class="alert alert-success alert-dismissible fade show mb-3">
+        {{success}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {{/if}}
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="stat-card primary">
+          <i class="bi bi-book"></i>
+          <div>
+            <h3>{{course.id}}</h3>
+            <p>ID Khóa Học</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card success">
+          <i class="bi bi-calendar-check"></i>
+          <div>
+            <h3>{{formatDate course.created_at}}</h3>
+            <p>Ngày Tạo</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card warning">
+          <i class="bi bi-eye"></i>
+          <div>
+            <h3>0</h3>
+            <p>Lượt Xem</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card info">
+          <i class="bi bi-people"></i>
+          <div>
+            <h3>0</h3>
+            <p>Học Viên</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="table-container">
+      <form action="/admins/courses/{{course.id}}?_method=PUT" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+        <div class="admin-table">
+          <div class="row g-0">
+            <!-- Title -->
+            <div class="col-md-6">
+              <div class="form-row">
+                <label class="form-label">
+                  <i class="bi bi-book me-2"></i>Tiêu đề
+                </label>
+                <input type="text" name="title" class="form-control admin-input" 
+                       value="{{course.title}}" required>
+              </div>
+            </div>
+
+            <!-- Category -->
+            <div class="col-md-6">
+              <div class="form-row">
+                <label class="form-label">
+                  <i class="bi bi-tags me-2"></i>Danh mục
+                </label>
+                <select name="category_id" class="form-control admin-select" required>
+                  <option value="">Chọn danh mục</option>
+                  {{#each categories}}
+                    <option value="{{id}}" {{selected course.category_id id}}>{{name}}</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="col-md-12">
+              <div class="form-row">
+                <label class="form-label">
+                  <i class="bi bi-card-text me-2"></i>Mô tả
+                </label>
+                <textarea name="description" class="form-control admin-textarea" rows="4" required>{{course.description}}</textarea>
+              </div>
+            </div>
+
+            <!-- Price -->
+            <div class="col-md-6">
+              <div class="form-row">
+                <label class="form-label">
+                  <i class="bi bi-currency-dollar me-2"></i>Giá
+                </label>
+                <input type="number" name="price" class="form-control admin-input" 
+                       value="{{course.price}}" min="0" step="0.01" required>
+              </div>
+            </div>
+
+            <!-- Duration -->
+            <div class="col-md-6">
+              <div class="form-row">
+                <label class="form-label">
+                  <i class="bi bi-clock me-2"></i>Thời lượng
+                </label>
+                <input type="number" name="duration" class="form-control admin-input" 
+                       value="{{course.duration}}" min="1" required>
+                <small class="form-text">Giờ</small>
+              </div>
+            </div>
+
+            <!-- Image -->
+            <div class="col-md-12">
+              <div class="form-row">
+                <label class="form-label">
+                  <i class="bi bi-image me-2"></i>Hình ảnh
+                </label>
+                <input type="file" name="image" class="form-control admin-input" accept="image/*">
+                {{#if course.image}}
+                  <div class="mt-2">
+                    <img src="/uploads/courses/{{course.image}}" alt="{{course.title}}" 
+                         class="img-thumbnail" style="max-width: 100px; border-radius: 8px;">
+                  </div>
+                {{/if}}
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-12">
+              <div class="form-row">
+                <label class="form-label">
+                  <i class="bi bi-toggle-on me-2"></i>Trạng thái
+                </label>
+                <select name="status" class="form-control admin-select">
+                  <option value="active" {{selected course.status "active"}}>Hoạt động</option>
+                  <option value="inactive" {{selected course.status "inactive"}}>Không hoạt động</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4">
+          <button type="submit" class="btn-action save me-3">
+            <i class="bi bi-check-circle me-2"></i>Cập nhật
+          </button>
+          <a href="/admins/courses" class="btn-action cancel">
+            <i class="bi bi-x-circle me-2"></i>Hủy
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {{> footer}}
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<style>
+.admin-wrapper { padding: 20px 0; }
+.admin-header { 
+  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
+  color: var(--contrast-color); padding: 15px 20px; 
+  border-radius: 12px; margin-bottom: 20px; 
+  display: flex; justify-content: space-between; align-items: center;
+}
+.admin-title { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--contrast-color); }
+
+/* Stats Cards */
+.stat-card { 
+  background: var(--surface-color); padding: 15px; 
+  border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); 
+  display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+}
+.stat-card.primary i { color: var(--accent-color); }
+.stat-card.success i { color: #28a745; }
+.stat-card.warning i { color: #ffc107; }
+.stat-card.info i { color: #17a2b8; }
+.stat-card h3 { margin: 0; font-size: 1.5rem; color: var(--heading-color); }
+.stat-card p { margin: 0; color: var(--default-color); font-size: 0.9rem; }
+
+/* Form Styling */
+.table-container { 
+  background: var(--surface-color); border-radius: 12px; 
+  overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+  padding: 20px;
+}
+.form-row { margin-bottom: 20px; }
+.form-label { 
+  font-weight: 600; color: var(--heading-color); 
+  margin-bottom: 8px; display: block; font-size: 0.95rem;
+}
+.admin-input, .admin-select, .admin-textarea {
+  border: 2px solid color-mix(in srgb, var(--default-color), transparent 80%);
+  border-radius: 8px; padding: 12px 15px;
+  transition: all 0.3s; font-size: 0.95rem;
+}
+.admin-input:focus, .admin-select:focus, .admin-textarea:focus {
+  border-color: var(--accent-color); box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 90%);
+}
+.form-text { color: color-mix(in srgb, var(--default-color), transparent 40%); }
+
+/* Buttons */
+.btn-action.save { background: #28a745; color: white; font-weight: 600; }
+.btn-action.save:hover { background: #218838; transform: scale(1.05); }
+.btn-action.cancel { background: #6c757d; color: white; font-weight: 600; }
+.btn-action.cancel:hover { background: #545b62; transform: scale(1.05); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-header { flex-direction: column; gap: 10px; text-align: center; padding: 12px; }
+  .col-md-3 { margin-bottom: 15px; }
+  .form-row { margin-bottom: 15px; }
+}
+</style>

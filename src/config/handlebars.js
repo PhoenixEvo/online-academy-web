@@ -47,9 +47,16 @@ export function setupHandlebars(app) {
             return 'N/A';
           }
         },
+        checked(value, test) {
+          return value === test ? 'checked' : '';
+        },
+          selected(value, optionValue) {
+    return value == optionValue ? 'selected' : '';
+  }
       },
     })
   );
+  
   app.set("view engine", "hbs");
   app.set("views", "src/views");
 }

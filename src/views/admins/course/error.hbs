@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lỗi - Online Academy</title>
+  <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <h1>Lỗi</h1>
+    <div class="alert alert-danger">{{message}}</div>
+    <a href="/admins/courses" class="btn btn-secondary">Quay lại</a>
+  </div>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<style>
+.admin-wrapper { padding: 20px 0; }
+.admin-header { 
+  color: var(--contrast-color); padding: 15px 20px; 
+  border-radius: 12px; margin-bottom: 20px; 
+  display: flex; justify-content: space-between; align-items: center;
+}
+.admin-title { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--contrast-color); }
+.stat-card { 
+  background: var(--surface-color); padding: 15px; 
+  border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); 
+  display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+}
+.stat-card.danger i { color: #dc3545; }
+.stat-card.warning i { color: #ffc107; }
+.stat-card h3 { margin: 0; font-size: 1.5rem; color: var(--heading-color); }
+.stat-card p { margin: 0; color: var(--default-color); font-size: 0.9rem; }
+.table-container { 
+  background: var(--surface-color); border-radius: 12px; 
+  overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+}
+.admin-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.admin-table th { 
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); 
+  padding: 12px 10px; text-align: left; font-weight: 600; color: var(--heading-color); 
+  font-size: 0.9rem; width: 15%; 
+}
+.admin-table td { 
+  padding: 12px 10px; border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%); 
+  font-size: 0.9rem; vertical-align: middle; 
+}
+.table-row:hover { background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); }
+.id { font-weight: 600; color: color-mix(in srgb, var(--default-color), transparent 50%); width: 15%; }
+.name { width: 60%; } 
+.date { width: 25%; }
+.description { width: 100%; }
+.btn-action { 
+  border-radius: 50%; margin: 0 2px; font-size: 0.9rem; 
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--contrast-color); text-decoration: none; transition: all 0.3s;
+}
+.btn-action.edit { background: var(--accent-color); }
+.btn-action.edit:hover { background: color-mix(in srgb, var(--accent-color), black 20%); transform: scale(1.05); }
+.btn-action.delete { background: #dc3545; }
+.btn-action.delete:hover { background: #c82333; transform: scale(1.05); }
+.btn-action.primary { background: var(--accent-color) !important; }
+@media (max-width: 768px) {
+  .admin-header { flex-direction: column; gap: 10px; text-align: center; padding: 12px; }
+  .col-md-6 { margin-bottom: 15px; }
+}
+</style>
