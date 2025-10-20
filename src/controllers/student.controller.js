@@ -10,6 +10,7 @@ export async function listWatchlist(req, res) {
 import { showCourses, getPagedCourses } from "../models/student.model.js";
 import "../helpers/hbs.helpers.js";
 // import { getPageData } from "../helpers/mockData.js";
+import { getPageData } from "../helpers/mockData.js";
 import { findCoursesByStudentId } from "../models/student.model.js";
 import Handlebars from "handlebars";
 
@@ -30,8 +31,13 @@ export const getProfilePage = (req, res) => {
 export async function getEnrolledCourses(req, res) {
     try {
         const studentId = req.user.id;
-        const courses = await findCoursesByStudentId(studentId);
-        const courseList = courses.map(course => ({
+        const allCourses = await findCoursesByStudentId(studentId); // toàn bộ khóa học
+        const page = parseInt(req.query.page) || 1;
+        const itemsPerPage = 6;
+        const offset = (page - 1) * itemsPerPage;
+        const paginatedCourses = allCourses.slice(offset, offset + itemsPerPage);
+
+        const courseList = paginatedCourses.map(course => ({
             id: course.id,
             title: course.title,
             shortDesc: course.short_desc,
@@ -40,19 +46,31 @@ export async function getEnrolledCourses(req, res) {
             categoryName: course.category_name,
             purchasedAt: course.purchased_at
         }));
-        console.log(courseList);
-        res.render('students/enrollments', {
+
+        const totalCourses = allCourses.length;
+        const totalPages = Math.ceil(totalCourses / itemsPerPage);
+
+        const pages = [];
+        const startPage = Math.max(1, page - 2);
+        const endPage = Math.min(totalPages, page + 2);
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push({ value: i, isCurrent: i === page });
+        }
+        res.render("students/enrollments", {
             success: true,
-            total: courseList.length,
-            courses: courseList
+            total: totalCourses,
+            courses: courseList,
+            currentPage: page,
+            totalPages,
+            pages,
+            hasPrevious: page > 1,
+            hasNext: page < totalPages
         });
     } catch (error) {
-        console.error(" Lỗi khi lấy danh sách khóa học:", error);
+        console.error("Error detected: ", error);
         res.status(500).render("error");
     }
 }
-
-
 export async function listWatchlist(req, res) {
     const page = parseInt(req.query.page) || 1;
     const { courses, pagination } = getPageData(page, 6);

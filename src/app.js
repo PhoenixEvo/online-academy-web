@@ -9,7 +9,6 @@ import flash from 'connect-flash';
 import { setupHandlebars } from './config/handlebars.js';
 import { setupSession } from './config/session.js';
 import { setupPassport } from './config/passport.js';
-import { addCategoriesToLocals } from './middlewares/categories.js';
 
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
@@ -25,21 +24,21 @@ const app = express();
 // helmet for website security
 app.use(
     helmet.contentSecurityPolicy({
-        directives : {
-            defaultSrc : [ "'self'" ],
-            scriptSrc : [ "'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'" ],
-            styleSrc : [
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
+            styleSrc: [
                 "'self'",
                 "https://cdnjs.cloudflare.com",
                 "'unsafe-inline'",
                 "https://fonts.googleapis.com"
             ],
-            fontSrc : [
+            fontSrc: [
                 "'self'",
                 "https://fonts.googleapis.com",
                 "https://fonts.gstatic.com"
             ],
-            imgSrc : [
+            imgSrc: [
                 "'self'",
                 "data:",
                 "https://mona.media",
@@ -51,10 +50,10 @@ app.use(
     }));
 
 // middleware for website
-app.use(express.urlencoded({extended : false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(methodOverride('_method'));    // for put and delete request
-app.use(morgan('dev'));                // for logging
+app.use(methodOverride('_method')); // for put and delete request
+app.use(morgan('dev')); // for logging
 app.use(express.static('src/public')); // for static files
 
 // setup session and passport
@@ -70,14 +69,12 @@ app.use(csurf());
 
 // error handler
 app.use((err, req, res, next) => {
-    if (err.code === 'EBADCSRFTOKEN')
-    {
+    if (err.code === 'EBADCSRFTOKEN') {
         // Handle AJAX requests differently
-        if (req.xhr || req.headers.accept.indexOf('json') > -1)
-        {
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
             return res.status(403).json({
-                success : false,
-                message : 'Session expired or CSRF is invalid. Please try again.'
+                success: false,
+                message: 'Session expired or CSRF is invalid. Please try again.'
             });
         }
         req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
@@ -91,7 +88,7 @@ app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken();
     res.locals.user = req.user || null;
     // prettier-ignore
-    res.locals.isAuthenticated = req.isAuthenticated?.() || false;
+    res.locals.isAuthenticated = typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : false;
     res.locals.year = new Date().getFullYear();
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
@@ -113,7 +110,7 @@ app.use((req, res) => {
 // error handler
 app.use((err, req, res, next) => {
     console.error(err);
-    res.status(500).render('error.hbs', {message : 'An error occurred!'});
+    res.status(500).render('error.hbs', { message: 'An error occurred!' });
 });
 
 // server
