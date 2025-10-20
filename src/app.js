@@ -87,8 +87,7 @@ app.use((err, req, res, next) => {
 app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken();
     res.locals.user = req.user || null;
-    // prettier-ignore
-    res.locals.isAuthenticated = typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : false;
+    res.locals.isAuthenticated = req.isAuthenticated?.() || false;
     res.locals.year = new Date().getFullYear();
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
