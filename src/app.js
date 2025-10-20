@@ -17,28 +17,44 @@ import profileRoute from './routes/profile.route.js';
 import courseRoute from './routes/course.route.js';
 import categoryRoute from './routes/category.route.js';
 //import courseRoute from './routes/course.route.js';
+// import courseRoute from './routes/course.route.js';
 import studentRoutes from './routes/student.route.js';
 
 const app = express();
 
 // helmet for website security
 app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
-      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "data:"],
-      imgSrc: ["'self'", "data:", "https:", "http:"],  // Allow images from any HTTPS source
-    },
-  })
-);
+    helmet.contentSecurityPolicy({
+        directives : {
+            defaultSrc : [ "'self'" ],
+            scriptSrc : [ "'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'" ],
+            styleSrc : [
+                "'self'",
+                "https://cdnjs.cloudflare.com",
+                "'unsafe-inline'",
+                "https://fonts.googleapis.com"
+            ],
+            fontSrc : [
+                "'self'",
+                "https://fonts.googleapis.com",
+                "https://fonts.gstatic.com"
+            ],
+            imgSrc : [
+                "'self'",
+                "data:",
+                "https://mona.media",
+                "https://*.mona.media",
+                "https://example.com",
+                "https://cdn.jsdelivr.net"
+            ],
+        },
+    }));
 
 // middleware for website
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended : false}));
 app.use(express.json());
-app.use(methodOverride('_method')); // for put and delete request
-app.use(morgan('dev')); // for logging
+app.use(methodOverride('_method'));    // for put and delete request
+app.use(morgan('dev'));                // for logging
 app.use(express.static('src/public')); // for static files
 
 // setup session and passport
@@ -54,56 +70,52 @@ app.use(csurf());
 
 // error handler
 app.use((err, req, res, next) => {
-  if (err.code === 'EBADCSRFTOKEN') {
-    // Handle AJAX requests differently
-    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-      return res.status(403).json({
-        success: false,
-        message: 'Session expired or CSRF is invalid. Please try again.'
-      });
+    if (err.code === 'EBADCSRFTOKEN')
+    {
+        // Handle AJAX requests differently
+        if (req.xhr || req.headers.accept.indexOf('json') > -1)
+        {
+            return res.status(403).json({
+                success : false,
+                message : 'Session expired or CSRF is invalid. Please try again.'
+            });
+        }
+        req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
+        return res.redirect('back');
     }
-    req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
-    return res.redirect('back');
-  }
-  return next(err);
+    return next(err);
 });
 
 // locals for website
 app.use((req, res, next) => {
-  res.locals.csrfToken = req.csrfToken();
-  res.locals.user = req.user || null;
-  res.locals.isAuthenticated = req.isAuthenticated?.() || false;
-  res.locals.year = new Date().getFullYear();
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
-  next();
+    res.locals.csrfToken = req.csrfToken();
+    res.locals.user = req.user || null;
+    // prettier-ignore
+    res.locals.isAuthenticated = req.isAuthenticated?.() || false;
+    res.locals.year = new Date().getFullYear();
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
 });
-
-// Add categories to locals for guest users
-app.use(addCategoriesToLocals);
-
 
 // ROUTES (thin, no logic)
 app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
-app.use('/courses', courseRoute);
-app.use('/categories', categoryRoute);
+// app.use('/courses', courseRoute);
 app.use('/students', studentRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).render('404.hbs');
+    res.status(404).render('404.hbs');
 });
-
 
 // error handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).render('error.hbs', { message: 'An error occurred!' });
+    console.error(err);
+    res.status(500).render('error.hbs', {message : 'An error occurred!'});
 });
 
 // server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
-
