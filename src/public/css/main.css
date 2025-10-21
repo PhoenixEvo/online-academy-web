@@ -2481,6 +2481,48 @@ body {
 .course-item:hover .remove-btn-form {
   opacity: 1;
 }
+
+.payment-logo {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 6px;
+  background-color: #fff;
+  margin-right: 10px;
+  transition: transform 0.2s ease;
+}
+
+.payment-logo:hover {
+  transform: scale(1.05);
+  border-color: #007bff;
+}
+
+.payment-logo.selected {
+  border-color: #0070f3; /* hoặc màu bạn thích */
+  opacity: 1;
+  box-shadow: 0 0 8px rgba(0, 112, 243, 0.4);
+}
+
+.star-rating {
+  font-size: 2rem;
+  color: #ddd;
+  cursor: pointer;
+  display: flex;
+  gap: 5px;
+}
+
+.star-rating i {
+  transition: color 0.2s, transform 0.2s;
+}
+
+.star-rating i:hover {
+  transform: scale(1.1);
+  color: #ffca2c;
+}
+
+.star-rating .selected {
+  color: #c4960d;
+}
+
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/

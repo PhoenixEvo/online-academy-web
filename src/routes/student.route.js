@@ -1,6 +1,5 @@
 //file test hbs
 import express from "express";
-import { showCourses } from "../models/student.model.js";
 import {
   listEnrolled,
   listWatchlist,
@@ -13,9 +12,11 @@ router.get("/enrollments", listEnrolled);
 router.get("/learn", (req, res) => {
   res.render("students/learn");
 });
-router.get("/profile", (req, res) => {
-  res.render("students/profile-student");
-});
 router.get("/watchlist", listWatchlist);
+
+router.get('/purchase', (req, res) => {
+  res.render('students/purchase');
+});
+
 
 export default router;
