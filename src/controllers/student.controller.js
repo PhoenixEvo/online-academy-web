@@ -147,9 +147,6 @@ export async function listEnrolled(req, res) {
     pages: pagination.pages
   });
 }
-export const getProfilePage = (req, res) => {
-  res.render("students/profile-student");
-};
 
 export async function listWatchlist(req, res) {
   const page = parseInt(req.query.page) || 1;
