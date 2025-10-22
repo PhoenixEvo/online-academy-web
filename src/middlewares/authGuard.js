@@ -20,6 +20,7 @@ export const authGuard = requireLogin;
     req.flash('error', 'please log in to continue');
     return res.redirect('/auth/login');
 }
+
 export function requireRole(role) {
     return (req, res, next) => {
         if (!req.isAuthenticated?.() || !req.user) {

@@ -1,4 +1,3 @@
-//file test hbs
 import express from "express";
 import { listEnrolled, listWatchlist, getEnrolledCourses }
 from "../controllers/student.controller.js";
