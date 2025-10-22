@@ -1,6 +1,5 @@
 import e from "connect-flash";
 import "../helpers/hbs.helpers.js";
-import { getPageData } from "../helpers/mockData.js";
 import { findCoursesByStudentId, Getallwatchlist } from "../models/student.model.js";
 import Handlebars from "handlebars";
 
