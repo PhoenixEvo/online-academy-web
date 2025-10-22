@@ -9,10 +9,12 @@ import flash from 'connect-flash';
 import { setupHandlebars } from './config/handlebars.js';
 import { setupSession } from './config/session.js';
 import { setupPassport } from './config/passport.js';
+import { addCategoriesToLocals } from './middlewares/categories.js';
 
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
+import courseRoute from './routes/course.route.js';
 import studentRoutes from './routes/student.route.js';
 
 const app = express();
@@ -23,30 +25,12 @@ app.use(
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
-            styleSrc: [
-                "'self'",
-                "https://cdnjs.cloudflare.com",
-                "'unsafe-inline'",
-                "https://fonts.googleapis.com"
-            ],
-            fontSrc: [
-                "'self'",
-                "https://fonts.googleapis.com",
-                "https://fonts.gstatic.com"
-            ],
-            imgSrc: [
-                "'self'",
-                "data:",
-                "https://mona.media",
-                "https://*.mona.media",
-                "https://example.com",
-                "https://cdn.jsdelivr.net",
-                "https://i.pinimg.com",
-                "https://fonts.googleapis.com",
-                "https://fonts.gstatic.com"
-            ],
+            styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:", "http:"], // Allow images from any HTTPS source
         },
-    }));
+    })
+);
 
 // middleware for website
 app.use(express.urlencoded({ extended: false }));
@@ -80,25 +64,42 @@ app.use((err, req, res, next) => {
         return res.redirect('back');
     }
     return next(err);
+    if (err.code === 'EBADCSRFTOKEN') {
+        // Handle AJAX requests differently
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+            return res.status(403).json({
+                success: false,
+                message: 'Session expired or CSRF is invalid. Please try again.'
+            });
+        }
+        req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
+        return res.redirect('back');
+    }
+    return next(err);
 });
 
 // locals for website
 app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken();
     res.locals.user = req.user || null;
-    res.locals.isAuthenticated = req.isAuthenticated?.() || false;
+    res.locals.isAuthenticated = req.isAuthenticated ? .() || false;
     res.locals.year = new Date().getFullYear();
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
 });
 
+// Add categories to locals for guest users
+app.use(addCategoriesToLocals);
+
+
 // ROUTES (thin, no logic)
 app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
-// app.use('/courses', courseRoute);
+app.use('/courses', courseRoute);
 app.use('/students', studentRoutes);
+
 
 // 404 handler
 app.use((req, res) => {
