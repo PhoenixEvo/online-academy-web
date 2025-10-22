@@ -8,6 +8,7 @@ import * as Category from "../models/category.model.js";
 function buildBaseUrl(req) {
   const q = new URLSearchParams(req.query);
   q.delete("page");
+  q.delete("sort");  // Remove sort so buttons can set their own sort
   const base = req.baseUrl + req.path;
   const qs = q.toString();
   return base + (qs ? "?" + qs + "&" : "?");
@@ -16,9 +17,13 @@ function buildBaseUrl(req) {
 // GET /courses - List all courses with pagination and filters
 export const listValidators = [
   query("page").optional().isInt({ min: 1 }).toInt(),
-  query("sort").optional().isIn(["rating_desc", "price_asc", "newest"]),
-  query("category").optional().isInt().toInt(),
-  query("search").optional().trim().isLength({ min: 1, max: 100 }),
+  query("sort").optional().isIn([
+    "rating_desc", "rating_asc",     // Rating: High to Low, Low to High
+    "price_desc", "price_asc",       // Price: High to Low, Low to High
+    "newest", "oldest"               // Date: Newest First, Oldest First
+  ]),
+  query("category").optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
+  query("q").optional({ nullable: true, checkFalsy: true }).trim().isLength({ max: 100 }),
 ];
 
 
@@ -30,9 +35,11 @@ export async function list(req, res, next) {
       return res.status(400).render("error", { message: "Bad query" });
 
     const page = req.query.page || 1;
-    const sort = req.query.sort || "rating_desc";
-    const categoryId = req.query.category || null;
-    const search = req.query.search || null;
+    // Handle duplicate sort values (take first one if array)
+    const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
+    const sort = sortRaw || "rating_desc";
+    const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
+    const search = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
     const pageSize = 12;
 
     const [courseResult, categories] = await Promise.all([
@@ -43,9 +50,20 @@ export async function list(req, res, next) {
     const { rows, total } = courseResult;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+    // Add badges and enrollment count to courses
+    const coursesWithBadges = await Promise.all(rows.map(async (course) => {
+      const enrollmentCount = await Course.getEnrollmentCount(course.id);
+      return {
+        ...course,
+        is_new: Course.isNewCourse(course.created_at),
+        is_bestseller: enrollmentCount >= 100, // 100+ enrollments = bestseller
+        enrollment_count: enrollmentCount
+      };
+    }));
+
     res.render("course/list", {
       title: "All courses",
-      courses: rows,
+      courses: coursesWithBadges,
       categories,
       page,
       totalPages,
@@ -81,11 +99,25 @@ export async function detail(req, res, next) {
     await Course.incrementViews(id);
 
     // Get related data
-    const bestInCategory = await Course.bestInCategory(course.category_id, 5);
-    const reviews = await Review.listByCourse(id);
-    const reviewStats = await Review.getCourseStats(id);
-    const courseContent = await Course.getCourseContent(id);
-    const enrollmentCount = await Enrollment.getCourseEnrollmentCount(id);
+    const [bestInCategory, reviews, reviewStats, courseContent, enrollmentCount, courseStats, instructorStats] = await Promise.all([
+      Course.bestInCategory(course.category_id, 5),
+      Review.listByCourse(id),
+      Review.getCourseStats(id),
+      Course.getCourseContent(id),
+      Enrollment.getCourseEnrollmentCount(id),
+      Course.getCourseStats(id),
+      Course.getInstructorStats(course.instructor_id)
+    ]);
+
+    // Add badges to related courses
+    const bestInCategoryWithBadges = await Promise.all(bestInCategory.map(async (c) => {
+      const count = await Course.getEnrollmentCount(c.id);
+      return {
+        ...c,
+        is_new: Course.isNewCourse(c.created_at),
+        is_bestseller: count >= 100
+      };
+    }));
 
     // Check if user is enrolled or has in watchlist (if authenticated)
     let isEnrolled = false;
@@ -99,9 +131,13 @@ export async function detail(req, res, next) {
       title: course.title,
       course: {
         ...course,
-        enrollment_count: enrollmentCount
+        enrollment_count: enrollmentCount,
+        is_new: Course.isNewCourse(course.created_at),
+        is_bestseller: enrollmentCount >= 100
       },
-      bestInCategory,
+      courseStats,
+      instructorStats,
+      bestInCategory: bestInCategoryWithBadges,
       reviews,
       reviewStats,
       courseContent,
@@ -115,10 +151,14 @@ export async function detail(req, res, next) {
 
 // GET /search - Search courses
 export const searchValidators = [
-  query("q").optional().trim().isLength({ min: 1, max: 100 }),
+  query("q").optional({ nullable: true, checkFalsy: true }).trim().isLength({ max: 100 }),
   query("page").optional().isInt({ min: 1 }).toInt(),
-  query("sort").optional().isIn(["rating_desc", "price_asc", "newest"]),
-  query("category").optional().isInt().toInt(),
+  query("sort").optional().isIn([
+    "rating_desc", "rating_asc",     // Rating: High to Low, Low to High
+    "price_desc", "price_asc",       // Price: High to Low, Low to High
+    "newest", "oldest"               // Date: Newest First, Oldest First
+  ]),
+  query("category").optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
 ];
 export async function search(req, res, next) {
   try {
@@ -127,10 +167,12 @@ export async function search(req, res, next) {
     if (!errors.isEmpty())
       return res.status(400).render("error", { message: "Bad query" });
 
-    const searchQuery = req.query.q || "";
+    const searchQuery = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
     const page = req.query.page || 1;
-    const sort = req.query.sort || "rating_desc";
-    const categoryId = req.query.category || null;
+    // Handle duplicate sort values (take first one if array)
+    const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
+    const sort = sortRaw || "rating_desc";
+    const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
     const pageSize = 12;
 
     const { rows, total } = await Course.findPaged({
@@ -145,9 +187,20 @@ export async function search(req, res, next) {
     // Get categories for filter
     const categories = await Category.getAll();
 
+    // Add badges to courses
+    const coursesWithBadges = await Promise.all(rows.map(async (course) => {
+      const enrollmentCount = await Course.getEnrollmentCount(course.id);
+      return {
+        ...course,
+        is_new: Course.isNewCourse(course.created_at),
+        is_bestseller: enrollmentCount >= 100,
+        enrollment_count: enrollmentCount
+      };
+    }));
+
     res.render("course/search", {
       title: `Search: ${searchQuery}`,
-      courses: rows,
+      courses: coursesWithBadges,
       categories,
       page,
       totalPages,

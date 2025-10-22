@@ -72,6 +72,24 @@ export function setupHandlebars(app) {
         isAtPage(currentPage, pageNum) {
           return parseInt(currentPage) === parseInt(pageNum);
         },
+        formatDuration(seconds) {
+          if (!seconds || seconds === 0) return '0m';
+          const hours = Math.floor(seconds / 3600);
+          const minutes = Math.floor((seconds % 3600) / 60);
+          
+          if (hours > 0) {
+            return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+          }
+          return `${minutes}m`;
+        },
+        divide(a, b) {
+          if (!b || b === 0) return 0;
+          return Math.round((Number(a) / Number(b)) * 100);
+        },
+        or() {
+          // Check if any argument is truthy
+          return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+        },
       },
 
     })

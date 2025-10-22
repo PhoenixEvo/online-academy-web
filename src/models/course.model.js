@@ -45,12 +45,20 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
         query = query.where('courses.category_id', categoryId);
     }
 
-    // Search functionality
+    // Full-text search functionality
     if (search) {
-        query = query.where(function () {
-            this.where('courses.title', 'ilike', `%${search}%`)
-                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-                .orWhere('categories.name', 'ilike', `%${search}%`);
+        // Use PostgreSQL full-text search with tsvector
+        // Search in title, short_desc, and category name
+        // Fallback to ILIKE if full-text doesn't match
+        query = query.where(function() {
+            this.whereRaw(`
+                to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
+                to_tsvector('english', COALESCE(categories.name, ''))
+                @@ plainto_tsquery('english', ?)
+            `, [search])
+            .orWhere('courses.title', 'ilike', `%${search}%`)
+            .orWhere('courses.short_desc', 'ilike', `%${search}%`)
+            .orWhere('categories.name', 'ilike', `%${search}%`);
         });
     }
 
@@ -59,11 +67,20 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
         case 'rating_desc':
             query = query.orderBy('courses.rating_avg', 'desc');
             break;
+        case 'rating_asc':
+            query = query.orderBy('courses.rating_avg', 'asc');
+            break;
+        case 'price_desc':
+            query = query.orderBy('courses.price', 'desc');
+            break;
         case 'price_asc':
             query = query.orderBy('courses.price', 'asc');
             break;
         case 'newest':
             query = query.orderBy('courses.created_at', 'desc');
+            break;
+        case 'oldest':
+            query = query.orderBy('courses.created_at', 'asc');
             break;
         default:
             query = query.orderBy('courses.rating_avg', 'desc');
@@ -76,11 +93,19 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
     }
 
     if (search) {
-        countQuery.where(function () {
-            this.where('courses.title', 'ilike', `%${search}%`)
+        // Join categories for full-text search in count query
+        countQuery
+            .leftJoin('categories as cat_search', 'courses.category_id', 'cat_search.id')
+            .where(function() {
+                this.whereRaw(`
+                    to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
+                    to_tsvector('english', COALESCE(cat_search.name, ''))
+                    @@ plainto_tsquery('english', ?)
+                `, [search])
+                .orWhere('courses.title', 'ilike', `%${search}%`)
                 .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-                .orWhere('categories.name', 'ilike', `%${search}%`);
-        });
+                .orWhere('cat_search.name', 'ilike', `%${search}%`);
+            });
     }
 
     const [countResult, rows] = await Promise.all([
@@ -177,4 +202,92 @@ export async function getCourseContent(courseId) {
     }
 
     return sections;
+}
+
+// Get featured courses this week (most enrollments in last 7 days)
+export async function getFeaturedThisWeek(limit = 4) {
+    return db('courses')
+        .select(
+            'courses.*',
+            'users.name as instructor_name',
+            'categories.name as category_name',
+            db.raw('COUNT(enrollments.id) as weekly_enrollments')
+        )
+        .leftJoin('users', 'courses.instructor_id', 'users.id')
+        .leftJoin('categories', 'courses.category_id', 'categories.id')
+        .leftJoin('enrollments', function() {
+            this.on('courses.id', '=', 'enrollments.course_id')
+                .andOn(db.raw('enrollments.purchased_at >= NOW() - INTERVAL \'7 days\''));
+        })
+        .where('courses.status', 'published')
+        .groupBy('courses.id', 'users.name', 'categories.name')
+        .orderBy('weekly_enrollments', 'desc')
+        .limit(limit);
+}
+
+// Check if course is new (created within last 30 days)
+export function isNewCourse(createdAt) {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return new Date(createdAt) > thirtyDaysAgo;
+}
+
+// Get enrollment count for course
+export async function getEnrollmentCount(courseId) {
+    const result = await db('enrollments')
+        .where('course_id', courseId)
+        .count('* as count')
+        .first();
+    return parseInt(result.count || 0);
+}
+
+// Get course content statistics (total duration, lesson count, section count)
+export async function getCourseStats(courseId) {
+    const sections = await db('sections')
+        .where('course_id', courseId)
+        .count('* as section_count')
+        .first();
+
+    const lessons = await db('lessons')
+        .join('sections', 'lessons.section_id', 'sections.id')
+        .where('sections.course_id', courseId)
+        .select(
+            db.raw('COUNT(*) as lesson_count'),
+            db.raw('SUM(duration_sec) as total_duration')
+        )
+        .first();
+
+    return {
+        section_count: parseInt(sections.section_count || 0),
+        lesson_count: parseInt(lessons.lesson_count || 0),
+        total_duration: parseInt(lessons.total_duration || 0)
+    };
+}
+
+// Get instructor statistics
+export async function getInstructorStats(instructorId) {
+    const courseCount = await db('courses')
+        .where('instructor_id', instructorId)
+        .where('status', 'published')
+        .count('* as count')
+        .first();
+
+    const totalStudents = await db('enrollments')
+        .join('courses', 'enrollments.course_id', 'courses.id')
+        .where('courses.instructor_id', instructorId)
+        .where('courses.status', 'published')
+        .countDistinct('enrollments.user_id as count')
+        .first();
+
+    const avgRating = await db('courses')
+        .where('instructor_id', instructorId)
+        .where('status', 'published')
+        .avg('rating_avg as avg')
+        .first();
+
+    return {
+        course_count: parseInt(courseCount.count || 0),
+        total_students: parseInt(totalStudents.count || 0),
+        avg_rating: parseFloat(avgRating.avg || 0).toFixed(1)
+    };
 }
