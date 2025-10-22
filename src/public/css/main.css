@@ -2455,7 +2455,9 @@ body {
 .footer .footer-newsletter .sent-message.show {
   display: block !important;
 }
-
+/*--------------------------------------------------------------
+# Remove Course Watchlist Button Section
+--------------------------------------------------------------*/
 .remove-btn-form {
   position: absolute;
   top: 10px;
@@ -2481,7 +2483,9 @@ body {
 .course-item:hover .remove-btn-form {
   opacity: 1;
 }
-
+/*--------------------------------------------------------------
+# Payment Logo Section
+--------------------------------------------------------------*/
 .payment-logo {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -2501,7 +2505,9 @@ body {
   opacity: 1;
   box-shadow: 0 0 8px rgba(0, 112, 243, 0.4);
 }
-
+/*--------------------------------------------------------------
+# Star Rating Section
+--------------------------------------------------------------*/
 .star-rating {
   font-size: 2rem;
   color: #ddd;

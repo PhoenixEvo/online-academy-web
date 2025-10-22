@@ -1,5 +1,4 @@
 import "../helpers/hbs.helpers.js";
-import { getPageData } from "../helpers/mockData.js";
 import Handlebars from "handlebars";
 
 export async function listEnrolled(req, res) {
