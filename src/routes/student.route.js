@@ -1,16 +1,19 @@
 import express from "express";
-import { listEnrolled, listWatchlist, getEnrolledCourses }
+import { listEnrolled, listWatchlist, getEnrolledCourses, removeCourse }
 from "../controllers/student.controller.js";
+import { authGuard } from '../middlewares/authGuard.js';
 const router = express.Router();
 
 // Các route test hiển thị view
-router.get("/enrollments", getEnrolledCourses);
-router.get("/profile-student", (req, res) => {
+router.get("/enrolled", authGuard, getEnrolledCourses);
+router.get("/profile-student", authGuard, (req, res) => {
     res.render("students/profile-student");
 });
-router.get("/learn", (req, res) => {
+router.get("/learn", authGuard, (req, res) => {
     res.render("students/learn");
 });
-router.get("/watchlist", listWatchlist);
+// student.route.js
+router.get("/watchlist", authGuard, listWatchlist); 
+router.post("/watchlist/remove/:id", authGuard, removeCourse);
 
 export default router;

@@ -32,3 +32,8 @@ export async function Getallwatchlist(studentId) {
         )
         .orderBy("watchlist.created_at", "desc");
 }
+export async function remove(userId, courseId) {
+    return db('watchlist')
+        .where({ user_id: userId, course_id: courseId })
+        .del();
+}

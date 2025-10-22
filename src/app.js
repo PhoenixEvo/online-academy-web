@@ -15,21 +15,22 @@ import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
 import courseRoute from './routes/course.route.js';
-import studentRoutes from './routes/student.route.js';
+import studentsRoute from './routes/student.route.js';
+
 
 const app = express();
 
 // helmet for website security
 app.use(
-    helmet.contentSecurityPolicy({
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
-            styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:", "http:"], // Allow images from any HTTPS source
-        },
-    })
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
+      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "http:"],  // Allow images from any HTTPS source
+    },
+  })
 );
 
 // middleware for website
@@ -48,45 +49,33 @@ setupPassport(app);
 app.use(flash());
 
 // CSRF must be after session:
-app.use(csurf());
+// app.use(csurf());
 
-// error handler
-app.use((err, req, res, next) => {
-    if (err.code === 'EBADCSRFTOKEN') {
-        // Handle AJAX requests differently
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-            return res.status(403).json({
-                success: false,
-                message: 'Session expired or CSRF is invalid. Please try again.'
-            });
-        }
-        req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
-        return res.redirect('back');
-    }
-    return next(err);
-    if (err.code === 'EBADCSRFTOKEN') {
-        // Handle AJAX requests differently
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-            return res.status(403).json({
-                success: false,
-                message: 'Session expired or CSRF is invalid. Please try again.'
-            });
-        }
-        req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
-        return res.redirect('back');
-    }
-    return next(err);
-});
+// // error handler
+// app.use((err, req, res, next) => {
+//   if (err.code === 'EBADCSRFTOKEN') {
+//     // Handle AJAX requests differently
+//     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+//       return res.status(403).json({
+//         success: false,
+//         message: 'Session expired or CSRF is invalid. Please try again.'
+//       });
+//     }
+//     req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
+//     return res.redirect('back');
+//   }
+//   return next(err);
+// });
 
 // locals for website
 app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken();
-    res.locals.user = req.user || null;
-    res.locals.isAuthenticated = req.isAuthenticated?.() || false;
-    res.locals.year = new Date().getFullYear();
-    res.locals.success = req.flash('success');
-    res.locals.error = req.flash('error');
-    next();
+  // res.locals.csrfToken = req.csrfToken();
+  res.locals.user = req.user || null;
+  res.locals.isAuthenticated = req.isAuthenticated?.() || false;
+  res.locals.year = new Date().getFullYear();
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
 });
 
 // Add categories to locals for guest users
@@ -98,18 +87,18 @@ app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 app.use('/courses', courseRoute);
-app.use('/students', studentRoutes);
-
+app.use('/students', studentsRoute); 
 
 // 404 handler
 app.use((req, res) => {
-    res.status(404).render('404.hbs');
+  res.status(404).render('404.hbs');
 });
+
 
 // error handler
 app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).render('error.hbs', { message: 'An error occurred!' });
+  console.error(err);
+  res.status(500).render('error.hbs', { message: 'An error occurred!' });
 });
 
 // server

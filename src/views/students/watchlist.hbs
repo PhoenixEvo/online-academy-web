@@ -39,19 +39,18 @@
                 <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0 mb-4" data-aos="zoom-in"
                     data-aos-delay="300">
                     <div class="course-item">
-                        <form action="/watchlist/remove/{{this.id}}" method="POST" class="remove-btn-form">
+                        <form action="/students/watchlist/remove/{{this.id}}" method="POST" class="remove-btn-form">
                             <button type="submit" class="remove-btn" title="Remove from watchlist">
                                 <i class="bi bi-x-circle"></i>
                             </button>
                         </form>
-
                         <img src="{{thumbnailUrl}}" class="img-fluid" alt="">
                         <div class="course-content">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <p class="category">{{categoryName}}</p>
+                                <p class="category">{{ categoryName}}</p>
                                 <p class="price">${{format_number price}}</p>
                             </div>
-                            <h3><a href="">{{title}}</a></h3>
+                            <h3><a href="/courses/{{this.id}}">{{title}}</a></h3>
                             <p class="description">{{shortDesc}}</p>
                         </div>
                     </div>
