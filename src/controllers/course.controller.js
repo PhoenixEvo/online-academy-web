@@ -17,7 +17,6 @@ function buildBaseUrl(req) {
 // GET /courses - List all courses with pagination and filters
 export const listValidators = [
   query("page").optional().isInt({ min: 1 }).toInt(),
-
   query("sort").optional().isIn([
     "rating_desc", "rating_asc",     // Rating: High to Low, Low to High
     "price_desc", "price_asc",       // Price: High to Low, Low to High
@@ -25,7 +24,6 @@ export const listValidators = [
   ]),
   query("category").optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
   query("q").optional({ nullable: true, checkFalsy: true }).trim().isLength({ max: 100 }),
-
 ];
 
 
@@ -175,7 +173,7 @@ export async function search(req, res, next) {
     const page = req.query.page || 1;
     // Handle duplicate sort values (take first one if array)
     const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
-    const sort = sortRaw || null; // Let model handle default sorting
+      const sort = sortRaw || null; // Let model handle default sorting
     const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
     const pageSize = 12;
 

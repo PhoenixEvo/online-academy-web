@@ -21,6 +21,22 @@
                                                 style="color: #ffffff;">Courses</a></li>
                                         <li class="breadcrumb-item active" aria-current="page" style="color: #f8f9fa;">
                                             {{category_name}}</li>
+    <main class="main">
+
+        <!-- Course Hero Section - Udemy Style -->
+        <section class="course-hero section" style="background: #f8f9fa; padding: 2rem 0;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="course-hero-content" data-aos="fade-up" data-aos-delay="100">
+                            <div class="course-breadcrumb mb-3">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a>
+                                        </li>
+                                        <li class="breadcrumb-item"><a href="/courses"
+                                                class="text-decoration-none">Courses</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">{{category_name}}</li>
                                     </ol>
                                 </nav>
                             </div>
@@ -78,6 +94,43 @@
                                         style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 0.5rem 1rem; border-radius: 25px;">
                                         <i class="bi bi-calendar me-1" style="color: #ffffff;"></i>
                                         <span style="color: #f8f9fa;">Updated {{formatDate course.updated_at}}</span>
+                                <span class="badge bg-warning text-dark me-2">🏆 Best Seller</span>
+                                {{/if}}
+                                {{#if course.is_new}}
+                                <span class="badge bg-success">✨ New</span>
+                                {{/if}}
+                            </div>
+
+                            <h1 class="course-title h2 fw-bold mb-3" style="color: #1c1d1f;">{{course.title}}</h1>
+                            <p class="course-subtitle lead text-muted mb-4">{{course.short_desc}}</p>
+
+                            <div class="course-meta mb-4">
+                                <div class="d-flex align-items-center flex-wrap gap-3">
+                                    <div class="rating d-flex align-items-center">
+                                        {{#range 1 5}}
+                                        <i
+                                            class="bi bi-star{{#if (gt ../course.rating_avg this)}}-fill{{/if}} text-warning me-1"></i>
+                                        {{/range}}
+                                        <span class="ms-2 fw-bold">{{course.rating_avg}}</span>
+                                        <span class="text-muted ms-1">({{course.rating_count}} ratings)</span>
+                                    </div>
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-people me-1"></i>
+                                        <span>{{course.enrollment_count}} students</span>
+                                    </div>
+                                    {{#if courseStats}}
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-play-circle me-1"></i>
+                                        <span>{{courseStats.lesson_count}} lectures</span>
+                                    </div>
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-clock me-1"></i>
+                                        <span>{{formatDuration courseStats.total_duration}}</span>
+                                    </div>
+                                    {{/if}}
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        <span>Updated {{formatDate course.updated_at}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -85,11 +138,13 @@
                     </div>
 
                     <div class="col-lg-6">
+                    <div class="col-lg-4">
                         <div class="course-sidebar bg-white rounded shadow-sm p-4" data-aos="fade-up"
                             data-aos-delay="200" style="position: sticky; top: 2rem;">
                             <div class="course-thumbnail mb-3">
                                 <img src="{{course.thumbnail_url}}" class="img-fluid rounded" alt="{{course.title}}"
                                     style="width: 100%; height: 100%; object-fit: contain;">
+                                    style="width: 100%; height: 200px; object-fit: cover;">
                             </div>
 
                             <div class="course-pricing mb-3">
@@ -103,6 +158,11 @@
                                     </div>
                                     <span class="badge bg-danger"
                                         style="animation: discordBlink 0.8s infinite;">Sale</span>
+                                        <span class="h3 text-dark fw-bold mb-0">{{formatPrice course.sale_price}}đ</span>
+                                        <span class="text-decoration-line-through text-muted ms-2">{{formatPrice
+                                            course.price}}đ</span>
+                                    </div>
+                                    <span class="badge bg-danger">Sale</span>
                                 </div>
                                 {{else}}
                                 <div class="h3 text-dark fw-bold mb-0">{{formatPrice course.price}}đ</div>
@@ -218,6 +278,9 @@
                                                     {{#if is_preview}}style="cursor: pointer;"
                                                     data-video-url="{{video_url}}" data-lesson-title="{{title}}"
                                                     {{/if}}>
+                                                <li
+                                                    class="d-flex justify-content-between align-items-center py-2 border-bottom {{#if is_preview}}lesson-preview-item{{/if}}"
+                                                    {{#if is_preview}}style="cursor: pointer;" data-video-url="{{video_url}}" data-lesson-title="{{title}}"{{/if}}>
                                                     <div class="d-flex align-items-center">
                                                         <i class="bi bi-play-circle me-2 text-primary"></i>
                                                         <span>{{title}}</span>
@@ -252,6 +315,10 @@
                                                 <i
                                                     class="bi bi-star{{#if (gte ../reviewStats.avg_rating this)}}-fill{{/if}} text-warning"></i>
                                                 {{/each}}
+                                                {{#range 1 5}}
+                                                <i
+                                                    class="bi bi-star{{#if (gt ../reviewStats.avg_rating this)}}-fill{{/if}} text-warning"></i>
+                                                {{/range}}
                                             </div>
                                             <div class="text-muted">{{reviewStats.total_reviews}} ratings</div>
                                         </div>
@@ -291,6 +358,10 @@
                                                         <i
                                                             class="bi bi-star{{#if (gte ../rating this)}}-fill{{/if}} text-warning small"></i>
                                                         {{/each}}
+                                                        {{#range 1 5}}
+                                                        <i
+                                                            class="bi bi-star{{#if (gt ../rating this)}}-fill{{/if}} text-warning small"></i>
+                                                        {{/range}}
                                                     </div>
                                                 </div>
                                                 <small class="text-muted">{{formatDate created_at}}</small>
@@ -327,6 +398,7 @@
                                 </div>
                             </div>
 
+                            
                             {{#if instructorStats}}
                             <div class="instructor-stats">
                                 <div class="d-flex align-items-center mb-2">
@@ -367,6 +439,14 @@
                                         <i class="bi bi-star{{#if (gte ../rating_avg this)}}-fill{{/if}} text-warning"
                                             style="font-size: 0.7rem;"></i>
                                         {{/each}}
+                                        <a href="/courses/{{id}}"
+                                            class="text-decoration-none text-dark fw-bold">{{title}}</a>
+                                    </h6>
+                                    <div class="rating mb-1">
+                                        {{#range 1 5}}
+                                        <i class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning"
+                                            style="font-size: 0.7rem;"></i>
+                                        {{/range}}
                                         <span class="ms-1 small text-muted">{{rating_avg}}</span>
                                     </div>
                                     <div class="price">
@@ -392,6 +472,7 @@
     <!-- Video Preview Modal -->
     <div class="modal fade" id="videoPreviewModal" tabindex="-1" aria-labelledby="videoPreviewModalLabel"
         aria-hidden="true">
+    <div class="modal fade" id="videoPreviewModal" tabindex="-1" aria-labelledby="videoPreviewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -418,6 +499,7 @@
     <script>
         // Preview video functionality
         document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const previewItems = document.querySelectorAll('.lesson-preview-item');
             const videoModal = new bootstrap.Modal(document.getElementById('videoPreviewModal'));
             const videoPlayer = document.getElementById('videoPlayer');
@@ -429,6 +511,10 @@
                     const videoUrl = this.getAttribute('data-video-url');
                     const lessonTitle = this.getAttribute('data-lesson-title');
 
+                item.addEventListener('click', function() {
+                    const videoUrl = this.getAttribute('data-video-url');
+                    const lessonTitle = this.getAttribute('data-lesson-title');
+                    
                     if (videoUrl) {
                         videoSource.src = videoUrl;
                         modalTitle.textContent = 'Preview: ' + lessonTitle;
@@ -440,6 +526,7 @@
 
             // Stop video when modal is closed
             document.getElementById('videoPreviewModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('videoPreviewModal').addEventListener('hidden.bs.modal', function() {
                 videoPlayer.pause();
                 videoPlayer.currentTime = 0;
             });
@@ -450,6 +537,10 @@
                     this.style.backgroundColor = '#f8f9fa';
                 });
                 item.addEventListener('mouseleave', function () {
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f9fa';
+                });
+                item.addEventListener('mouseleave', function() {
                     this.style.backgroundColor = 'transparent';
                 });
             });

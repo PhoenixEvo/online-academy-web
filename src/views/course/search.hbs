@@ -39,6 +39,8 @@
                                     <span class="input-group-text"><i class="bi bi-search"></i></span>
                                     <input type="text" name="q" class="form-control" placeholder="Search courses..."
                                         value="{{currentSearch}}">
+                                    <input type="text" name="q" class="form-control"
+                                        placeholder="Search courses..." value="{{currentSearch}}">
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -111,6 +113,44 @@
                                         {{#if (or (eq currentSort 'newest') (eq currentSort 'oldest'))}}
                                         {{#if (eq currentSort 'oldest')}}<i class="bi bi-clock-history"></i>{{else}}<i
                                             class="bi bi-clock"></i>{{/if}}
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "rating_asc")}}rating_desc{{else}}rating_asc{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}active{{/if}}"
+                                        title="Click to toggle sort direction">
+                                        <i class="bi bi-star-fill"></i> Rating
+                                        {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}
+                                            {{#if (eq currentSort "rating_asc")}}
+                                            <i class="bi bi-arrow-up"></i>
+                                            {{else}}
+                                            <i class="bi bi-arrow-down"></i>
+                                            {{/if}}
+                                        {{/if}}
+                                    </a>
+                                    
+                                    <!-- Price Toggle -->
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "price_desc")}}price_asc{{else}}price_desc{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}active{{/if}}"
+                                        title="Click to toggle sort direction">
+                                        <i class="bi bi-tag-fill"></i> Price
+                                        {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}
+                                            {{#if (eq currentSort "price_desc")}}
+                                            <i class="bi bi-arrow-down"></i>
+                                            {{else}}
+                                            <i class="bi bi-arrow-up"></i>
+                                            {{/if}}
+                                        {{/if}}
+                                    </a>
+                                    
+                                    <!-- Date Toggle -->
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "oldest")}}newest{{else}}oldest{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}active{{/if}}"
+                                        title="Click to toggle sort direction">
+                                        <i class="bi bi-clock-fill"></i> Date
+                                        {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}
+                                            {{#if (eq currentSort "oldest")}}
+                                            <i class="bi bi-arrow-up"></i>
+                                            {{else}}
+                                            <i class="bi bi-arrow-down"></i>
+                                            {{/if}}
                                         {{/if}}
                                     </a>
                                 </div>
@@ -131,6 +171,7 @@
                                 <div class="course-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
                                     style="background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s ease;">
                                     <a href="/courses/detail?id={{id}}" class="btn btn-warning btn-sm">View Course</a>
+                                    <a href="/courses/{{id}}" class="btn btn-warning btn-sm">View Course</a>
                                 </div>
                                 <div class="position-absolute top-0 start-0 m-2">
                                     {{#if is_bestseller}}
@@ -165,6 +206,17 @@
                                     </div>
                                     <span class="text-muted small">{{#if rating_avg}}{{rating_avg}}{{else}}0{{/if}}
                                         ({{rating_count}})</span>
+                                    <a href="/courses/{{id}}" class="text-decoration-none text-dark">{{title}}</a>
+                                </h6>
+                                <p class="course-instructor text-muted small mb-2">{{instructor_name}}</p>
+                                <div class="course-rating d-flex align-items-center mb-2">
+                                    <div class="rating me-2">
+                                        {{#range 1 5}}
+                                        <i class="bi bi-star{{#if (gte ../rating_avg this)}}-fill{{/if}} text-warning"
+                                            style="font-size: 0.8rem;"></i>
+                                        {{/range}}
+                                    </div>
+                                    <span class="text-muted small">{{#if rating_avg}}{{rating_avg}}{{else}}0{{/if}} ({{rating_count}})</span>
                                 </div>
                                 <div class="course-price d-flex align-items-center justify-content-between">
                                     <div>
@@ -266,6 +318,7 @@
     </a>
 
     {{!-- <style>
+    <style>
         .course-card {
             will-change: transform;
             backface-visibility: hidden;
@@ -297,6 +350,8 @@
             transform: none;
             cursor: not-allowed;
             pointer-events: none;
+        .course-card:hover .course-overlay {
+            opacity: 1 !important;
         }
 
         .pagination {
@@ -332,6 +387,25 @@
 
         /* Active Currenct Page */
         .pagination .page-item.active .page-link {
+        }
+
+        .pagination .page-link {
+            width: 35px;
+            height: 35px;
+            padding: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items-center;
+            justify-content: center;
+            line-height: 1;
+            margin: 0 2px;
+            color: #0d6efd;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Active state - current page */
+        .pagination .page-item.active .page-link {
+            z-index: 3;
             color: #dc3545 !important;
             background-color: #fff;
             border-color: #dc3545;
@@ -351,6 +425,16 @@
             box-shadow: 0 0 0 2px rgba(13, 110, 253, .18), 0 2px 6px rgba(16, 24, 40, .06);
         }
 
+            box-shadow: none;
+        }
+
+        /* Hover effect */
+        .pagination .page-link:hover:not(.active) {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        /* Disabled state */
         .pagination .page-item.disabled .page-link {
             color: #6c757d;
             background-color: #fff;
@@ -369,6 +453,18 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     const currentSort = urlParams.get('sort');
 
+    </style>
+
+    <script>
+        // Preserve current sort when submitting search form
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('searchForm');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(e) {
+                    // Get current sort from URL if not already in form
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const currentSort = urlParams.get('sort');
+                    
                     // Only add if sort exists in URL and not already in form
                     if (currentSort && !searchForm.querySelector('input[name="sort"]')) {
                         const sortInput = document.createElement('input');
@@ -382,3 +478,5 @@
         });
     </script>
 </body>
+</body>
+

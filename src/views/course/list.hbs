@@ -28,6 +28,7 @@
                                     <span class="input-group-text"><i class="bi bi-search"></i></span>
                                     <input type="text" name="q" class="form-control" placeholder="Search courses..."
                                         value="{{currentSearch}}">
+
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -110,6 +111,44 @@
                                         {{else}}
                                         <i class="bi bi-arrow-down"></i>
                                         {{/if}}
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "rating_asc")}}rating_desc{{else}}rating_asc{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}active{{/if}}"
+                                        title="Click to toggle sort direction">
+                                        <i class="bi bi-star-fill"></i> Rating
+                                        {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}
+                                            {{#if (eq currentSort "rating_asc")}}
+                                            <i class="bi bi-arrow-up"></i>
+                                            {{else}}
+                                            <i class="bi bi-arrow-down"></i>
+                                            {{/if}}
+                                        {{/if}}
+                                    </a>
+                                    
+                                    <!-- Price Toggle -->
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "price_desc")}}price_asc{{else}}price_desc{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}active{{/if}}"
+                                        title="Click to toggle sort direction">
+                                        <i class="bi bi-tag-fill"></i> Price
+                                        {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}
+                                            {{#if (eq currentSort "price_desc")}}
+                                            <i class="bi bi-arrow-down"></i>
+                                            {{else}}
+                                            <i class="bi bi-arrow-up"></i>
+                                            {{/if}}
+                                        {{/if}}
+                                    </a>
+                                    
+                                    <!-- Date Toggle -->
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "oldest")}}newest{{else}}oldest{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}active{{/if}}"
+                                        title="Click to toggle sort direction">
+                                        <i class="bi bi-clock-fill"></i> Date
+                                        {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}
+                                            {{#if (eq currentSort "oldest")}}
+                                            <i class="bi bi-arrow-up"></i>
+                                            {{else}}
+                                            <i class="bi bi-arrow-down"></i>
+                                            {{/if}}
                                         {{/if}}
                                     </a>
                                 </div>
