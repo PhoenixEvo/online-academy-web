@@ -18,5 +18,4 @@ router.get('/purchase', (req, res) => {
   res.render('students/purchase');
 });
 
-
 export default router;
