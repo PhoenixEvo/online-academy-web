@@ -18,7 +18,7 @@ import courseRoute from './routes/course.route.js';
 import categoryRoute from './routes/category.route.js';
 //import courseRoute from './routes/course.route.js';
 // import courseRoute from './routes/course.route.js';
-import studentRoutes from './routes/student.route.js';
+import studentsRoute from './routes/student.route.js';
 
 const app = express();
 
@@ -79,7 +79,7 @@ setupPassport(app);
 app.use(flash());
 
 // CSRF must be after session:
-app.use(csurf());
+// app.use(csurf());
 
 // error handler
 app.use((err, req, res, next) => {
@@ -106,13 +106,13 @@ app.use((err, req, res, next) => {
 
 // locals for website
 app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken();
-    res.locals.user = req.user || null;
-    res.locals.isAuthenticated = req.isAuthenticated?.() || false;
-    res.locals.year = new Date().getFullYear();
-    res.locals.success = req.flash('success');
-    res.locals.error = req.flash('error');
-    next();
+  // res.locals.csrfToken = req.csrfToken();
+  res.locals.user = req.user || null;
+  res.locals.isAuthenticated = req.isAuthenticated?.() || false;
+  res.locals.year = new Date().getFullYear();
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
 });
 
   res.locals.csrfToken = req.csrfToken();
@@ -135,24 +135,21 @@ app.use('/profile', profileRoute);
 // app.use('/courses', courseRoute);
 //app.use('/courses', courseRoute);
 app.use('/courses', courseRoute);
-app.use('/students', studentRoutes);
-
+app.use('/students', studentsRoute); 
 
 // 404 handler
 app.use((req, res) => {
-    res.status(404).render('404.hbs');
+  res.status(404).render('404.hbs');
 });
+
 
 // error handler
 app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).render('error.hbs', { message: 'An error occurred!' });
+  console.error(err);
+  res.status(500).render('error.hbs', { message: 'An error occurred!' });
 });
 
 // server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
-app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
-
-import studentRoutes from './routes/student.route.js';
-app.use('/students', studentRoutes);
+app.use('/students', studentsRoute);

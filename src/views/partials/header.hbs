@@ -1,11 +1,9 @@
 <header id="header" class="header d-flex align-items-center sticky-top">
-  <div
-    class="container-fluid position-relative d-flex align-items-center gap-3 justify-content-between"
-  >
+  <div class="container-fluid position-relative d-flex align-items-center gap-3 justify-content-between">
 
     <a href="/" class="logo d-flex align-items-center">
       <!-- Uncomment the line below if you also wish to use an image logo -->
-      <img src="/img/logo.png" alt="" />
+      <img src="/img/logo.png" alt="">
       <h1 class="sitename">Mentor</h1>
     </a>
 
@@ -41,7 +39,7 @@
 
           {{#if (eq user.role 'student')}}
           <!-- Student navigation -->
-          <li><a href="/students/enrollments">My Courses</a></li>
+          <li><a href="/students/enrolled">My Courses</a></li>
           <li><a href="/students/watchlist">Watchlist</a></li>
           {{else if (eq user.role 'instructor')}}
           <!-- Instructor navigation -->

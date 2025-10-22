@@ -17,12 +17,15 @@
   --nav-font: "Poppins", sans-serif;
 }
 
+<<<<<<< HEAD
 /* Rating Stars */
 .rating-stars .star i {
   font-size: 1rem;
   line-height: 1;
 }
 
+=======
+>>>>>>> 35ba397 ( Add remove button in watchlist dashboard, link herf with course detail)
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
 :root {
   --background-color: #ffffff;

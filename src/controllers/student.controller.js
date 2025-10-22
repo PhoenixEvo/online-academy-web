@@ -12,7 +12,8 @@ import { showCourses, getPagedCourses } from "../models/student.model.js";
 import "../helpers/hbs.helpers.js";
 // import { getPageData } from "../helpers/mockData.js";
 import { getPageData } from "../helpers/mockData.js";
-import { findCoursesByStudentId, Getallwatchlist } from "../models/student.model.js";
+
+import { findCoursesByStudentId, Getallwatchlist, remove } from "../models/student.model.js";
 import Handlebars from "handlebars";
 
 export async function listEnrolled(req, res) {
@@ -51,8 +52,6 @@ export async function getEnrolledCourses(req, res) {
             categoryName: course.category_name,
             purchasedAt: course.purchased_at
         }));
-        console.log(courseList);
-
         const totalCourses = allCourses.length;
         const totalPages = Math.ceil(totalCourses / itemsPerPage);
 
@@ -78,13 +77,9 @@ export async function getEnrolledCourses(req, res) {
         res.status(500).render("error");
     }
 };
+
 export async function listWatchlist(req, res) {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect("/auth/login");
-        }
-
-
         const studentId = req.user.id;
         const allCourses = await Getallwatchlist(studentId); // toàn bộ khóa học
         const page = parseInt(req.query.page) || 1;
@@ -160,6 +155,16 @@ export async function listWatchlist(req, res) {
   });
 }
 
-export const getLearningPage = (req, res) => {
-  res.render("students/learn");
+export const removeCourse = async(req, res) => {
+    try {
+        const courseId = req.params.id;
+        const userId = req.user.id;
+        await remove(userId, courseId);
+        req.flash('success', 'Removed from watchlist');
+        res.redirect("/courses/"+ courseId);  
+    } catch (err) {
+        console.error("Error removing course from watchlist:", err);
+        req.flash('error', 'Failed to remove course');
+        res.redirect("/students/watchlist");  
+    }
 };

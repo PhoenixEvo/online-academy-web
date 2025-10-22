@@ -103,3 +103,8 @@ export async function getPagedCourses(page = 1, limit = 6) {
     },
   }));
 }
+export async function remove(userId, courseId) {
+    return db('watchlist')
+        .where({ user_id: userId, course_id: courseId })
+        .del();
+}
