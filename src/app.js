@@ -40,7 +40,10 @@ app.use(
                 "https://mona.media",
                 "https://*.mona.media",
                 "https://example.com",
-                "https://cdn.jsdelivr.net"
+                "https://cdn.jsdelivr.net",
+                "https://i.pinimg.com",
+                "https://fonts.googleapis.com",
+                "https://fonts.gstatic.com"
             ],
         },
     }));

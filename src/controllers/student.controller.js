@@ -40,6 +40,7 @@ export async function getEnrolledCourses(req, res) {
             categoryName: course.category_name,
             purchasedAt: course.purchased_at
         }));
+        console.log(courseList);
 
         const totalCourses = allCourses.length;
         const totalPages = Math.ceil(totalCourses / itemsPerPage);
@@ -89,7 +90,7 @@ export async function listWatchlist(req, res) {
             categoryName: course.category_name,
             purchasedAt: course.purchased_at
         }));
-
+        console.log(courseList);    
         const totalCourses = allCourses.length;
         const totalPages = Math.ceil(totalCourses / itemsPerPage);
 

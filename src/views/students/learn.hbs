@@ -1,5 +1,6 @@
-<main class="main">
+<script src="/js/star-rating-animation.js"></script>
 
+<main class="main">
     <!-- Page Title -->
     <div class="page-title" data-aos="fade">
         <nav class="breadcrumbs">
@@ -56,6 +57,19 @@
                             Completed
                             {{/if}}
                         </p>
+                    </div>
+
+                    <!-- Star Rating Section -->
+                    <div class="mt-4">
+                        <h5 class="mb-3">Rate this Course</h5>
+                        <div class="star-rating d-flex align-items-center" style="gap:8px;">
+                            <i class="bi bi-star" data-value="1" style="font-size:1.8rem; cursor:pointer;"></i>
+                            <i class="bi bi-star" data-value="2" style="font-size:1.8rem; cursor:pointer;"></i>
+                            <i class="bi bi-star" data-value="3" style="font-size:1.8rem; cursor:pointer;"></i>
+                            <i class="bi bi-star" data-value="4" style="font-size:1.8rem; cursor:pointer;"></i>
+                            <i class="bi bi-star" data-value="5" style="font-size:1.8rem; cursor:pointer;"></i>
+                        </div>
+                        <p class="text-muted mt-2" id="rating-text">Click on a star to rate</p>
                     </div>
 
                     <!-- Feedback form -->
