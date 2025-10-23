@@ -27,6 +27,7 @@ app.use(
       scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
       styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"], 
+      imgSrc: ["'self'", 'data:', 'https:'],
     },
   })
 );
@@ -82,9 +83,16 @@ app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 //app.use('/courses', courseRoute);
-app.use('/instructors', instructorRoute);
-
-
+app.use('/instructor', instructorRoute);
+// instructor course route
+import courseInstructorRouter from './routes/course-instructor.route.js';
+import { restrict,restrictInstructor } from './controllers/auth.controller.js';
+import categoryModel from './models/category.model.js';
+app.use('/instructor/courses', restrict, restrictInstructor, courseInstructorRouter);
+app.use(async function (req, res, next) {
+    res.locals.globalCategories = await categoryModel.findAll();
+  next();
+});
 
 // 404 handler
 app.use((req, res) => {
@@ -101,3 +109,4 @@ app.use((err, req, res, next) => {
 // server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
+

@@ -22,8 +22,8 @@
               <li><a href="/students/watchlist">Watchlist</a></li>
             {{else if (eq user.role 'instructor')}}
               <!-- Instructor navigation -->
-              <li><a href="/instructors/courses">My Courses</a></li>
-              <li><a href="/instructors/create-course">Create Course</a></li>
+              <li><a href="/instructor/courses">My Courses</a></li>
+              <li><a href="/instructor/courses/add">Create Course</a></li>
             {{else if (eq user.role 'admin')}}
               <!-- Admin navigation -->
               <li class="dropdown dropdown-menu-end">
@@ -92,7 +92,7 @@
             <!-- Courses -->
             <li><a href="/courses">Courses</a></li>
             <!-- Instructors -->
-            <li><a href="/instructors">Instructors</a></li>
+            <li><a href="/instructor">Instructors</a></li>
             <!-- About -->
             <li><a href="/about">About</a></li>
             <!-- Contact -->

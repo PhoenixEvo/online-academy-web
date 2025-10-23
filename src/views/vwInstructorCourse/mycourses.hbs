@@ -1,0 +1,92 @@
+<link href="/css/instructors.css" rel="stylesheet">
+<div class="card me-5 ms-5 mt-4 mb-4">
+    <div class="card-body no-border">
+        <h4 class="card-title" style="font-weight: bold;font-size: 1.5rem;">My courses</h4>
+        <div class="tab-wrapper">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button  style="font-weight: bold;"
+            class="nav-link active" 
+            id="home-tab" 
+            data-bs-toggle="tab" 
+            data-bs-target="#home-tab-pane" 
+            type="button" role="tab" 
+            aria-controls="home-tab-pane" 
+            aria-selected="true">
+              My Courses
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button  style="font-weight: bold;"
+            class="nav-link" 
+            id="profile-tab" 
+            data-bs-toggle="tab" 
+            data-bs-target="#profile-tab-pane" 
+            type="button" 
+            role="tab" 
+            aria-controls="profile-tab-pane" 
+            aria-selected="false">
+                Course Bundles
+            </button>
+          </li>
+        </ul>
+        </div>
+        
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+            <div class="row">
+            <div class="input-group" style="max-width: 300px;">
+              <input type="text" class="form-control" placeholder="Search your courses">
+              <button class="btn btn-primary" type="button">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+            <select class="form-select w-auto" aria-label="Default select example">
+              <option selected>Newest</option>
+              <option value="1">Newest</option>
+              <option value="2">Oldest</option>
+              <option value="3">A-Z</option>
+              <option value="4">Z-A</option>
+              <option value="5">Pub First</option>
+              <option value="6">Unpub First</option>
+            </select>
+            <button class="btn btn-primary w-auto ms-auto me-4" type="button" >
+                <a href="/instructor/courses/add" style="color: white;">
+                New Courses
+                </a>
+              </button>
+            </div>
+            
+            <div class="course-list mt-3">
+              {{#each courses}}
+              <div class="card mb-3" style="max-width: 540px;">
+                <div class="row g-0">
+                  <div class="col-md-4">
+                    <div class="image-container">
+                    <!-- Use the thumbnail_url; add onerror fallback and show the URL for debugging -->
+                    <img src="{{this.thumbnail_url}}" class="img-fluid rounded-start" alt="{{this.title}}" onerror="this.onerror=null;this.src='https://placehold.co/600x400'">
+                    <div class="course-overlay">
+                       <a href="/instructor/courses/edit/{{this.id}}" class="course-link">Edit course</a>
+                     </div>
+                     </div>
+                    {{!-- <div class="text-muted small mt-1">{{this.thumbnail_url}}</div> --}}
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      <h5 class="card-title">{{this.title}}</h5>
+                      <p class="card-text">{{this.description}}</p>
+                      <p class="card-text"><small class="text-body-secondary">
+                        Last updated {{this.updated_at}}
+                      </small></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {{/each}}
+          </div>
+          <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+            course bundle
+          </div>
+        </div>
+    </div>
+</div>
