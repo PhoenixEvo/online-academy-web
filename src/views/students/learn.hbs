@@ -1,13 +1,25 @@
-<script src="/js/star-rating-animation.js"></script>
-
 <main class="main">
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <span id="toastMessage">Success!</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- Page Title -->
     <div class="page-title" data-aos="fade">
         <nav class="breadcrumbs">
             <div class="container">
                 <ol>
                     <li><a href="/">Home</a></li>
-                    <li class="current">{{title}}</li>
+                    <li><a href="/students/enrolled">Your Courses</a></li>
+                    <li class="current">{{lesson.title}}</li>
                 </ol>
             </div>
         </nav>
@@ -16,13 +28,13 @@
             <div class="container">
                 <div class="row d-flex justify-content-center text-center">
                     <div class="col-lg-8">
-                        <h1>Learning Progress</h1>
+                        <h1>{{lesson.course_title}}</h1>
+                        <p class="mb-0">Learning Progress: {{courseProgress.percentage}}%</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- End Page Title -->
 
     <!-- Course Details Section -->
     <section id="course-details" class="course-details section">
@@ -30,75 +42,150 @@
             <div class="row">
 
                 <!-- Main video & feedback -->
-                <div class="col-lg-8 col-md-6">
+                <div class="col-lg-8 col-md-12">
 
                     <!-- Video player -->
                     <div class="course-header mb-4">
-                        <video id="lesson-video" class="w-100 rounded shadow" controls>
-                            <source src="{{video_url}}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+                        {{#if lesson.video_url}}
+                            <div class="ratio ratio-16x9">
+                                <iframe 
+                                    id="lesson-video"
+                                    src="{{lesson.video_url}}" 
+                                    class="rounded shadow"
+                                    allowfullscreen
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                </iframe>
+                            </div>
+                        {{else}}
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> No video available for this lesson
+                            </div>
+                        {{/if}}
                     </div>
 
-                    <h2 class="fw-bold">{{title}}</h2>
-                    <p class="text-muted">{{description}}</p>
+                    <h2 class="fw-bold">{{lesson.title}}</h2>
+                    <p class="text-muted">{{lesson.course_description}}</p>
+
+                    <!-- Navigation buttons -->
+                    <div class="d-flex gap-2 mb-4 flex-wrap">
+                        {{#if prevLesson}}
+                        <a href="/learn/{{prevLesson.id}}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Previous
+                        </a>
+                        {{/if}}
+                        
+                        <button id="mark-complete-btn" 
+                                class="btn {{#if progress.completed}}btn-outline-success{{else}}btn-success{{/if}}" 
+                                data-lesson-id="{{lesson.id}}" 
+                                data-completed="{{progress.completed}}">
+                            {{#if progress.completed}}
+                                <i class="bi bi-check-circle-fill"></i> Completed
+                            {{else}}
+                                <i class="bi bi-circle"></i> Mark as Complete
+                            {{/if}}
+                        </button>
+
+                        {{#if nextLesson}}
+                        <a href="/learn/{{nextLesson.id}}" class="btn btn-primary">
+                            Next <i class="bi bi-arrow-right"></i>
+                        </a>
+                        {{/if}}
+                    </div>
 
                     <!-- Progress -->
                     <div class="mt-4">
-                        <h5>Progress</h5>
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: {{progressPercent}}%;"
-                                aria-valuenow="{{progressPercent}}" aria-valuemin="0" aria-valuemax="100">
-                                {{progressPercent}} %
+                        <h5>Course Progress</h5>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{courseProgress.percentage}}%;"
+                                 aria-valuenow="{{courseProgress.percentage}}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{courseProgress.completed}}/{{courseProgress.total}} lessons ({{courseProgress.percentage}}%)
                             </div>
                         </div>
-                        <p class="mt-2 text-muted">
-                            {{#if progress.completed}}
-                            Completed
-                            {{/if}}
-                        </p>
                     </div>
 
-                    <!-- Star Rating Section -->
-                    <div class="mt-4">
+                    <!-- Feedback Section -->
+                    {{#unless userHasFeedback}}
+                    <div class="mt-5">
                         <h5 class="mb-3">Rate this Course</h5>
                         <div class="star-rating d-flex align-items-center" style="gap:8px;">
-                            <i class="bi bi-star" data-value="1" style="font-size:1.8rem; cursor:pointer;"></i>
-                            <i class="bi bi-star" data-value="2" style="font-size:1.8rem; cursor:pointer;"></i>
-                            <i class="bi bi-star" data-value="3" style="font-size:1.8rem; cursor:pointer;"></i>
-                            <i class="bi bi-star" data-value="4" style="font-size:1.8rem; cursor:pointer;"></i>
-                            <i class="bi bi-star" data-value="5" style="font-size:1.8rem; cursor:pointer;"></i>
+                            <i class="bi bi-star" data-value="1" style="font-size:1.8rem; cursor:pointer; color: #ddd;"></i>
+                            <i class="bi bi-star" data-value="2" style="font-size:1.8rem; cursor:pointer; color: #ddd;"></i>
+                            <i class="bi bi-star" data-value="3" style="font-size:1.8rem; cursor:pointer; color: #ddd;"></i>
+                            <i class="bi bi-star" data-value="4" style="font-size:1.8rem; cursor:pointer; color: #ddd;"></i>
+                            <i class="bi bi-star" data-value="5" style="font-size:1.8rem; cursor:pointer; color: #ddd;"></i>
                         </div>
                         <p class="text-muted mt-2" id="rating-text">Click on a star to rate</p>
-                    </div>
 
-                    <!-- Feedback form -->
-                    <div id="feedback" class="mt-5">
-                        <form action="/lessons/{{lesson.id}}/feedback" method="POST">
+                        <form action="/lessons/{{lesson.id}}/feedback" method="POST" id="feedback-form">
                             <div class="mb-3">
-                                <label class="form-label">Comment</label>
-                                <textarea name="comment" class="form-control" rows="3" required></textarea>
+                                <label class="form-label fw-bold">Your Feedback</label>
+                                <textarea name="comment" class="form-control" rows="4" 
+                                          placeholder="Share your thoughts about this course..." 
+                                          required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary">Send Feedback</button>
+                            <input type="hidden" name="rating" id="rating-input" value="5">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Submit Feedback
+                            </button>
                         </form>
                     </div>
+                    {{else}}
+                    <div class="alert alert-info mt-5">
+                        <i class="bi bi-info-circle"></i> You have already submitted feedback for this course. Thank you!
+                    </div>
+                    {{/unless}}
                 </div>
 
-                <!-- Sidebar -->
-                <div class="col-lg-4 col-md-6">
+                <!-- Sidebar with Sections -->
+                <div class="col-lg-4 col-md-12">
                     <section id="course-sidebar" class="mt-4 mt-lg-0" data-aos="fade-left" data-aos-delay="200">
                         <div class="course-sidebar p-3 rounded shadow-sm bg-light">
-                            <h4 class="mb-3">List of Lessons</h4>
+                            <h4 class="mb-3">Course Content</h4>
 
-                            <div class="list-group">
-                                {{#each lessons}}
-                                <a href="/learn/{{this.id}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center
-                    {{#if (eq this.id ../lesson.id)}}active{{/if}}">
-                                    <span>{{this.title}}</span>
-                                    {{#if this.completed}}
-                                    <i class="bi bi-check-circle text-success"></i>
-                                    {{/if}}
-                                </a>
+                            <div class="accordion" id="courseSections">
+                                {{#each sections}}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading{{@index}}">
+                                        <button class="accordion-button {{#unless @first}}collapsed{{/unless}}" 
+                                                type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#collapse{{@index}}" 
+                                                aria-expanded="{{#if @first}}true{{else}}false{{/if}}" 
+                                                aria-controls="collapse{{@index}}">
+                                            <strong>{{this.title}}</strong>
+                                            <small class="ms-auto text-muted">({{this.lessons.length}} lessons)</small>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{@index}}" 
+                                         class="accordion-collapse collapse {{#if @first}}show{{/if}}" 
+                                         aria-labelledby="heading{{@index}}" 
+                                         data-bs-parent="#courseSections">
+                                        <div class="accordion-body p-0">
+                                            <div class="list-group list-group-flush">
+                                                {{#each this.lessons}}
+                                                <a href="/learn/{{this.id}}" 
+                                                   class="list-group-item list-group-item-action d-flex align-items-center
+                                                          {{#if (eq this.id ../../lesson.id)}}active{{/if}}">
+                                                    <span class="me-2">
+                                                        {{#if this.completed}}
+                                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                                        {{else}}
+                                                        <i class="bi bi-circle text-muted"></i>
+                                                        {{/if}}
+                                                    </span>
+                                                    <span class="flex-grow-1">{{this.title}}</span>
+                                                    {{#if this.duration_sec}}
+                                                    <small class="text-muted">{{formatDuration this.duration_sec}}</small>
+                                                    {{/if}}
+                                                </a>
+                                                {{/each}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 {{/each}}
                             </div>
                         </div>
@@ -110,3 +197,5 @@
     </section>
 
 </main>
+
+<script src="/js/learn.js"></script>
