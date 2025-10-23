@@ -33,37 +33,68 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
             'courses.rating_count',
             'courses.views',
             'courses.thumbnail_url',
+            'courses.created_at',
             'users.name as instructor_name',
-            'categories.name as category_name'
+            'categories.name as category_name',
+            db.raw('COUNT(enrollments.id) as weekly_enrollments')
         )
         .leftJoin('users', 'courses.instructor_id', 'users.id')
         .leftJoin('categories', 'courses.category_id', 'categories.id')
-        .where('courses.status', 'published');
+        .leftJoin('enrollments', function () {
+            this.on('courses.id', '=', 'enrollments.course_id')
+                .andOn(db.raw('enrollments.purchased_at >= NOW() - INTERVAL \'7 days\''));
+        })
+        .where('courses.status', 'published')
+        .groupBy('courses.id', 'users.name', 'categories.name');
 
     // Filter by category
     if (categoryId) {
         query = query.where('courses.category_id', categoryId);
     }
 
-    // Full-text search functionality
+    // Full-text search
+    // if (search) {
+    //     query = query.where(function() {
+    //         this.whereRaw(`
+    //             to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
+    //             to_tsvector('english', COALESCE(categories.name, ''))
+    //             @@ plainto_tsquery('english', ?)
+    //         `, [search])
+    //         .orWhere('courses.title', 'ilike', `%${search}%`)
+    //         .orWhere('courses.short_desc', 'ilike', `%${search}%`)
+    //         .orWhere('categories.name', 'ilike', `%${search}%`);
+    //     });
+    // }
+    // Full-text search (English + relevance rank)
     if (search) {
-        // Use PostgreSQL full-text search with tsvector
-        // Search in title, short_desc, and category name
-        // Fallback to ILIKE if full-text doesn't match
-        query = query.where(function() {
-            this.whereRaw(`
-                to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
-                to_tsvector('english', COALESCE(categories.name, ''))
-                @@ plainto_tsquery('english', ?)
-            `, [search])
-            .orWhere('courses.title', 'ilike', `%${search}%`)
-            .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-            .orWhere('categories.name', 'ilike', `%${search}%`);
-        });
+        query = query
+            .select(db.raw(`
+        ts_rank(
+          to_tsvector('english', coalesce(courses.title,'') || ' ' || coalesce(courses.short_desc,'')) ||
+          to_tsvector('english', coalesce(categories.name,'')),
+          websearch_to_tsquery('english', ?)
+        ) AS rank
+      `, [search]))
+            .whereRaw(`
+        (
+          to_tsvector('english', coalesce(courses.title,'') || ' ' || coalesce(courses.short_desc,'')) ||
+          to_tsvector('english', coalesce(categories.name,''))
+        ) @@ websearch_to_tsquery('english', ?)
+      `, [search]);
+
+        // Ưu tiên độ liên quan trước
+        query = query.orderBy('rank', 'desc');
     }
+
 
     // Apply sorting
     switch (sort) {
+        case null:
+        case undefined:
+            // Default: Best Seller first, then by rating
+            query = query.orderBy('weekly_enrollments', 'desc')
+                .orderBy('courses.rating_avg', 'desc');
+            break;
         case 'rating_desc':
             query = query.orderBy('courses.rating_avg', 'desc');
             break;
@@ -83,7 +114,9 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
             query = query.orderBy('courses.created_at', 'asc');
             break;
         default:
-            query = query.orderBy('courses.rating_avg', 'desc');
+            // Default: Best Seller first, then by rating
+            query = query.orderBy('weekly_enrollments', 'desc')
+                .orderBy('courses.rating_avg', 'desc');
     }
     const countQuery = db('courses')
         .where('courses.status', 'published');
@@ -96,15 +129,15 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
         // Join categories for full-text search in count query
         countQuery
             .leftJoin('categories as cat_search', 'courses.category_id', 'cat_search.id')
-            .where(function() {
+            .where(function () {
                 this.whereRaw(`
                     to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
                     to_tsvector('english', COALESCE(cat_search.name, ''))
                     @@ plainto_tsquery('english', ?)
                 `, [search])
-                .orWhere('courses.title', 'ilike', `%${search}%`)
-                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-                .orWhere('cat_search.name', 'ilike', `%${search}%`);
+                    .orWhere('courses.title', 'ilike', `%${search}%`)
+                    .orWhere('courses.short_desc', 'ilike', `%${search}%`)
+                    .orWhere('cat_search.name', 'ilike', `%${search}%`);
             });
     }
 
@@ -215,7 +248,7 @@ export async function getFeaturedThisWeek(limit = 4) {
         )
         .leftJoin('users', 'courses.instructor_id', 'users.id')
         .leftJoin('categories', 'courses.category_id', 'categories.id')
-        .leftJoin('enrollments', function() {
+        .leftJoin('enrollments', function () {
             this.on('courses.id', '=', 'enrollments.course_id')
                 .andOn(db.raw('enrollments.purchased_at >= NOW() - INTERVAL \'7 days\''));
         })

@@ -1,97 +1,3 @@
-<style>
-    .course-card {
-        will-change: transform;
-        backface-visibility: hidden;
-    }
-
-    .course-card:hover {
-        transform: translateY(-5px);
-        transition: transform 0.3s ease;
-    }
-
-    .pagination .page-item:first-child .page-link,
-    .pagination .page-item:last-child .page-link {
-        color: #0d6efd;
-        font-weight: 500;
-        border: 1px solid #e6e9ee;
-        background-color: #fff;
-        box-shadow: 0 2px 6px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .06);
-        transition: all 0.2s ease;
-        font-size: 1.1rem;
-    }
-
-    .pagination .page-item:first-child.disabled .page-link,
-    .pagination .page-item:last-child.disabled .page-link {
-        color: #98a2b3;
-        border-color: #eceff3;
-        background-color: #fff;
-        opacity: 0.6;
-        box-shadow: none;
-        transform: none;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
-
-    .pagination {
-        gap: 5px;
-        justify-content: center;
-    }
-
-    .pagination .page-link {
-        width: 40px;
-        /* to hơn 1 chút để cân icon */
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        /* đảm bảo căn giữa số/icon */
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        line-height: 1;
-        font-weight: 600;
-        background-color: #fff;
-        border: 1px solid #e6e9ee;
-        box-shadow: 0 2px 6px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .06);
-        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease;
-        will-change: transform;
-        backface-visibility: hidden;
-
-    }
-
-    .pagination .page-link i {
-        font-size: 1rem;
-        line-height: 1;
-    }
-
-    /* Active Currenct Page */
-    .pagination .page-item.active .page-link {
-        color: #dc3545 !important;
-        background-color: #fff;
-        border-color: #dc3545;
-        font-weight: 700;
-        box-shadow: 0 0 0 2px rgba(220, 53, 69, .18), 0 2px 6px rgba(16, 24, 40, .06);
-    }
-
-    .pagination .page-link:hover:not(.active) {
-        transform: translateY(-2px);
-        background-color: #f8fafc;
-        border-color: #d5d9e0;
-        box-shadow: 0 6px 16px rgba(16, 24, 40, .12);
-    }
-
-    .pagination .page-link:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(13, 110, 253, .18), 0 2px 6px rgba(16, 24, 40, .06);
-    }
-
-    .pagination .page-item.disabled .page-link {
-        color: #6c757d;
-        background-color: #fff;
-        border-color: #dee2e6;
-        opacity: 0.7;
-    }
-</style>
-
 <body class="course-list-page">
 
     <main class="main">
@@ -223,7 +129,7 @@
                                     style="height: 200px; object-fit: cover;">
                                 <div class="course-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
                                     style="background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s ease;">
-                                    <a href="/courses/{{id}}" class="btn btn-warning btn-sm">View Course</a>
+                                    <a href="/courses/detail?id={{id}}" class="btn btn-warning btn-sm">View Course</a>
                                 </div>
                                 <div class="position-absolute top-0 start-0 m-2">
                                     {{#if is_bestseller}}
@@ -242,15 +148,19 @@
                             <div class="course-content p-3">
                                 <h6 class="course-title fw-bold mb-2"
                                     style="font-size: 0.9rem; line-height: 1.3; height: 2.6rem; overflow: hidden;">
-                                    <a href="/courses/{{id}}" class="text-decoration-none text-dark">{{title}}</a>
+                                    <a href="/courses/detail?id={{id}}"
+                                        class="text-decoration-none text-dark">{{title}}</a>
                                 </h6>
+                                <p class="course-category mb-1">
+                                    <span class="badge bg-primary text-white small">{{category_name}}</span>
+                                </p>
                                 <p class="course-instructor text-muted small mb-2">{{instructor_name}}</p>
                                 <div class="course-rating d-flex align-items-center mb-2">
                                     <div class="rating me-2">
-                                        {{#range 1 5}}
+                                        {{#each (range 1 5)}}
                                         <i class="bi bi-star{{#if (gte ../rating_avg this)}}-fill{{/if}} text-warning"
                                             style="font-size: 0.8rem;"></i>
-                                        {{/range}}
+                                        {{/each}}
                                     </div>
                                     <span class="text-muted small">{{#if rating_avg}}{{rating_avg}}{{else}}0{{/if}}
                                         ({{rating_count}})</span>

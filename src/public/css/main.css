@@ -16,11 +16,13 @@
   --heading-font: "Raleway", sans-serif;
   --nav-font: "Poppins", sans-serif;
 }
+
 /* Rating Stars */
-.rating-stars .star i{
+.rating-stars .star i {
   font-size: 1rem;
   line-height: 1;
 }
+
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
 :root {
   --background-color: #ffffff;
@@ -2489,3 +2491,254 @@ body {
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
+
+/* Badge Animations */
+@keyframes blink {
+
+  0%,
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  31%,
+  50% {
+    opacity: 0.2;
+    transform: scale(0.9);
+  }
+
+  51%,
+  70% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  71%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes discordBlink {
+
+  0%,
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  21%,
+  40% {
+    opacity: 0.1;
+    transform: scale(0.85);
+  }
+
+  41%,
+  60% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  61%,
+  80% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+
+  81%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Sale badge with Discord-style glow effect */
+.badge.bg-danger {
+  box-shadow: 0 0 15px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.4);
+  animation: discordBlink 0.8s infinite, glowPulse 2s infinite;
+}
+
+/* New badge with Discord-style glow effect */
+.badge.bg-success {
+  box-shadow: 0 0 15px rgba(25, 135, 84, 0.8), 0 0 30px rgba(25, 135, 84, 0.4);
+}
+
+/* Best Seller badge with Discord-style glow effect */
+.badge.bg-warning {
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.8), 0 0 30px rgba(255, 193, 7, 0.4);
+}
+
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(220, 53, 69, 1), 0 0 50px rgba(220, 53, 69, 0.6);
+  }
+}
+
+.course-card {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+  color: #0d6efd;
+  font-weight: 500;
+  border: 1px solid #e6e9ee;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .06);
+  transition: all 0.2s ease;
+  font-size: 1.1rem;
+}
+
+.pagination .page-item:first-child.disabled .page-link,
+.pagination .page-item:last-child.disabled .page-link {
+  color: #98a2b3;
+  border-color: #eceff3;
+  background-color: #fff;
+  opacity: 0.6;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pagination {
+  gap: 5px;
+  justify-content: center;
+}
+
+.pagination .page-link {
+  width: 40px;
+  /* to hơn 1 chút để cân icon */
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  /* đảm bảo căn giữa số/icon */
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  font-weight: 600;
+  background-color: #fff;
+  border: 1px solid #e6e9ee;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .06);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease;
+  will-change: transform;
+  backface-visibility: hidden;
+
+}
+
+.pagination .page-link i {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Active Currenct Page */
+.pagination .page-item.active .page-link {
+  color: #dc3545 !important;
+  background-color: #fff;
+  border-color: #dc3545;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, .18), 0 2px 6px rgba(16, 24, 40, .06);
+}
+
+.pagination .page-link:hover:not(.active) {
+  transform: translateY(-2px);
+  background-color: #f8fafc;
+  border-color: #d5d9e0;
+  box-shadow: 0 6px 16px rgba(16, 24, 40, .12);
+}
+
+.pagination .page-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, .18), 0 2px 6px rgba(16, 24, 40, .06);
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #6c757d;
+  background-color: #fff;
+  border-color: #dee2e6;
+  opacity: 0.7;
+}
+
+#featuredCarousel .carousel-inner {
+  min-height: 500px;
+}
+
+#featuredCarousel .carousel-item {
+  min-height: 500px;
+}
+
+#featuredCarousel .carousel-item .row {
+  min-height: 500px;
+  align-items: center;
+}
+
+#featuredCarousel .carousel-item .col-md-6 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#featuredCarousel .carousel-item .col-md-6:last-child {
+  padding: 2rem;
+}
+
+#featuredCarousel .carousel-item img {
+  height: 400px !important;
+  object-fit: cover;
+  width: 100%;
+}
+
+#featuredCarousel .carousel-indicators {
+  position: static;
+  margin: 20px 0 0 0;
+  justify-content: center;
+}
+
+#featuredCarousel .carousel-indicators button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 0 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+#featuredCarousel .carousel-indicators button.active {
+  background-color: #fff;
+  border-color: #fff;
+  transform: scale(1.2);
+}
+
+#featuredCarousel .carousel-indicators button:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-color: #fff;
+}
