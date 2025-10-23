@@ -14,7 +14,6 @@ export async function remove(userId, courseId) {
         .where({ user_id: userId, course_id: courseId })
         .del();
 }
-
 // Check if course is in user's watchlist
 export async function isInWatchlist(userId, courseId) {
     const item = await db('watchlist')
