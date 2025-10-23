@@ -54,27 +54,27 @@ setupPassport(app);
 app.use(flash());
 
 // CSRF must be after session:
-// app.use(csurf());
+app.use(csurf());
 
-// // error handler
-// app.use((err, req, res, next) => {
-//   if (err.code === 'EBADCSRFTOKEN') {
-//     // Handle AJAX requests differently
-//     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-//       return res.status(403).json({
-//         success: false,
-//         message: 'Session expired or CSRF is invalid. Please try again.'
-//       });
-//     }
-//     req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
-//     return res.redirect('back');
-//   }
-//   return next(err);
-// });
+// error handler
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    // Handle AJAX requests differently
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.status(403).json({
+        success: false,
+        message: 'Session expired or CSRF is invalid. Please try again.'
+      });
+    }
+    req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
+    return res.redirect('back');
+  }
+  return next(err);
+});
 
 // locals for website
 app.use((req, res, next) => {
-    // res.locals.csrfToken = req.csrfToken();
+    res.locals.csrfToken = req.csrfToken();
     res.locals.user = req.user || null;
     res.locals.isAuthenticated = req.isAuthenticated?.() || false;
     res.locals.year = new Date().getFullYear();
