@@ -92,25 +92,24 @@
                                 {{#if isAuthenticated}}
                                 {{#if isEnrolled}}
                                 <a href="/my-courses/{{id}}" class="btn btn-success w-100 mb-2 fw-bold">
-                                    <i class="bi bi-play-circle me-2"></i>Continue Learning
+                                    <i class="bi bi-play-circle me-2"></i> Start Learning
                                 </a>
                                 {{else}}
-                                <form method="POST" action="/courses/{{id}}/enroll" class="d-inline w-100">
-                                    <button type="submit" class="btn btn-warning w-100 mb-2 fw-bold">
-                                        <i class="bi bi-cart-plus me-2"></i>Add to cart
-                                    </button>
-                                </form>
+                                    <!-- Thay đổi: Chuyển đến trang checkout thay vì enroll trực tiếp -->
+                                        <a href="/students/checkout/{{course.id}}" class="btn btn-warning w-100 mb-2 fw-bold">
+                                            <i class="bi bi-cart-plus me-2"></i>Buy this course
+                                        </a>
                                 {{/if}}
 
                                 {{#if isInWatchlist}}
-                                <form method="POST" action="/courses/{{id}}/watch?_method=DELETE"
+                                <form method="POST" action="/courses/{{course.id}}/watch?_method=DELETE"
                                     class="d-inline w-100">
                                     <button type="submit" class="btn btn-outline-dark w-100">
                                         <i class="bi bi-heart-fill me-2"></i>Remove from wishlist
                                     </button>
                                 </form>
                                 {{else}}
-                                <form method="POST" action="/courses/{{id}}/watch" class="d-inline w-100">
+                                <form method="POST" action="/courses/{{course.id}}/watch" class="d-inline w-100">
                                     <button type="submit" class="btn btn-outline-dark w-100">
                                         <i class="bi bi-heart me-2"></i>Add to wishlist
                                     </button>
