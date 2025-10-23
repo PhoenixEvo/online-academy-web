@@ -255,6 +255,7 @@ export async function enroll(req, res, next) {
     await Enrollment.enroll(userId, courseId);
     req.flash('success', 'Enrolled in course successfully!');
     res.redirect("/courses/" + courseId);
+    res.render()
   } catch (e) {
     next(e);
   }

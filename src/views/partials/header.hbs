@@ -41,10 +41,74 @@
           <!-- Student navigation -->
           <li><a href="/students/enrolled">My Courses</a></li>
           <li><a href="/students/watchlist">Watchlist</a></li>
+          <!-- Categories dropdown for students -->
+          <li class="dropdown">
+            <a href="/courses"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              {{#each categories}}
+              {{#if children.length}}
+              <!-- Parent category with children -->
+              <li class="dropdown">
+                <a href="/courses?category={{id}}">
+                  <span>{{name}}</span>
+                  <i class="bi bi-chevron-right toggle-dropdown"></i>
+                </a>
+                <ul>
+                  {{#each children}}
+                  <li>
+                    <a href="/courses?category={{id}}">
+                      {{name}}
+                      <small class="text-muted">({{course_count}} courses)</small>
+                    </a>
+                  </li>
+                  {{/each}}
+                </ul>
+              </li>
+              {{else}}
+              <!-- Single category without children -->
+              <li>
+                <a href="/courses?category={{id}}">
+                  {{name}}
+                  <small class="text-muted">({{course_count}} courses)</small>
+                </a>
+              </li>
+              {{/if}}
+              {{/each}}
+              <!-- View all categories link -->
+              <li class="view-all">
+                <a href="/courses" class="text-primary">
+                  <i class="bi bi-grid-3x3-gap-fill me-2"></i>
+                  Browse all categories
+                </a>
+              </li>
+            </ul>
+          </li>
+          <!-- All Courses -->
+          <li><a href="/courses">All Courses</a></li>
+          <!-- Search -->
+          <li>
+            <form class="d-flex" role="search" action="/courses/search" method="GET">
+              <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
+              <button class="btn btn-outline-success" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          </li>
           {{else if (eq user.role 'instructor')}}
           <!-- Instructor navigation -->
           <li><a href="/instructors/courses">My Courses</a></li>
           <li><a href="/instructors/create-course">Create Course</a></li>
+          <!-- Browse all courses for reference -->
+          <li><a href="/courses">Browse Courses</a></li>
+          <!-- Search -->
+          <li>
+            <form class="d-flex" role="search" action="/courses/search" method="GET">
+              <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
+              <button class="btn btn-outline-success" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          </li>
           {{else if (eq user.role 'admin')}}
           <!-- Admin navigation -->
           <li class="dropdown dropdown-menu-end">
@@ -96,6 +160,7 @@
                   {{/each}}
                 </ul>
               </li>
+<<<<<<< HEAD
             {{/if}}
 
             <!-- Profile dropdown for all authenticated users -->
@@ -175,6 +240,8 @@
                 >Search</button>
               </form>
             </li>
+=======
+>>>>>>> 1674308 ( Khuong update)
               {{else}}
               <!-- Single category without children -->
               <li>

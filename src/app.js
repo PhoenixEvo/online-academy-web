@@ -94,16 +94,6 @@ app.use((req, res, next) => {
     res.locals.error = req.flash('error');
     next();
 });
-
-  res.locals.csrfToken = req.csrfToken();
-  res.locals.user = req.user || null;
-  res.locals.isAuthenticated = req.isAuthenticated?.() || false;
-  res.locals.year = new Date().getFullYear();
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
-  next();
-});
-
 // Add categories to locals for guest users
 app.use(addCategoriesToLocals);
 
