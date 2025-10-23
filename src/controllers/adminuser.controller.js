@@ -1,5 +1,5 @@
 // src/controllers/adminuser.controller.js
-import { userModel, findByEmail } from '../models/user.model.js';
+import { userModel } from '../models/user.model.js';
 
 export const adminUserController = {
   // Lấy danh sách tất cả user, lọc học viên và giảng viên
@@ -62,7 +62,7 @@ export const adminUserController = {
         return res.redirect('/admins/users/add');
       }
       // Kiểm tra email đã tồn tại
-      const existingUser = await findByEmail(email);
+      const existingUser = await userModel.findByEmail(email);
       if (existingUser) {
         console.log(`[addUser] Email đã tồn tại: ${email}, existing user: ${JSON.stringify(existingUser)}`);
         req.flash('error', 'Email đã tồn tại');
@@ -146,7 +146,7 @@ async updateUser(req, res) {
     }
 
     // 🔎 Kiểm tra email trùng (trừ user hiện tại)
-    const existingUser = await findByEmail(email);
+    const existingUser = await userModel.findByEmail(email);
     if (existingUser && existingUser.id.toString() !== id.toString()) {
       req.flash("error", "Email đã tồn tại");
       return res.redirect(`/admins/users/${id}/edit`);
@@ -188,47 +188,46 @@ async updateUser(req, res) {
 
 
   // ✅ Hiển thị form xác nhận xóa user
+// ✅ Hiển thị form xác nhận xóa user
 async renderDeleteUser(req, res) {
-  const { id } = req.params;
-
+  const { id } = req.params; // id từ URL (string)
   try {
-    console.log(`[renderDeleteUser] Fetching user with ID: ${id} (type: ${typeof id})`);
-
+    // Lấy user theo ID từ DB
     const user = await userModel.getUserById(id);
+
     if (!user) {
-      console.log(`[renderDeleteUser] User with ID ${id} not found`);
       req.flash('error', 'User không tồn tại');
       return res.redirect('/admins/users');
     }
 
-    console.log(`[renderDeleteUser] User found: ${JSON.stringify(user)}`);
+    // Chuyển id sang string để so sánh chính xác
+    const userIdStr = user.id.toString();
+    const reqIdStr = id.toString();
 
-    // Không cho xóa admin hoặc chính tài khoản đang đăng nhập
-    if (user.role === 'admin' || req.user.id === id.toString()) {
-      console.log(`[renderDeleteUser] Cannot delete admin or self (user.id: ${user.id}, req.user.id: ${req.user.id})`);
+    // Không cho xóa admin gốc (ID = 34) hoặc chính tài khoản đang đăng nhập
+    if (userIdStr === "34" || req.user.id.toString() === userIdStr) {
       req.flash('error', 'Không thể xóa tài khoản admin hoặc tài khoản đang đăng nhập');
       return res.redirect('/admins/users');
     }
 
-    // Hiển thị form xác nhận xóa
+    // Hiển thị form xác nhận xóa đúng user
     res.render('admins/users/removeUser', {
       layout: 'main',
-      user,
+      user,                  // 👈 user lấy từ DB
       title: 'Xóa User',
       success: req.flash('success'),
       error: req.flash('error'),
       csrfToken: req.csrfToken(),
-      user: req.user,
+      userSession: req.user, // 👈 user đang đăng nhập
       isAuthenticated: req.isAuthenticated(),
     });
-
   } catch (error) {
     console.error('❌ [renderDeleteUser] Lỗi khi lấy user để xóa:', error);
     req.flash('error', `Lỗi: ${error.message}`);
     return res.redirect('/admins/users');
   }
-},
-
+}
+,
   // Xóa user
   async deleteUser(req, res) {
     const { id } = req.params;

@@ -1,33 +1,15 @@
 <div class="admin-wrapper">
-  <!-- Header với gradient -->
   <div class="admin-header">
     <h1 class="admin-title">
-      <i class="bi bi-book-fill me-2"></i>Course Management
+      <i class="bi bi-journal-text me-2"></i>Course Management
     </h1>
-    <a href="/admins/courses/add" class="btn-add-category">
-      <i class="bi bi-plus-circle"></i> Add New
-    </a>
   </div>
-
-  <!-- Flash Messages -->
-  {{#if success}}
-    <div class="alert alert-success alert-dismissible fade show mb-3">
-      {{success}}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  {{/if}}
-  {{#if error}}
-    <div class="alert alert-danger alert-dismissible fade show mb-3">
-      {{error}}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  {{/if}}
 
   <!-- Stats Cards -->
   <div class="row mb-4">
     <div class="col-md-3">
-      <div class="stat-card primary">
-        <i class="bi bi-book"></i>
+      <div class="stat-card">
+        <i class="bi bi-journal-text"></i>
         <div>
           <h3>{{courses.length}}</h3>
           <p>Total Courses</p>
@@ -35,35 +17,26 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="stat-card success">
-        <i class="bi bi-eye"></i>
+      <div class="stat-card">
+        <i class="bi bi-clock-history"></i>
         <div>
-          <h3>0</h3>
-          <p>Total Views</p>
+          <h3>{{totalLessons}}</h3>
+          <p>Total Lessons</p>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="stat-card warning">
+      <div class="stat-card">
         <i class="bi bi-people"></i>
         <div>
-          <h3>0</h3>
-          <p>Enrolled</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card danger">
-        <i class="bi bi-star"></i>
-        <div>
-          <h3>0</h3>
-          <p>Ratings</p>
+          <h3>{{totalEnrollments}}</h3>
+          <p>Enrollments</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Beautiful Table -->
+  <!-- Table -->
   <div class="table-container">
     <div class="table-responsive">
       <table class="admin-table">
@@ -72,39 +45,44 @@
             <th><i class="bi bi-hash"></i></th>
             <th><i class="bi bi-book"></i> Title</th>
             <th><i class="bi bi-card-text"></i> Description</th>
-            <th><i class="bi bi-calendar"></i> Created</th>
+            <th><i class="bi bi-calendar3"></i> Created</th>
             <th><i class="bi bi-gear"></i></th>
           </tr>
         </thead>
         <tbody>
           {{#each courses}}
           <tr class="table-row">
-            <td class="id">{{id}}</td>
-            <td class="name">
-              <i class="bi bi-circle-fill text-primary me-2"></i>
-              {{title}}
+           <td class="id">{{id}}</td>
+
+            <td class="title">
+              <div class="course-title">{{title}}</div>
+              {{#if category}}
+                <small class="text-muted">{{category}}</small>
+              {{/if}}
             </td>
-            <td class="parent">
-              <span class="badge bg-info text-dark">{{description}}</span>
+
+            <td class="desc text-truncate" title="{{short_desc}}">
+              {{short_desc}}
             </td>
-            <td class="date">
-              {{formatDate created_at}}
-            </td>
+
+                <td class="created">
+                <span>{{formatCreatedUpdated this.created_at this.updated_at}}</span>
+              </td>
             <td class="actions">
-              <a href="/admins/courses/{{id}}/edit" class="btn-action edit" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <a href="/admins/courses/{{id}}/delete" class="btn-action delete" title="Delete"
-                 onclick="return confirm('Delete «{{title}}»?')">
-                <i class="bi bi-trash"></i>
-              </a>
+              <a 
+  href="/admins/courses/{{id}}/delete" 
+  class="btn-action delete" 
+  title="Delete"
+>
+  <i class="bi bi-trash"></i>
+</a>
             </td>
           </tr>
           {{else}}
           <tr>
             <td colspan="5" class="empty-state">
-              <i class="bi bi-book-x"></i>
-              <p>No courses yet. <a href="/admins/courses/add">Create one!</a></p>
+              <i class="bi bi-journal-x"></i>
+              <p>No courses found.</p>
             </td>
           </tr>
           {{/each}}
@@ -112,84 +90,135 @@
       </table>
     </div>
   </div>
-
-  <!-- Link Categories -->
-  <div class="text-center mt-4">
-    <a href="/admins/categories" class="btn btn-outline-primary">
-      <i class="bi bi-list-ul me-2"></i> Manage Categories
-    </a>
-  </div>
 </div>
 
 <style>
 .admin-wrapper { padding: 20px 0; }
-.admin-header { 
-  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
-  color: var(--contrast-color); padding: 15px 20px; 
-  border-radius: 12px; margin-bottom: 20px; 
-  display: flex; justify-content: space-between; align-items: center;
-}
-.admin-title { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--contrast-color); }
-.btn-add-category { 
-  background: rgba(255,255,255,0.2); border: 1px solid var(--contrast-color); 
-  color: var(--contrast-color); padding: 8px 16px; 
-  border-radius: 20px; text-decoration: none; font-size: 0.9rem;
-  transition: all 0.3s; 
-}
-.btn-add-category:hover { background: var(--contrast-color); color: var(--accent-color); }
 
-.stat-card { 
-  background: var(--surface-color); padding: 15px; 
-  border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); 
-  display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+.admin-header {
+  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%);
+  color: var(--contrast-color);
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.stat-card.primary i { color: var(--accent-color); }
-.stat-card.success i { color: #28a745; }
-.stat-card.warning i { color: #ffc107; }
-.stat-card.danger i { color: #dc3545; }
-.stat-card h3 { margin: 0; font-size: 1.5rem; color: var(--heading-color); }
-.stat-card p { margin: 0; color: var(--default-color); font-size: 0.9rem; }
 
-.table-container { 
-  background: var(--surface-color); border-radius: 12px; 
-  overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+.admin-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
-.admin-table { 
-  width: 100%; border-collapse: collapse; 
-  table-layout: fixed; 
-}
-.admin-table th { 
-  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); padding: 12px 10px; 
-  text-align: left; font-weight: 600; color: var(--heading-color); font-size: 0.9rem;
-  width: 10%; 
-}
-.admin-table td { 
-  padding: 12px 10px; border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%); font-size: 0.9rem;
-  vertical-align: middle; 
-}
-.table-row:hover { background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); }
-.id { font-weight: 600; color: color-mix(in srgb, var(--default-color), transparent 50%); width: 10%; }
-.name { width: 30%; } 
-.parent { width: 30%; } 
-.date { width: 20%; }
-.actions { width: 10%; text-align: center; } 
-.btn-action { 
-  width: 32px; height: 32px; border-radius: 50%; 
-  margin: 0 2px; font-size: 0.9rem; 
-  display: inline-flex; align-items: center; justify-content: center;
-}
-.btn-action.edit { background: var(--accent-color); color: var(--contrast-color); }
-.btn-action.edit:hover { background: color-mix(in srgb, var(--accent-color), black 20%); transform: scale(1.1); }
-.btn-action.delete { background: #dc3545; color: var(--contrast-color); }
-.btn-action.delete:hover { background: #c82333; transform: scale(1.1); }
-.empty-state { text-align: center; padding: 30px; color: var(--default-color); }
-.empty-state i { font-size: 3rem; margin-bottom: 10px; }
-.empty-state a { color: var(--accent-color); text-decoration: none; }
 
+/* Stats card */
+.stat-card {
+  background: var(--surface-color);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.stat-card i {
+  font-size: 1.5rem;
+  color: var(--accent-color);
+}
+.stat-card h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--heading-color);
+}
+.stat-card p {
+  margin: 0;
+  color: var(--default-color);
+  font-size: 0.9rem;
+}
+
+/* Table */
+.table-container {
+  background: var(--surface-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.admin-table th {
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%);
+  padding: 12px 10px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--heading-color);
+  font-size: 0.9rem;
+}
+.admin-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+.table-row:hover {
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%);
+}
+
+/* Columns */
+.id { width: 5%; font-weight: 600; color: color-mix(in srgb, var(--default-color), transparent 50%); }
+.title { width: 30%; }
+.desc { width: 35%; }
+.created { width: 15%; }
+.actions { width: 15%; text-align: center; }
+
+/* Delete button only */
+.btn-action.delete {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin: 0;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #dc3545;
+  color: white;
+  border: none;
+}
+.btn-action.delete:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: var(--default-color);
+}
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .admin-header { flex-direction: column; gap: 10px; text-align: center; padding: 12px; }
-  .admin-table th, .admin-table td { padding: 8px 6px; font-size: 0.85rem; }
-  .actions { text-align: center; }
-  .col-md-3 { margin-bottom: 15px; }
+  .admin-header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 12px;
+  }
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 6px;
+    font-size: 0.85rem;
+  }
+  .course-title + small {
+    display: none;
+  }
 }
 </style>

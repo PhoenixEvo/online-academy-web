@@ -3,16 +3,14 @@
     <h1 class="admin-title">
       <i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete User
     </h1>
-    <a href="/admins/users" class="btn-back">
-      <i class="bi bi-arrow-left"></i> Back
-    </a>
+    
   </div>
 
   <div class="form-container">
     <div class="card delete-card">
       <div class="card-header">
         <h3 class="mb-0">
-          <i class="bi bi-exclamation-triangle"></i> Xác nhận xóa User
+          <i class="bi bi-exclamation-triangle"></i> Confirm Delete User
         </h3>
       </div>
 
@@ -25,7 +23,7 @@
         {{/if}}
 
         <p class="text-danger">
-          Bạn có chắc chắn muốn <strong>xóa người dùng</strong> sau đây không?
+          Are you sure you want to <strong>delete the following user</strong>?
         </p>
 
         <ul class="list-group mb-4">
@@ -33,13 +31,13 @@
             <strong>ID:</strong> {{user.id}}
           </li>
           <li class="list-group-item">
-            <strong>Họ tên:</strong> {{user.name}}
+            <strong>Name:</strong> {{user.name}}
           </li>
           <li class="list-group-item">
             <strong>Email:</strong> {{user.email}}
           </li>
           <li class="list-group-item">
-            <strong>Vai trò:</strong>
+            <strong>Role:</strong>
             {{#if (eq user.role 'student')}}
               <span class="badge bg-info text-dark">Student</span>
             {{else if (eq user.role 'instructor')}}
@@ -49,11 +47,11 @@
             {{/if}}
           </li>
           <li class="list-group-item">
-            <strong>Trạng thái:</strong>
+            <strong>Status:</strong>
             {{#if user.is_verified}}
-              <span class="text-success"><i class="bi bi-check-circle"></i> Đã xác minh</span>
+              <span class="text-success"><i class="bi bi-check-circle"></i> Verified</span>
             {{else}}
-              <span class="text-secondary"><i class="bi bi-x-circle"></i> Chưa xác minh</span>
+              <span class="text-secondary"><i class="bi bi-x-circle"></i> Not Verified</span>
             {{/if}}
           </li>
         </ul>
@@ -63,10 +61,10 @@
 
           <div class="form-actions">
             <a href="/admins/users" class="btn-secondary">
-              <i class="bi bi-arrow-left"></i> Quay lại
+              <i class="bi bi-arrow-left"></i> Back
             </a>
             <button type="submit" class="btn-danger">
-              <i class="bi bi-trash"></i> Xóa người dùng
+              <i class="bi bi-trash"></i> Delete User
             </button>
           </div>
         </form>

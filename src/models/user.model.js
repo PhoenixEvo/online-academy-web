@@ -1,95 +1,193 @@
-import { db } from "./db.js";
-
-// find user by email
-export async function findByEmail(email) {
-  return db("users").where({ email }).first();
-}
-
-// 
 // src/models/user.model.js
 import bcrypt from 'bcryptjs';
+import { db } from './db.js';
 
 export const userModel = {
+  // Lấy danh sách tất cả người dùng (không cần password)
   async findAll() {
     try {
-      const users = await db('users')
-        .select('id', 'name', 'email', 'role', 'avatar_url', 'created_at', 'is_verified', 'google_id', 'provider')
+      return await db('users')
+        .select(
+          'id',
+          'name AS fullname',
+          'email',
+          'role',
+          'avatar_url',
+          'created_at',
+          'updated_at',
+          'is_verified',
+          'google_id',
+          'provider'
+        )
         .orderBy('created_at', 'desc');
-      return users;
     } catch (error) {
-      console.error('❌ Lỗi khi lấy danh sách user:', error);
+      console.error('Lỗi khi lấy danh sách user:', error);
       throw new Error(`Lỗi khi lấy danh sách user: ${error.message}`);
     }
   },
 
+  // Lấy chi tiết người dùng theo ID
   async getUserById(id) {
     try {
-      console.log(`Fetching user with ID: ${id} (type: ${typeof id})`); // Debug ID đầu vào
-      const user = await db('users')
-        .where({ id: id.toString() }) // Đảm bảo ID là chuỗi
-        .select('id', 'name', 'email', 'role', 'avatar_url', 'created_at', 'is_verified', 'google_id', 'provider')
+      return await db('users')
+        .where({ id })
+        .select(
+          'id',
+          'name AS fullname',
+          'email',
+          'role',
+          'avatar_url',
+          'created_at',
+          'updated_at',
+          'is_verified',
+          'google_id',
+          'provider'
+        )
         .first();
-      console.log(`User found: ${JSON.stringify(user)}`); // Debug user trả về
-      return user;
     } catch (error) {
-      console.error('❌ Lỗi khi lấy user:', error);
+      console.error('Lỗi khi lấy user:', error);
       throw new Error(`Lỗi khi lấy user: ${error.message}`);
     }
   },
 
-  async createUser({ name, email, password, role, avatar_url }) {
+  // Tạo giảng viên mới (do admin)
+  async createInstructor({ email, password, fullname, role }) {
     try {
-      const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const [user] = await db('users')
         .insert({
-          name,
+          name: fullname,
           email,
           password_hash: hashedPassword,
-          role,
-          avatar_url,
-          created_at: new Date(),
+          role: role || 'instructor',
           is_verified: true,
-          provider: password ? 'email' : null
+          provider: 'email',
+          created_at: new Date(),
+          updated_at: new Date()
         })
-        .returning(['id', 'name', 'email', 'role', 'avatar_url', 'created_at', 'is_verified', 'google_id', 'provider']);
+        .returning([
+          'id',
+          'name AS fullname',
+          'email',
+          'role',
+          'avatar_url',
+          'created_at',
+          'updated_at',
+          'is_verified',
+          'google_id',
+          'provider'
+        ]);
+
       return user;
     } catch (error) {
-      console.error('❌ Lỗi khi tạo user:', error);
-      throw new Error(`Lỗi khi tạo user: ${error.message}`);
+      console.error('Lỗi khi tạo giảng viên:', error);
+      throw new Error(`Lỗi khi tạo giảng viên: ${error.message}`);
     }
   },
 
-  async updateUser(id, { name, email, password, role, avatar_url, is_verified }) {
+  // Cập nhật thông tin người dùng
+  async updateUser(id, { fullname, role, avatar_url, is_verified }) {
     try {
-      const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
-      const updateData = {
-        name,
-        email,
-        role,
-        avatar_url,
-        is_verified: is_verified !== undefined ? is_verified : undefined
-      };
-      if (hashedPassword) {
-        updateData.password_hash = hashedPassword;
-      }
+      const updateData = { name: fullname, role, avatar_url, is_verified, updated_at: new Date() };
+
       const [user] = await db('users')
-        .where({ id: id.toString() }) // Đảm bảo ID là chuỗi
+        .where({ id })
         .update(updateData)
-        .returning(['id', 'name', 'email', 'role', 'avatar_url', 'created_at', 'is_verified', 'google_id', 'provider']);
+        .returning([
+          'id',
+          'name AS fullname',
+          'email',
+          'role',
+          'avatar_url',
+          'created_at',
+          'updated_at',
+          'is_verified',
+          'google_id',
+          'provider'
+        ]);
+
       return user;
     } catch (error) {
-      console.error('❌ Lỗi khi cập nhật user:', error);
+      console.error('Lỗi khi cập nhật user:', error);
       throw new Error(`Lỗi khi cập nhật user: ${error.message}`);
     }
   },
 
+  // Xóa người dùng
   async deleteUser(id) {
     try {
-      const result = await db('users').where({ id: id.toString() }).del();
-      return result;
+      const result = await db('users').where({ id }).del();
+      return result > 0;
     } catch (error) {
-      console.error('❌ Lỗi khi xóa user:', error);
+      console.error('Lỗi khi xóa user:', error);
       throw new Error(`Lỗi khi xóa user: ${error.message}`);
     }
+  },
+
+  // Kiểm tra email đã tồn tại
+  async emailExists(email, excludeId = null) {
+    const query = db('users').where({ email });
+    if (excludeId) query.andWhereNot({ id: excludeId });
+    const user = await query.first();
+    return !!user;
+  },
+
+  // Tìm user theo email
+  async findByEmail(email) {
+    try {
+      return await db('users')
+        .where({ email })
+        .select(
+          'id',
+          'name AS fullname',
+          'email',
+          'role',
+          'avatar_url',
+          'created_at',
+          'updated_at',
+          'is_verified',
+          'google_id',
+          'provider'
+        )
+        .first();
+    } catch (error) {
+      console.error('Lỗi khi tìm user theo email:', error);
+      throw new Error(`Lỗi khi tìm user theo email: ${error.message}`);
+    }
+  },
+// Tạo user mới (student, instructor, admin)
+async createUser({ name, email, password, role, avatar_url }) {
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [user] = await db('users')
+      .insert({
+        name,
+        email,
+        password_hash: hashedPassword,
+        role,
+        avatar_url: avatar_url || '',
+        is_verified: false,
+        provider: 'email',
+        created_at: new Date(),
+        updated_at: new Date()
+      })
+      .returning([
+        'id',
+        'name AS fullname',
+        'email',
+        'role',
+        'avatar_url',
+        'created_at',
+        'updated_at',
+        'is_verified',
+        'provider'
+      ]);
+
+    return user;
+  } catch (error) {
+    console.error('Lỗi khi tạo user mới:', error);
+    throw new Error(`Lỗi khi tạo user mới: ${error.message}`);
   }
+}
 };
