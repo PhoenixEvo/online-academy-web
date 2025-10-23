@@ -45,14 +45,6 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
         query = query.where('courses.category_id', categoryId);
     }
 
-<<<<<<< HEAD
-    // Search functionality
-    if (search) {
-        query = query.where(function () {
-            this.where('courses.title', 'ilike', `%${search}%`)
-                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-                .orWhere('categories.name', 'ilike', `%${search}%`);
-=======
     // Full-text search functionality
     if (search) {
         // Use PostgreSQL full-text search with tsvector
@@ -67,7 +59,6 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
             .orWhere('courses.title', 'ilike', `%${search}%`)
             .orWhere('courses.short_desc', 'ilike', `%${search}%`)
             .orWhere('categories.name', 'ilike', `%${search}%`);
->>>>>>> b6bc848961015daf9ddc40cd2e411e7e8922428f
         });
     }
 
@@ -76,27 +67,21 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
         case 'rating_desc':
             query = query.orderBy('courses.rating_avg', 'desc');
             break;
-<<<<<<< HEAD
-=======
         case 'rating_asc':
             query = query.orderBy('courses.rating_avg', 'asc');
             break;
         case 'price_desc':
             query = query.orderBy('courses.price', 'desc');
             break;
->>>>>>> b6bc848961015daf9ddc40cd2e411e7e8922428f
         case 'price_asc':
             query = query.orderBy('courses.price', 'asc');
             break;
         case 'newest':
             query = query.orderBy('courses.created_at', 'desc');
             break;
-<<<<<<< HEAD
-=======
         case 'oldest':
             query = query.orderBy('courses.created_at', 'asc');
             break;
->>>>>>> b6bc848961015daf9ddc40cd2e411e7e8922428f
         default:
             query = query.orderBy('courses.rating_avg', 'desc');
     }
@@ -108,13 +93,6 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
     }
 
     if (search) {
-<<<<<<< HEAD
-        countQuery.where(function () {
-            this.where('courses.title', 'ilike', `%${search}%`)
-                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-                .orWhere('categories.name', 'ilike', `%${search}%`);
-        });
-=======
         // Join categories for full-text search in count query
         countQuery
             .leftJoin('categories as cat_search', 'courses.category_id', 'cat_search.id')
@@ -128,7 +106,6 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
                 .orWhere('courses.short_desc', 'ilike', `%${search}%`)
                 .orWhere('cat_search.name', 'ilike', `%${search}%`);
             });
->>>>>>> b6bc848961015daf9ddc40cd2e411e7e8922428f
     }
 
     const [countResult, rows] = await Promise.all([
@@ -226,8 +203,6 @@ export async function getCourseContent(courseId) {
 
     return sections;
 }
-<<<<<<< HEAD
-=======
 
 // Get featured courses this week (most enrollments in last 7 days)
 export async function getFeaturedThisWeek(limit = 4) {
@@ -316,4 +291,3 @@ export async function getInstructorStats(instructorId) {
         avg_rating: parseFloat(avgRating.avg || 0).toFixed(1)
     };
 }
->>>>>>> b6bc848961015daf9ddc40cd2e411e7e8922428f

@@ -23,34 +23,32 @@
     </section><!-- /About Section -->
 
     <!-- Featured This Week Section - Carousel -->
-    <section id="featured-this-week" class="featured-this-week section py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <section id="featured-this-week" class="featured-this-week section py-5"
+      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
       <div class="container">
         <div class="row mb-4">
           <div class="col-12 text-center">
-            <h2 class="h3 fw-bold text-white mb-2">🔥 Featured This Week</h2>
-            <p class="text-white-50">Most popular courses enrolled this week</p>
+            <h2 class="h3 fw-bold text-white mb-2" style="font-size: 2.5rem; text-align: center;">🔥 Featured This Week
+            </h2>
+            <p class="text-white-50" style="font-size: 1.2rem;text-align: center;margin-bottom: 0;">Most popular courses
+              enrolled this
+              week</p>
           </div>
         </div>
-        
+
         {{#if featuredThisWeek.length}}
-        <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-indicators">
-            {{#each featuredThisWeek}}
-            <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="{{@index}}" 
-              {{#if @first}}class="active" aria-current="true"{{/if}} aria-label="Slide {{add @index 1}}"></button>
-            {{/each}}
-          </div>
-          
+        <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000"
+          data-bs-pause="hover" data-bs-wrap="true">
           <div class="carousel-inner">
             {{#each featuredThisWeek}}
             <div class="carousel-item {{#if @first}}active{{/if}}">
-              <div class="row align-items-center">
+              <div class="row align-items-center h-100">
                 <div class="col-md-6">
-                  <img src="{{thumbnail_url}}" class="d-block w-100 rounded shadow" alt="{{title}}" 
+                  <img src="{{thumbnail_url}}" class="d-block w-100 rounded shadow" alt="{{title}}"
                     style="height: 400px; object-fit: cover;">
                 </div>
-                <div class="col-md-6 text-white">
-                  <div class="p-4">
+                <div class="col-md-6 text-white d-flex align-items-center">
+                  <div class="p-4 w-100">
                     <div class="mb-3">
                       {{#if is_bestseller}}
                       <span class="badge bg-warning text-dark me-2">🏆 Best Seller</span>
@@ -69,9 +67,9 @@
                       </div>
                       <div class="d-flex align-items-center mb-2">
                         <div class="rating me-2">
-                          {{#range 1 5}}
-                          <i class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning"></i>
-                          {{/range}}
+                          {{#each (range 1 5)}}
+                          <i class="bi bi-star{{#if (gte ../rating_avg this)}}-fill{{/if}} text-warning me-1"></i>
+                          {{/each}}
                         </div>
                         <span>{{rating_avg}} ({{rating_count}} reviews)</span>
                       </div>
@@ -99,15 +97,14 @@
             </div>
             {{/each}}
           </div>
-          
-          <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
+
+          <!-- Carousel Indicators -->
+          <div class="carousel-indicators">
+            {{#each featuredThisWeek}}
+            <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="{{@index}}" {{#if
+              @first}}class="active" aria-current="true" {{/if}} aria-label="Slide {{add @index 1}}"></button>
+            {{/each}}
+          </div>
         </div>
         {{else}}
         <div class="text-center text-white py-5">
@@ -184,10 +181,9 @@
                 <p class="course-instructor text-muted small mb-2">{{instructor_name}}</p>
                 <div class="course-rating d-flex align-items-center mb-2">
                   <div class="rating me-2">
-                    {{#range 1 5}}
-                    <i class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning"
-                      style="font-size: 0.8rem;"></i>
-                    {{/range}}
+                    {{#each (range 1 5)}}
+                    <i class="bi bi-star{{#if (gte ../rating_avg this)}}-fill{{/if}} text-warning me-1"></i>
+                    {{/each}}
                   </div>
                   <span class="text-muted small">{{rating_avg}} ({{rating_count}})</span>
                 </div>
@@ -254,8 +250,12 @@
                     <a href="#" class="trainer-link">{{instructor_name}}</a>
                   </div>
                   <div class="trainer-rank d-flex align-items-center">
-                    <i class="bi bi-star text-warning"></i>&nbsp;{{rating_avg}}
-                    &nbsp;&nbsp;
+                    <div class="rating me-2">
+                      {{#each (range 1 5)}}
+                      <i class="bi bi-star{{#if (gte ../rating_avg this)}}-fill{{/if}} text-warning me-1"></i>
+                      {{/each}}
+                    </div>
+                    <span class="me-3">{{rating_avg}}</span>
                     <i class="bi bi-eye text-primary"></i>&nbsp;{{views}}
                   </div>
                 </div>
@@ -355,5 +355,72 @@
 
   <!-- Preloader -->
   <div id="preloader"></div>
+
+  <style>
+    /* Carousel Height Fix */
+    #featuredCarousel .carousel-inner {
+      min-height: 500px;
+      /* Đảm bảo chiều cao tối thiểu */
+    }
+
+    #featuredCarousel .carousel-item {
+      min-height: 500px;
+      /* Chiều cao cố định cho mỗi slide */
+    }
+
+    #featuredCarousel .carousel-item .row {
+      min-height: 500px;
+      /* Chiều cao cố định cho row */
+      align-items: center;
+      /* Căn giữa theo chiều dọc */
+    }
+
+    #featuredCarousel .carousel-item .col-md-6 {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* Căn giữa nội dung */
+    }
+
+    #featuredCarousel .carousel-item .col-md-6:last-child {
+      padding: 2rem;
+      /* Padding cố định cho phần text */
+    }
+
+    /* Đảm bảo ảnh có chiều cao cố định */
+    #featuredCarousel .carousel-item img {
+      height: 400px !important;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    /* Carousel Indicators Positioning */
+    #featuredCarousel .carousel-indicators {
+      position: static;
+      margin: 20px 0 0 0;
+      justify-content: center;
+    }
+
+    #featuredCarousel .carousel-indicators button {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin: 0 5px;
+      background-color: rgba(255, 255, 255, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
+    }
+
+    #featuredCarousel .carousel-indicators button.active {
+      background-color: #fff;
+      border-color: #fff;
+      transform: scale(1.2);
+    }
+
+    #featuredCarousel .carousel-indicators button:hover {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-color: #fff;
+    }
+  </style>
 
 </body>

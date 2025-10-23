@@ -1,3 +1,97 @@
+<style>
+    .course-card {
+        will-change: transform;
+        backface-visibility: hidden;
+    }
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        color: #0d6efd;
+        font-weight: 500;
+        border: 1px solid #e6e9ee;
+        background-color: #fff;
+        box-shadow: 0 2px 6px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .06);
+        transition: all 0.2s ease;
+        font-size: 1.1rem;
+    }
+
+    .pagination .page-item:first-child.disabled .page-link,
+    .pagination .page-item:last-child.disabled .page-link {
+        color: #98a2b3;
+        border-color: #eceff3;
+        background-color: #fff;
+        opacity: 0.6;
+        box-shadow: none;
+        transform: none;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .pagination {
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .pagination .page-link {
+        width: 40px;
+        /* to hơn 1 chút để cân icon */
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        /* đảm bảo căn giữa số/icon */
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        line-height: 1;
+        font-weight: 600;
+        background-color: #fff;
+        border: 1px solid #e6e9ee;
+        box-shadow: 0 2px 6px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .06);
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease;
+        will-change: transform;
+        backface-visibility: hidden;
+
+    }
+
+    .pagination .page-link i {
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    /* Active Currenct Page */
+    .pagination .page-item.active .page-link {
+        color: #dc3545 !important;
+        background-color: #fff;
+        border-color: #dc3545;
+        font-weight: 700;
+        box-shadow: 0 0 0 2px rgba(220, 53, 69, .18), 0 2px 6px rgba(16, 24, 40, .06);
+    }
+
+    .pagination .page-link:hover:not(.active) {
+        transform: translateY(-2px);
+        background-color: #f8fafc;
+        border-color: #d5d9e0;
+        box-shadow: 0 6px 16px rgba(16, 24, 40, .12);
+    }
+
+    .pagination .page-link:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, .18), 0 2px 6px rgba(16, 24, 40, .06);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #fff;
+        border-color: #dee2e6;
+        opacity: 0.7;
+    }
+</style>
+
 <body class="course-list-page">
 
     <main class="main">
@@ -26,8 +120,8 @@
                             <div class="col-md-5">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                    <input type="text" name="q" class="form-control"
-                                        placeholder="Search courses..." value="{{currentSearch}}">
+                                    <input type="text" name="q" class="form-control" placeholder="Search courses..."
+                                        value="{{currentSearch}}">
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -67,44 +161,49 @@
                                 <span class="text-muted me-2">Sort by:</span>
                                 <div class="btn-group" role="group">
                                     <!-- Rating Toggle -->
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "rating_asc")}}rating_desc{{else}}rating_asc{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}active{{/if}}"
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "
+                                        rating_asc")}}rating_desc{{else}}rating_asc{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "
+                                        rating_desc") (eq currentSort "rating_asc" ))}}active{{/if}}"
                                         title="Click to toggle sort direction">
                                         <i class="bi bi-star-fill"></i> Rating
                                         {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}
-                                            {{#if (eq currentSort "rating_asc")}}
-                                            <i class="bi bi-arrow-up"></i>
-                                            {{else}}
-                                            <i class="bi bi-arrow-down"></i>
-                                            {{/if}}
+                                        {{#if (eq currentSort "rating_asc")}}
+                                        <i class="bi bi-arrow-up"></i>
+                                        {{else}}
+                                        <i class="bi bi-arrow-down"></i>
+                                        {{/if}}
                                         {{/if}}
                                     </a>
-                                    
+
                                     <!-- Price Toggle -->
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "price_desc")}}price_asc{{else}}price_desc{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}active{{/if}}"
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "
+                                        price_desc")}}price_asc{{else}}price_desc{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort " price_asc")
+                                        (eq currentSort "price_desc" ))}}active{{/if}}"
                                         title="Click to toggle sort direction">
                                         <i class="bi bi-tag-fill"></i> Price
                                         {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}
-                                            {{#if (eq currentSort "price_desc")}}
-                                            <i class="bi bi-arrow-down"></i>
-                                            {{else}}
-                                            <i class="bi bi-arrow-up"></i>
-                                            {{/if}}
+                                        {{#if (eq currentSort "price_desc")}}
+                                        <i class="bi bi-arrow-down"></i>
+                                        {{else}}
+                                        <i class="bi bi-arrow-up"></i>
+                                        {{/if}}
                                         {{/if}}
                                     </a>
-                                    
+
                                     <!-- Date Toggle -->
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "oldest")}}newest{{else}}oldest{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}active{{/if}}"
-                                        title="Click to toggle sort direction">
+                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "
+                                        oldest")}}newest{{else}}oldest{{/if}}"
+                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort " newest") (eq
+                                        currentSort "oldest" ))}}active{{/if}}" title="Click to toggle sort direction">
                                         <i class="bi bi-clock-fill"></i> Date
                                         {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}
-                                            {{#if (eq currentSort "oldest")}}
-                                            <i class="bi bi-arrow-up"></i>
-                                            {{else}}
-                                            <i class="bi bi-arrow-down"></i>
-                                            {{/if}}
+                                        {{#if (eq currentSort "oldest")}}
+                                        <i class="bi bi-arrow-up"></i>
+                                        {{else}}
+                                        <i class="bi bi-arrow-down"></i>
+                                        {{/if}}
                                         {{/if}}
                                     </a>
                                 </div>
@@ -153,7 +252,8 @@
                                             style="font-size: 0.8rem;"></i>
                                         {{/range}}
                                     </div>
-                                    <span class="text-muted small">{{#if rating_avg}}{{rating_avg}}{{else}}0{{/if}} ({{rating_count}})</span>
+                                    <span class="text-muted small">{{#if rating_avg}}{{rating_avg}}{{else}}0{{/if}}
+                                        ({{rating_count}})</span>
                                 </div>
                                 <div class="course-price d-flex align-items-center justify-content-between">
                                     <div>
@@ -190,8 +290,8 @@
                     <ul class="pagination justify-content-center">
                         <!-- Previous button -->
                         <li class="page-item {{#if (eq page 1)}}disabled{{/if}}">
-                            <a class="page-link" href="{{baseUrl}}page={{decrement page}}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
+                            <a class="page-link" href="{{baseUrl}}page={{decrement page}}">
+                                <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
 
@@ -226,8 +326,8 @@
 
                         <!-- Next button -->
                         <li class="page-item {{#if (eq page totalPages)}}disabled{{/if}}">
-                            <a class="page-link" href="{{baseUrl}}page={{increment page}}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
+                            <a class="page-link" href="{{baseUrl}}page={{increment page}}">
+                                <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
                     </ul>
@@ -242,75 +342,17 @@
         <i class="bi bi-arrow-up-short"></i>
     </a>
 
-    <style>
-        .course-card {
-            will-change: transform;
-            backface-visibility: hidden;
-        }
-
-        .course-card:hover {
-            transform: translateY(-5px);
-            transition: transform 0.3s ease;
-        }
-
-        .pagination {
-            gap: 5px;
-        }
-
-        .pagination .page-link {
-            width: 35px;
-            height: 35px;
-            padding: 0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            margin: 0 2px;
-            color: #0d6efd;
-            border: 1px solid #dee2e6;
-        }
-
-        /* Active state - trang hiện tại */
-        .pagination .page-item.active .page-link {
-            z-index: 3;
-            color: #dc3545 !important;
-            /* Màu đỏ */
-            background-color: #fff;
-            /* Nền trắng */
-            border-color: #dc3545;
-            /* Viền đỏ */
-            font-weight: 700;
-            /* In đậm hơn */
-            box-shadow: none;
-            /* Bỏ bóng */
-        }
-
-        /* Hover effect */
-        .pagination .page-link:hover:not(.active) {
-            background-color: #e9ecef;
-            border-color: #dee2e6;
-        }
-
-        /* Disabled state */
-        .pagination .page-item.disabled .page-link {
-            color: #6c757d;
-            background-color: #fff;
-            border-color: #dee2e6;
-            opacity: 0.7;
-        }
-    </style>
 
     <script>
         // Preserve current sort when submitting filter form
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const filterForm = document.getElementById('filterForm');
             if (filterForm) {
-                filterForm.addEventListener('submit', function(e) {
+                filterForm.addEventListener('submit', function (e) {
                     // Get current sort from URL if not already in form
                     const urlParams = new URLSearchParams(window.location.search);
                     const currentSort = urlParams.get('sort');
-                    
+
                     // Only add if sort exists in URL and not already in form
                     if (currentSort && !filterForm.querySelector('input[name="sort"]')) {
                         const sortInput = document.createElement('input');

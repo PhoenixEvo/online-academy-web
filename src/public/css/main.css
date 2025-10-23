@@ -16,7 +16,11 @@
   --heading-font: "Raleway", sans-serif;
   --nav-font: "Poppins", sans-serif;
 }
-
+/* Rating Stars */
+.rating-stars .star i{
+  font-size: 1rem;
+  line-height: 1;
+}
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
 :root {
   --background-color: #ffffff;

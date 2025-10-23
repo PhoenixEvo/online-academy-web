@@ -5,10 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{#if title}}{{title}} - {{/if}}Mentor</title>
-    <meta http-equiv="Content-Security-Policy"
-        content="script-src 'self' https://cdnjs.cloudflare.com 'unsafe-eval'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';">
 
-   
+
     <!-- Favicons -->
     <link href="/img/favicon.ico" rel="icon">
     <link href="/img/apple-touch-icon.png" rel="apple-touch-icon">
@@ -55,22 +53,22 @@
     {{#if (eq page 'login')}}
     <script src="/js/auth-animation.js"></script>
     {{/if}}
-    
+
     <!-- Forgot password animation JS -->
     {{#if (eq page 'forgot-password')}}
     <script src="/js/forgot-password-animation.js"></script>
     {{/if}}
-    
+
     <!-- Reset password animation JS -->
     {{#if (eq page 'reset-password')}}
     <script src="/js/reset-password-animation.js"></script>
     {{/if}}
-    
+
     <!-- Register page JS (only load on register page) -->
     {{#if (eq page 'register')}}
     <script src="/js/register.js"></script>
     {{/if}}
-    
+
     <!-- Verify OTP page JS (only load on verify-otp page) -->
     {{#if (eq page 'verify-otp')}}
     <script src="/js/verify-otp.js"></script>
