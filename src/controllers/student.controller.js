@@ -6,6 +6,7 @@ import { isEnrolled, enroll } from "../models/enrollment.model.js";
 import { remove as removeFromWatchlist } from "../models/watchlist.model.js";
 import Handlebars from "handlebars";
 
+
 export async function listEnrolled(req, res) {
     const page = parseInt(req.query.page) || 1;
     const { courses, pagination } = getPageData(page, 6);
@@ -88,7 +89,6 @@ export async function listWatchlist(req, res) {
             categoryName: course.category_name,
             purchasedAt: course.purchased_at
         }));
-        console.log(courseList);
         const totalCourses = allCourses.length;
         const totalPages = Math.ceil(totalCourses / itemsPerPage);
 
@@ -98,7 +98,6 @@ export async function listWatchlist(req, res) {
         for (let i = startPage; i <= endPage; i++) {
             pages.push({ value: i, isCurrent: i === page });
         }
-
         res.render("students/watchlist", {
             success: true,
             total: totalCourses,
@@ -107,7 +106,8 @@ export async function listWatchlist(req, res) {
             totalPages,
             pages,
             hasPrevious: page > 1,
-            hasNext: page < totalPages
+            hasNext: page < totalPages,
+            categoryName1: req.csrfToken()
         });
 
     } catch (error) {
@@ -117,12 +117,15 @@ export async function listWatchlist(req, res) {
 };
 
 export const removeCourse = async(req, res) => {
+   
     try {
+       console.log('body:', req.body);
+        console.log('_csrf from body:', req.body && req.body._csrf);
         const courseId = req.params.id;
         const userId = req.user.id;
         await remove(userId, courseId);
         req.flash('success', 'Removed from watchlist');
-        res.redirect("/courses/" + courseId);
+        res.redirect("/students/watchlist");
     } catch (err) {
         console.error("Error removing course from watchlist:", err);
         req.flash('error', 'Failed to remove course');

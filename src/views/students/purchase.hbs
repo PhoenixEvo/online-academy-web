@@ -27,6 +27,7 @@
   <section id="checkout" class="checkout section-bg">
     <div class="container my-5">
       <form id="paymentForm" method="POST" action="/students/purchase/{{course.id}}">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <div class="row">
           <!-- Left side - Payment Form -->
           <div class="col-md-7">

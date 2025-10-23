@@ -82,7 +82,8 @@ export async function viewLesson(req, res, next) {
             nextLesson: nextLesson,
             prevLesson: prevLesson,
             courseProgress: courseProgress,
-            userHasFeedback: userHasFeedback
+            userHasFeedback: userHasFeedback,       
+            csrfToken: req.csrfToken()
         });
     } catch (e) {
         next(e);

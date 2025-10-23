@@ -104,12 +104,14 @@
                                 {{#if isInWatchlist}}
                                 <form method="POST" action="/courses/{{course.id}}/watch?_method=DELETE"
                                     class="d-inline w-100">
+                                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
                                     <button type="submit" class="btn btn-outline-dark w-100">
                                         <i class="bi bi-heart-fill me-2"></i>Remove from wishlist
                                     </button>
                                 </form>
                                 {{else}}
                                 <form method="POST" action="/courses/{{course.id}}/watch" class="d-inline w-100">
+                                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
                                     <button type="submit" class="btn btn-outline-dark w-100">
                                         <i class="bi bi-heart me-2"></i>Add to wishlist
                                     </button>

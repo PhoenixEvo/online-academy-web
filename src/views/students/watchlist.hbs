@@ -1,3 +1,4 @@
+
 <main class="main">
 
     <!-- Page Title -->
@@ -34,15 +35,15 @@
         <div class="container">
 
             <div class="row">
+                <input type="hidden" name="_csrf" value="{{csrfToken}}">
                 {{#if courses.length}}
                 {{#each courses}}
                 <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0 mb-4" data-aos="zoom-in"
                     data-aos-delay="300">
                     <div class="course-item">
-                        <form action="/students/watchlist/remove/{{this.id}}" method="POST" class="remove-btn-form">
-                            <button type="submit" class="remove-btn" title="Remove from watchlist">
-                                <i class="bi bi-x-circle"></i>
-                            </button>
+                        <form method="POST" action="/students/watchlist/remove/{{this.id}}">
+                        <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                        <button type="submit" class="remove-btn"><i class="bi bi-x-circle"></i></button>
                         </form>
                         <img src="{{thumbnailUrl}}" class="img-fluid" alt="">
                         <div class="course-content">

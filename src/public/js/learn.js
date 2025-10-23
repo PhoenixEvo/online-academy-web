@@ -1,4 +1,6 @@
 // Toast notification helper
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
 function showToast(message, type = 'success') {
     const toastEl = document.getElementById('successToast');
     const toastMessage = document.getElementById('toastMessage');
@@ -70,7 +72,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch(`/learn/${lessonId}/${action}`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': csrfToken
                     }
                 });
 
@@ -178,7 +181,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(`/learn/${lessonId}/get-progress`, {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'CSRF-Token': csrfToken
                 }
             });
 
@@ -264,7 +268,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(`/learn/${lessonId}/progress`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'CSRF-Token': csrfToken
                 },
                 body: JSON.stringify({
                     watched_sec: currentTime,
@@ -343,7 +348,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch(`/learn/${lessonId}/get-progress`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': csrfToken
+
                     }
                 });
 
@@ -385,7 +392,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch(`/learn/${lessonId}/progress`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': csrfToken
                     },
                     body: JSON.stringify({
                         watched_sec: watchedSec,

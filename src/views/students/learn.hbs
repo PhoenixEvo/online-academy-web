@@ -120,7 +120,9 @@
                         <p class="text-muted mt-2" id="rating-text">Click on a star to rate</p>
 
                         <form action="/lessons/{{lesson.id}}/feedback" method="POST" id="feedback-form">
+                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
                             <div class="mb-3">
+                                {{!-- <input type="hidden" name="_csrf" value="{{csrfToken}}"> --}}
                                 <label class="form-label fw-bold">Your Feedback</label>
                                 <textarea name="comment" class="form-control" rows="4" 
                                           placeholder="Share your thoughts about this course..." 
