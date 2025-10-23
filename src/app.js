@@ -10,7 +10,6 @@ import { setupHandlebars } from './config/handlebars.js';
 import { setupSession } from './config/session.js';
 import { setupPassport } from './config/passport.js';
 import { addCategoriesToLocals } from './middlewares/categories.js';
-
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
@@ -74,14 +73,17 @@ app.use((err, req, res, next) => {
 
 // locals for website
 app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken();
-    res.locals.user = req.user || null;
-    res.locals.isAuthenticated = req.isAuthenticated?.() || false;
-    res.locals.year = new Date().getFullYear();
-    res.locals.success = req.flash('success');
-    res.locals.error = req.flash('error');
-    next();
+  // res.locals.csrfToken = req.csrfToken();
+  res.locals.user = req.user || null;
+  res.locals.isAuthenticated = req.isAuthenticated?.() || false;
+  res.locals.year = new Date().getFullYear();
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
 });
+
+// Add categories to locals for guest users
+app.use(addCategoriesToLocals);
 
 // Add categories to locals for guest users
 app.use(addCategoriesToLocals);
@@ -112,3 +114,4 @@ app.use((err, req, res, next) => {
 // server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
+
