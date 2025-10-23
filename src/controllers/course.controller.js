@@ -40,7 +40,7 @@ export async function list(req, res, next) {
 
     // Handle duplicate sort values (take first one if array)
     const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
-    const sort = sortRaw || "rating_desc";
+    const sort = sortRaw || null; // Let model handle default sorting
     const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
     const search = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
 
@@ -60,7 +60,7 @@ export async function list(req, res, next) {
       return {
         ...course,
         is_new: Course.isNewCourse(course.created_at),
-        is_bestseller: enrollmentCount >= 100, // 100+ enrollments = bestseller
+        is_bestseller: course.weekly_enrollments >= 5, // 5+ enrollments this week = bestseller
         enrollment_count: enrollmentCount
       };
     }));
@@ -83,8 +83,8 @@ export async function list(req, res, next) {
 }
 
 
-// GET /courses/:id - Course detail page
-export const detailValidators = [param("id").isInt().toInt()];
+// GET /courses/detail?id=:id - Course detail page
+export const detailValidators = [query("id").isInt().toInt()];
 export async function detail(req, res, next) {
   try {
     await Promise.all(detailValidators.map((v) => v.run(req)));
@@ -92,7 +92,7 @@ export async function detail(req, res, next) {
     if (!errors.isEmpty())
       return res.status(404).render("error", { message: "Not found" });
 
-    const id = req.params.id;
+    const id = req.query.id;
     const course = await Course.findById(id);
     if (!course)
       return res
@@ -137,7 +137,7 @@ export async function detail(req, res, next) {
         ...course,
         enrollment_count: enrollmentCount,
         is_new: Course.isNewCourse(course.created_at),
-        is_bestseller: enrollmentCount >= 100
+        is_bestseller: course.weekly_enrollments >= 5
       },
       courseStats,
       instructorStats,
@@ -175,7 +175,7 @@ export async function search(req, res, next) {
     const page = req.query.page || 1;
     // Handle duplicate sort values (take first one if array)
     const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
-    const sort = sortRaw || "rating_desc";
+    const sort = sortRaw || null; // Let model handle default sorting
     const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
     const pageSize = 12;
 
@@ -197,7 +197,7 @@ export async function search(req, res, next) {
       return {
         ...course,
         is_new: Course.isNewCourse(course.created_at),
-        is_bestseller: enrollmentCount >= 100,
+        is_bestseller: course.weekly_enrollments >= 5,
         enrollment_count: enrollmentCount
       };
     }));

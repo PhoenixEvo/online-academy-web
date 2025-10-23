@@ -7,7 +7,7 @@ const r = express.Router();
 // Public routes (Guest access)
 r.get('/search', courseCtrl.search);            // GET /courses/search - Search courses
 r.get('/', courseCtrl.list);                    // GET /courses - List all courses
-r.get('/:id', courseCtrl.detail);               // GET /courses/:id - Course detail
+r.get('/detail', courseCtrl.detail);             // GET /courses/detail?id=:id - Course detail
 
 // Protected routes (Authenticated users only)
 r.post('/:id/watch', authGuard, courseCtrl.addToWatchlist);           // POST /courses/:id/watch
