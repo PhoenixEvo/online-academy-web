@@ -104,9 +104,11 @@
           <li><a href="/contact">Contact</a></li>
           <!-- Search -->
           <li>
-            <form class="d-flex" role="search">
-              <input class="form-control" type="search" placeholder="Search" aria-label="Search" />
-              <button class="btn btn-outline-success" type="submit">Search</button>
+            <form class="d-flex" role="search" action="/courses/search" method="GET">
+              <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
+              <button class="btn btn-outline-success" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
             </form>
           </li>
           {{/if}}
