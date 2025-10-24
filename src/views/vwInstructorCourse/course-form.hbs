@@ -1,0 +1,212 @@
+
+{{#fill_section 'css'}} 
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<link href="/css/instructors.css" rel="stylesheet">
+
+
+{{/fill_section}}
+{{#fill_section 'js'}} 
+<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+    var cleavePrice = new Cleave('#txtPrice', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand'
+    });
+    var cleaveSalePrice = new Cleave('#txtSalePrice', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand'
+    });
+    const quill = new Quill('#editor', {
+    theme: 'snow',
+    });
+    quill.on('text-change', function() {
+        document.getElementById('txtFullDes').value = quill.root.innerHTML;
+    });
+        // Keep dropdown open on inner clicks
+        document.querySelectorAll('.category-menu').forEach(menu => {
+            menu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+        // Toggle submenus: close sibling submenus at the same level so only one opens per level
+        document.querySelectorAll('.category-toggle').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const next = link.nextElementSibling;
+                if (next && next.classList.contains('dropdown-menu')) {
+                    // close other open submenus that are direct children of the same parent <ul>
+                    const li = link.parentElement;
+                    const parentUl = li && li.parentElement;
+                    if (parentUl) {
+                        try {
+                            // target direct sibling submenu lists only
+                            const siblings = parentUl.querySelectorAll(':scope > .dropdown-submenu > .dropdown-menu.show');
+                            siblings.forEach(el => { if (el !== next) el.classList.remove('show'); });
+                        } catch (err) {
+                            // fallback if :scope unsupported
+                            Array.from(parentUl.children).forEach(childLi => {
+                                const submenu = childLi.querySelector('.dropdown-menu');
+                                if (submenu && submenu !== next) submenu.classList.remove('show');
+                            });
+                        }
+                    }
+                    // toggle this submenu
+                    next.classList.toggle('show');
+                } else {
+                    // leaf: select
+                    const id = link.dataset.id;
+                    document.getElementById('selCatId').value = id;
+                    document.getElementById('btnCategory').textContent = link.textContent.trim();
+                    // close all submenus
+                    document.querySelectorAll('.dropdown-menu.show').forEach(el => el.classList.remove('show'));
+                }
+            });
+        });
+            // Select leaf items (alternative links)
+            document.querySelectorAll('.category-select').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = link.dataset.id;
+                    const label = link.textContent.trim();
+                    document.getElementById('selCatId').value = id;
+                    document.getElementById('btnCategory').textContent = label;
+                    // Close all submenus
+                    document.querySelectorAll('.dropdown-menu.show').forEach(el => el.classList.remove('show'));
+                });
+            });
+            // Close all submenus when clicking outside the dropdown
+            document.addEventListener('click', (e) => {
+                const inside = e.target.closest('.dropdown');
+                if (!inside) {
+                    document.querySelectorAll('.dropdown-menu.show').forEach(el => el.classList.remove('show'));
+                }
+            });
+        // Upload thumbnail to Supabase
+        (function(){
+            const csrfToken = '{{csrfToken}}';
+            const btn = document.getElementById('btnUploadThumbnail');
+            const fileInput = document.getElementById('file-course-thumbnail');
+            const urlInput = document.getElementById('txtThumbnailUrl');
+            const preview = document.getElementById('courseThumbnailPreview');
+            function onClick(){ fileInput?.click(); }
+            async function onChange(e){
+                const f = e.currentTarget.files?.[0];
+                if (!f) return;
+                const fd = new FormData();
+                fd.append('file', f);
+                fd.append('folder', 'course-thumbnails');
+                const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken }, body: fd });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    urlInput.value = data.publicUrl;
+                    if (preview) preview.src = data.publicUrl;
+                    alert('Thumbnail uploaded and URL inserted.');
+                } else {
+                    alert(data.message || 'Upload failed');
+                }
+                e.currentTarget.value = '';
+            }
+            document.addEventListener('DOMContentLoaded', function(){
+                btn?.addEventListener('click', onClick);
+                fileInput?.addEventListener('change', onChange);
+            });
+        })();
+</script>
+{{/fill_section}}
+<form id="frmAddCourse" method="post">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <div class="e-5 ms-5 mt-4 mb-4 me-5">
+        
+        <div class="card-body">
+            <h4 class="card-title mb-3" style="font-weight: bold;">New Course</h4>
+            <div class="mb-3" style="font-weight: bold;">
+                <label for="txtCourseName" class="form-label">Title</label>
+                <input type="text" class="form-control" id="txtCourseName" placeholder="Draft Title" name="title" autofocus>
+            </div>
+            <div class="mb-3" style="font-weight: bold;">
+                <label for="txtPrice" class="form-label">Price</label>
+                <input type="text" class="form-control" id="txtPrice" placeholder="10000" name="price">
+            </div>
+            <div class="mb-3" style="font-weight: bold;">
+                <label for="txtSalePrice" class="form-label">Sale Price</label>
+                <input type="text" class="form-control" id="txtSalePrice" placeholder="8000" name="sale_price">
+            </div>
+            <div class="mb-3" style="font-weight: bold;">
+                <label class="form-label">Category</label>
+                            <div class="dropdown" data-bs-auto-close="outside">
+                                <button id="btnCategory" class="btn btn-outline-primary dropdown-toggle" style="border-color:#4eb8dd;hover:#549eb9;color:#4eb8dd;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Choose Category
+                                </button>
+                                <ul class="dropdown-menu p-2 category-menu">
+                                    {{#each globalCategories}}
+                                        <li class="dropdown-submenu">
+                                            <a href="#" class="dropdown-item d-flex justify-content-between align-items-center category-toggle" data-id="{{this.id}}">
+                                                <span>{{this.name}}</span>
+                                                {{#if this.children.length}}<i class="bi bi-caret-right-fill ms-2"></i>{{/if}}
+                                            </a>
+                                            {{#if this.children.length}}
+                                                <ul class="dropdown-menu p-2">
+                                                    {{#each this.children}}
+                                                        <li class="dropdown-submenu">
+                                                            <a href="#" class="dropdown-item d-flex justify-content-between align-items-center category-toggle" data-id="{{this.id}}">
+                                                                <span>{{this.name}}</span>
+                                                                {{#if this.children.length}}<i class="bi bi-caret-right-fill ms-2"></i>{{/if}}
+                                                            </a>
+                                                            {{#if this.children.length}}
+                                                                <ul class="dropdown-menu p-2">
+                                                                    {{#each this.children}}
+                                                                        <li>
+                                                                            <a href="#" class="dropdown-item category-select" data-id="{{this.id}}">{{this.name}}</a>
+                                                                        </li>
+                                                                    {{/each}}
+                                                                </ul>
+                                                            {{/if}}
+                                                        </li>
+                                                    {{/each}}
+                                                </ul>
+                                            {{/if}}
+                                        </li>
+                                    {{/each}}
+                                </ul>
+                                <input type="hidden" name="category_id" id="selCatId" />
+                            </div>
+                        </div>
+            <div class="mb-3">
+                <label for="txtTinyDes" class="form-label" style="font-weight: bold;" >Description</label>
+                <input type="text" class="form-control" id="txtTinyDes" name="short_desc" placeholder ="Draft Description">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" style="font-weight: bold;" placeholder ="Draft Description">Full Description</label>
+        <div id="editor" style="height: 200px;"></div>
+        <input type="hidden" name ="full_desc" id="txtFullDes"> 
+            </div>
+                        <div class="mb-3">
+                                <label class="form-label" style="font-weight: bold;">Course Thumbnail</label>
+                                <div class="d-flex flex-column gap-2">
+                                    <img id="courseThumbnailPreview" src="data:image/png;base64,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" alt="Course Thumbnail" style="max-width: 280px; max-height: 160px; object-fit: cover; border-radius: 6px;" onerror="this.onerror=null;this.src='https://placehold.co/560x320?text=Thumbnail'">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <input type="text" class="form-control" id="txtThumbnailUrl" name="thumbnail_url" placeholder="Paste image URL or upload a file">
+                                        <input type="file" accept="image/*" id="file-course-thumbnail" class="d-none w-auto">
+                                        <button type="button" id="btnUploadThumbnail" class="btn btn-secondary w-auto"><i class="bi bi-upload"></i> Upload file</button>
+                                    </div>
+                                </div>
+                        </div>
+        </div>
+        <div class="card-footer text-muted">
+            <a class="btn btn-outline-success" style="color: #4eb8dd;hover: #549eb9;" href="/instructor/courses" role = "button">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+                    <button type="submit" class="btn btn-success" style="background-color: #4eb8dd; hover: #549eb9;">
+                        <i class="bi bi-check2"></i>
+                        Save
+                    </button>
+        </div>
+    </div>
+</form>
+<script>
+
+</script>
