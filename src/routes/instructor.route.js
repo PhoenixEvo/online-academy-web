@@ -1,16 +1,28 @@
-import express from 'express';
-import instructorModel from '../models/instructor.model.js';
-// import { 
-//   getAllInstructors, 
-//   getInstructorProfile, 
-//   getInstructorAPI 
-// } from '../controllers/instructor.controller.js';
+import { Router } from "express";
+import { requireLogin } from "../middlewares/authGuard.js";
+import * as profileCtrl from "../controllers/profile.controller.js";
+import { getAllInstructors, getInstructorProfile } from "../controllers/instructor.controller.js";
 
-const router = express.Router();
+const r = Router();
 
+r.use(requireLogin);
 
+r.get("/", (req, res) => {
+	const uid = req.user?.id;
+	if (!uid) return res.redirect('/auth/login');
+	const tab = req.query.tab || 'info';
+	return res.redirect(`/instructor/profile/${uid}?tab=${encodeURIComponent(tab)}`);
+});
 
+r.get("/:id", profileCtrl.showInstructorProfile);
 
+r.post("/update/:id", profileCtrl.updateInstructorProfile);
+r.post("/upload-avatar/:id", profileCtrl.updateInstructorProfilePicture);
 
+export default r;
 
-export default router;
+//listing/profile (mounted at /instructors)
+export const instructorsRouter = Router();
+instructorsRouter.use(requireLogin);
+instructorsRouter.get('/', getAllInstructors);
+instructorsRouter.get('/profile/:userId', getInstructorProfile);

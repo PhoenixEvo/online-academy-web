@@ -1,19 +1,127 @@
-<div class="container mt-4">
-  <h2>{{title}}</h2>
-  
-  <div class="row">
-    {{#each instructors}}
-    <div class="col-md-4 mb-4">
-      <div class="card instructor-card">
-        <img src="{{image_100x100}}" class="card-img-top" alt="{{display_name}}">
-        <div class="card-body">
-          <h5 class="card-title">{{display_name}}</h5>
-          <p class="card-text">{{job_title}}</p>
-          <p class="text-muted">{{user_name}}</p>
-          <a href="/instructors/{{user_id}}" class="btn btn-primary">Xem Profile</a>
+
+{{#fill_section 'css'}} 
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<link href="/css/instructors.css" rel="stylesheet">
+
+
+{{/fill_section}}
+{{#fill_section 'js'}} 
+<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+  (function(){
+    const csrfToken = '{{csrfToken}}';
+    const btn = document.getElementById('btnUploadAvatar');
+    const fileInput = document.getElementById('file-avatar');
+    const urlInput = document.getElementById('avatarUrl');
+    const preview = document.getElementById('avatarPreview');
+    function onClick(){ fileInput?.click(); }
+    async function onChange(e){
+      const f = e.currentTarget.files?.[0];
+      if (!f) return;
+      const fd = new FormData();
+      fd.append('file', f);
+      fd.append('folder', 'instructor-avatars');
+      const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken }, body: fd });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        urlInput.value = data.publicUrl;
+        if (preview) preview.src = data.publicUrl;
+        alert('Avatar uploaded and URL inserted. Click Save to apply.');
+      } else {
+        alert(data.message || 'Upload failed');
+      }
+      e.currentTarget.value = '';
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+      btn?.addEventListener('click', onClick);
+      fileInput?.addEventListener('change', onChange);
+    });
+  })();
+</script>
+{{/fill_section}}
+<link href="/css/instructors.css" rel="stylesheet">
+<div class="card me-5 ms-5 mt-4 mb-4">
+    <div class="card-body no-border">
+        <h4 class="card-title" style="font-weight: bold;font-size: 1.5rem;">My Instructor Profile</h4>
+        <div class="tab-wrapper">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link {{#if (eq activeTab 'info')}}active{{/if}}" id="home-tab" href="/instructor/profile/{{instructor.user_id}}?tab=info" style="font-weight: bold;">My Profiles</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link {{#if (eq activeTab 'photo')}}active{{/if}}" id="profile-tab" href="/instructor/profile/{{instructor.user_id}}?tab=photo" style="font-weight: bold;">My Picture Profile</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link {{#if (eq activeTab 'settings')}}active{{/if}}" id="settings-tab" href="/instructor/profile/{{instructor.user_id}}?tab=settings" style="font-weight: bold;">Private & Setting</a>
+          </li>
+        </ul>
         </div>
-      </div>
+        
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade {{#if (eq activeTab 'info')}}show active{{/if}}" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+            <form class="settings-form">
+                    <div class="row mb-3">
+                      <div class="col-md-6">
+                        <label for="fullName" class="form-label" style="font-weight: bold;">Full Name</label>
+                        <input id="fullName" type="text" class="form-control" placeholder="" value ="{{instructor.title}}">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" style="font-weight: bold;">Display Image</label>
+                        <div class="mb-2">
+                          <img src="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" alt="Instructor image" style="max-width: 160px; max-height: 160px; object-fit: cover; border-radius: 8px;" onerror="this.src='/img/person/default-avatar.jpg'">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      
+                      
+                    </div>
+                    <div class="row mb-3">
+                      
+                      <div class="col-md-6">
+                        <label for="displayName" class="form-label" style="font-weight: bold;">Display Name</label>
+                        <input id="displayName" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
+                      </div>
+                    </div>
+            
+                    
+            
+                    
+            
+                    <div class="mb-3">
+                      <label for="biography" class="form-label" style="font-weight: bold;">Biography</label>
+                      <textarea id="biography" class="form-control" rows="4" placeholder="Write something about yourself..." value ="">{{instructor.job_title}}</textarea>
+                      <div class="form-text">
+
+                      </div>
+                    </div>
+            
+
+
+                    <button type="submit" class="btn btn-save border" style="background-color: #4eb8dd;">Save</button>
+                  </form>
+          
+        </div>
+  <div class="tab-pane fade {{#if (eq activeTab 'photo')}}show active{{/if}}" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                    <form class="settings-form" action="/instructor/profile/upload-avatar/{{instructor.user_id}}" method="POST">
+                      <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                      <div class="mb-3">
+                        <label class="form-label" style="font-weight: bold;">Profile Image</label>
+                        <div class="d-flex flex-column gap-2">
+                          <img id="avatarPreview" src="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" alt="Avatar" style="max-width: 160px; max-height: 160px; object-fit: cover; border-radius: 8px;" onerror="this.src='/img/person/default-avatar.jpg'">
+                          <div class="d-flex gap-2 align-items-center">
+                            <input type="url" class="form-control" id="avatarUrl" name="avatar_url" value="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" placeholder="Paste image URL or upload a file">
+                            <input type="file" accept="image/*" id="file-avatar" class="d-none">
+                            <button type="button" id="btnUploadAvatar" class="btn btn-secondary"><i class="bi bi-upload"></i> Upload file</button>
+                          </div>
+                        </div>
+                      </div>
+                      <button type="submit" class="btn btn-save" style="background-color: #4eb8dd;">Save</button>
+                    </form>
+        </div>
+  <div class="tab-pane fade {{#if (eq activeTab 'settings')}}show active{{/if}}" id="settings-tab-pane" role="tabpanel" aria-labelledby="settings-tab" tabindex="0">
+                    <label for="">fdsfdsfsdfsf</label>
+        </div>
     </div>
-    {{/each}}
-  </div>
 </div>
