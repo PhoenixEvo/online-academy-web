@@ -1,5 +1,5 @@
 import { db } from '../models/db.js';
-import {searchByTitle,getReviewsByCourseId,getCourseInformation,courseTaughtBy,getInstructorId,findById, getSectionsByCourseId} from '../models/course.model.js';
+import {searchByTitle,getReviewsByCourseId,getCourseInformation,courseTaughtBy,getInstructorId,findById, getSectionsByCourseId} from '../models/instructor-course.model.js';
 // Edit info, upload video, mark completed
 export async function editCourse(req, res, next) {
   res.render('vWInstructors/edit');

@@ -82,7 +82,7 @@ app.use((req,res,next)=>{
 
 
 // Inject global categories for all views (must be BEFORE routes that render views)
-import categoryModel from './models/category.model.js';
+import categoryModel from './models/instructor-category.model.js';
 app.use(async function (req, res, next) {
   try {
     res.locals.globalCategories = await categoryModel.findAllTree();
