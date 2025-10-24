@@ -13,7 +13,7 @@ import { setupPassport } from './config/passport.js';
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
-import instructorRoute from './routes/instructor.route.js';
+import InstructorProfile, { instructorsRouter as instructorsPublicRoute } from './routes/instructor.route.js';
 //import courseRoute from './routes/course.route.js';
 
 
@@ -24,10 +24,13 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
-      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"], 
-      imgSrc: ["'self'", 'data:', 'https:'],
+      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://releases.transloadit.com", "'unsafe-eval'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://releases.transloadit.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "data:", "https://fonts.googleapis.com", "https://fonts.gstatic.com"], 
+      imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+      frameSrc: ["'self'", 'https://drive.google.com', 'https://www.youtube.com', 'https://youtube.com', 'https://www.youtube-nocookie.com'],
+  mediaSrc: ["'self'", 'https://drive.google.com', 'https://*.supabase.co', 'https://*.supabase.in'],
+  connectSrc: ["'self'", 'https://*.supabase.co', 'https://*.supabase.in'],
     },
   })
 );
@@ -78,21 +81,32 @@ app.use((req,res,next)=>{
 });
 
 
+// Inject global categories for all views (must be BEFORE routes that render views)
+import categoryModel from './models/category.model.js';
+app.use(async function (req, res, next) {
+  try {
+    res.locals.globalCategories = await categoryModel.findAllTree();
+  } catch (e) {
+    console.error('load globalCategories failed:', e);
+    res.locals.globalCategories = [];
+  }
+  next();
+});
+
 // ROUTES (thin, no logic)
 app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 //app.use('/courses', courseRoute);
-app.use('/instructor', instructorRoute);
+app.use('/instructors', instructorsPublicRoute);
 // instructor course route
 import courseInstructorRouter from './routes/course-instructor.route.js';
 import { restrict,restrictInstructor } from './controllers/auth.controller.js';
-import categoryModel from './models/category.model.js';
 app.use('/instructor/courses', restrict, restrictInstructor, courseInstructorRouter);
-app.use(async function (req, res, next) {
-    res.locals.globalCategories = await categoryModel.findAll();
-  next();
-});
+app.use('/instructor/profile', restrict, restrictInstructor, InstructorProfile);
+// Upload API (signed URLs to GCS)
+import uploadRouter from './routes/upload.route.js';
+app.use('/api/uploads', restrict, restrictInstructor, uploadRouter);
 
 // 404 handler
 app.use((req, res) => {
