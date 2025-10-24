@@ -30,7 +30,7 @@ export function setupSession(app) {
       httpOnly: true,
       sameSite: 'lax',
       secure: false,        // set true if running HTTPS
-      maxAge: 1000 * 60 * 60 * 4
+      maxAge: 1000 * 60 * 60 * 4,
     }
   }));
 }

@@ -2563,6 +2563,33 @@ body {
 }
 
 /*--------------------------------------------------------------
+# Popular Categories Section
+--------------------------------------------------------------*/
+.popular-categories .category-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.popular-categories .category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border-color: var(--accent-color);
+}
+
+.popular-categories .category-card:hover .category-icon i {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.popular-categories .category-card:hover .category-link {
+  color: var(--accent-color) !important;
+}
+
+.popular-categories .category-icon i {
+  transition: transform 0.3s ease;
+}
+
+/*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
 
