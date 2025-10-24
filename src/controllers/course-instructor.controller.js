@@ -121,6 +121,9 @@ export async function updateCourseContent(req, res, next) {
   try {
     const courseId = req.params.id;
     const { title, short_desc, full_desc, price, sale_price, thumbnail_url, status } = req.body;
+    // sanitize status to match DB enum: ['draft','published','completed']
+    const allowed = new Set(['draft','published','completed']);
+    const safeStatus = allowed.has((status || '').toString()) ? status : undefined;
     await db('courses')
       .where({ id: courseId })
       .update({
@@ -130,7 +133,7 @@ export async function updateCourseContent(req, res, next) {
         price,
         sale_price,
         thumbnail_url,
-        ...(status ? { status } : {}),
+        ...(safeStatus ? { status: safeStatus } : {}),
         updated_at: new Date(),
       });
     req.flash?.('success', 'Course updated');

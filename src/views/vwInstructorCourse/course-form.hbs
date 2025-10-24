@@ -8,6 +8,7 @@
 {{#fill_section 'js'}} 
 <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     var cleavePrice = new Cleave('#txtPrice', {
         numeral: true,
@@ -23,48 +24,39 @@
     quill.on('text-change', function() {
         document.getElementById('txtFullDes').value = quill.root.innerHTML;
     });
-        // Keep dropdown open on inner clicks
         document.querySelectorAll('.category-menu').forEach(menu => {
             menu.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
         });
-        // Toggle submenus: close sibling submenus at the same level so only one opens per level
         document.querySelectorAll('.category-toggle').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const next = link.nextElementSibling;
                 if (next && next.classList.contains('dropdown-menu')) {
-                    // close other open submenus that are direct children of the same parent <ul>
                     const li = link.parentElement;
                     const parentUl = li && li.parentElement;
                     if (parentUl) {
                         try {
-                            // target direct sibling submenu lists only
                             const siblings = parentUl.querySelectorAll(':scope > .dropdown-submenu > .dropdown-menu.show');
                             siblings.forEach(el => { if (el !== next) el.classList.remove('show'); });
                         } catch (err) {
-                            // fallback if :scope unsupported
                             Array.from(parentUl.children).forEach(childLi => {
                                 const submenu = childLi.querySelector('.dropdown-menu');
                                 if (submenu && submenu !== next) submenu.classList.remove('show');
                             });
                         }
                     }
-                    // toggle this submenu
                     next.classList.toggle('show');
                 } else {
-                    // leaf: select
                     const id = link.dataset.id;
                     document.getElementById('selCatId').value = id;
                     document.getElementById('btnCategory').textContent = link.textContent.trim();
-                    // close all submenus
                     document.querySelectorAll('.dropdown-menu.show').forEach(el => el.classList.remove('show'));
                 }
             });
         });
-            // Select leaf items (alternative links)
             document.querySelectorAll('.category-select').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -73,11 +65,9 @@
                     const label = link.textContent.trim();
                     document.getElementById('selCatId').value = id;
                     document.getElementById('btnCategory').textContent = label;
-                    // Close all submenus
                     document.querySelectorAll('.dropdown-menu.show').forEach(el => el.classList.remove('show'));
                 });
             });
-            // Close all submenus when clicking outside the dropdown
             document.addEventListener('click', (e) => {
                 const inside = e.target.closest('.dropdown');
                 if (!inside) {
@@ -103,9 +93,9 @@
                 if (res.ok && data.success) {
                     urlInput.value = data.publicUrl;
                     if (preview) preview.src = data.publicUrl;
-                    alert('Thumbnail uploaded and URL inserted.');
+                    await Swal.fire({ icon: 'success', title: 'Thumbnail uploaded', text: 'URL inserted.' });
                 } else {
-                    alert(data.message || 'Upload failed');
+                    Swal.fire({ icon: 'error', title: 'Upload failed', text: data.message || 'Please try again.' });
                 }
                 e.currentTarget.value = '';
             }

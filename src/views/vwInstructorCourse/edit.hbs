@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script src="https://releases.transloadit.com/uppy/v5.1.6/uppy.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   //var cleavePrice = new Cleave('#coursePrice', {
   //      numeral: true,
@@ -36,6 +37,8 @@
 
     (function(){
       const csrfToken = '{{csrfToken}}';
+      const isDirectVideo = (url) => /\.(mp4|webm|ogg)(\?.*)?$/i.test(url || '');
+      const isYouTube = (url) => /(youtu\.be|youtube\.com)/i.test(url || '');
       async function uploadFile(file){
         const formData = new FormData();
         formData.append('file', file);
@@ -49,35 +52,73 @@
         if (!res.ok || !data.success) throw new Error(data.message || 'Upload failed');
         return data.publicUrl;
       }
+      function autoFillDurationFromUrl(url, durationInput){
+        try {
+          if (!durationInput || !url || !isDirectVideo(url)) return;
+          const v = document.createElement('video');
+          v.preload = 'metadata';
+          v.crossOrigin = 'anonymous';
+          const onLoaded = () => {
+            if (!isNaN(v.duration) && isFinite(v.duration)) {
+              durationInput.value = Math.max(0, Math.round(v.duration));
+            }
+            cleanup();
+          };
+          const onError = () => { cleanup(); };
+          function cleanup(){
+            v.removeEventListener('loadedmetadata', onLoaded);
+            v.removeEventListener('error', onError);
+            // revoke if blob/object; here it's URL string so ignore
+          }
+          v.addEventListener('loadedmetadata', onLoaded);
+          v.addEventListener('error', onError);
+          // Some CDNs require a tiny offset to force metadata fetch
+          v.src = url + (url.includes('#') ? '' : '#t=0.1');
+        } catch {}
+      }
       async function onUploadClick(e){
         const btn = e.currentTarget;
-        const sectionId = btn.getAttribute('data-upload-for');
         const form = btn.closest('form');
         const urlInput = form?.querySelector('input[name="video_url"]');
+        const durInput = form?.querySelector('input[name="duration_sec"]');
         const tmp = document.createElement('input');
         tmp.type = 'file';
         tmp.accept = 'video/*';
         tmp.style.position = 'fixed';
         tmp.style.left = '-9999px';
         document.body.appendChild(tmp);
-        tmp.addEventListener('change', async function(ev){
+        tmp.addEventListener('change', async function(){
           const file = tmp.files?.[0];
           if (!file) { document.body.removeChild(tmp); return; }
           try {
             const publicUrl = await uploadFile(file);
             if (urlInput) urlInput.value = publicUrl;
-            alert('Uploaded. Video URL set into the form.');
+            // Try autofill duration for direct videos
+            autoFillDurationFromUrl(publicUrl, durInput);
+            await Swal.fire({ icon: 'success', title: 'Uploaded', text: 'Video URL has been set into the form.' });
           } catch (err) {
             console.error(err);
-            alert('Upload failed. Please try again.');
+            Swal.fire({ icon: 'error', title: 'Upload failed', text: 'Please try again.' });
           } finally {
             document.body.removeChild(tmp);
           }
         }, { once: true });
         tmp.click();
       }
+      function onVideoUrlBlur(e){
+        const input = e.currentTarget;
+        const form = input.closest('form');
+        const durInput = form?.querySelector('input[name="duration_sec"]');
+        const url = input.value.trim();
+        autoFillDurationFromUrl(url, durInput);
+      }
       document.addEventListener('DOMContentLoaded', function(){
         document.querySelectorAll('[data-upload-for]').forEach(btn => btn.addEventListener('click', onUploadClick));
+        document.querySelectorAll('form input[name="video_url"]').forEach(inp => {
+          inp.addEventListener('change', onVideoUrlBlur);
+          inp.addEventListener('blur', onVideoUrlBlur);
+          inp.addEventListener('paste', () => setTimeout(() => onVideoUrlBlur({ currentTarget: inp }), 0));
+        });
       });
     })();
 
@@ -99,9 +140,9 @@
         if (res.ok && data.success) {
           if (urlInput) urlInput.value = data.publicUrl;
           if (preview) preview.src = data.publicUrl;
-          alert('Thumbnail uploaded and URL inserted.');
+          await Swal.fire({ icon: 'success', title: 'Thumbnail uploaded', text: 'URL inserted.' });
         } else {
-          alert(data.message || 'Upload failed');
+          Swal.fire({ icon: 'error', title: 'Upload failed', text: data.message || 'Please try again.' });
         }
         e.currentTarget.value = '';
       }
@@ -117,7 +158,16 @@
         const btn = e.currentTarget;
         const lessonId = btn.getAttribute('data-id');
         if (!lessonId) return;
-        if (!confirm('Delete this lesson?')) return;
+        const result = await Swal.fire({
+          title: 'Delete this lesson?',
+          text: 'This action cannot be undone',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Delete',
+        });
+        if (!result.isConfirmed) return;
         try {
           const res = await fetch(`/instructor/courses/edit/{{course.id}}/lessons/${lessonId}/delete`, {
             method: 'POST',
@@ -125,10 +175,11 @@
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || data.success === false) throw new Error(data.message || 'Failed to delete');
+          await Swal.fire({ icon: 'success', title: 'Deleted', timer: 900, showConfirmButton: false });
           location.href = `/instructor/courses/edit/{{course.id}}/sections`;
         } catch (err) {
           console.error(err);
-          alert('Delete failed. Please try again.');
+          Swal.fire({ icon: 'error', title: 'Delete failed', text: err.message || 'Please try again.' });
         }
       }
       document.addEventListener('DOMContentLoaded', function(){
@@ -195,7 +246,7 @@
                   <select class="form-select" id="courseStatus" name="status" required>
                     <option value="draft" {{#if (eq course.status "draft")}}selected{{/if}}>Draft</option>
                     <option value="published" {{#if (eq course.status "published")}}selected{{/if}}>Published</option>
-                    <option value="archived" {{#if (eq course.status "archived")}}selected{{/if}}>Archived</option>
+                    <option value="completed" {{#if (eq course.status "completed")}}selected{{/if}}>Completed</option>
                   </select>
                   
                 </div>

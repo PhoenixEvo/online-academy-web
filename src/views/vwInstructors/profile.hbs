@@ -8,6 +8,7 @@
 {{#fill_section 'js'}} 
 <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   (function(){
     const csrfToken = '{{csrfToken}}';
@@ -27,9 +28,9 @@
       if (res.ok && data.success) {
         urlInput.value = data.publicUrl;
         if (preview) preview.src = data.publicUrl;
-        alert('Avatar uploaded and URL inserted. Click Save to apply.');
+        await Swal.fire({ icon: 'success', title: 'Avatar uploaded', text: 'URL inserted. Click Save to apply.' });
       } else {
-        alert(data.message || 'Upload failed');
+        Swal.fire({ icon: 'error', title: 'Upload failed', text: data.message || 'Please try again.' });
       }
       e.currentTarget.value = '';
     }
@@ -52,9 +53,9 @@
           <li class="nav-item" role="presentation">
             <a class="nav-link {{#if (eq activeTab 'photo')}}active{{/if}}" id="profile-tab" href="/instructor/profile/{{instructor.user_id}}?tab=photo" style="font-weight: bold;">My Picture Profile</a>
           </li>
-          <li class="nav-item" role="presentation">
+          {{!-- <li class="nav-item" role="presentation">
             <a class="nav-link {{#if (eq activeTab 'settings')}}active{{/if}}" id="settings-tab" href="/instructor/profile/{{instructor.user_id}}?tab=settings" style="font-weight: bold;">Private & Setting</a>
-          </li>
+          </li> --}}
         </ul>
         </div>
         
@@ -65,6 +66,8 @@
                       <div class="col-md-6">
                         <label for="fullName" class="form-label" style="font-weight: bold;">Full Name</label>
                         <input id="fullName" type="text" class="form-control" placeholder="" value ="{{instructor.title}}">
+                        <label for="displayName" class="form-label mt-4" style="font-weight: bold;">Display Name</label>
+                        <input id="displayName" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
                       </div>
                       <div class="col-md-6">
                         <label class="form-label" style="font-weight: bold;">Display Image</label>
@@ -73,32 +76,12 @@
                         </div>
                       </div>
                     </div>
-                    <div class="row mb-3">
-                      
-                      
-                    </div>
-                    <div class="row mb-3">
-                      
-                      <div class="col-md-6">
-                        <label for="displayName" class="form-label" style="font-weight: bold;">Display Name</label>
-                        <input id="displayName" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
-                      </div>
-                    </div>
-            
-                    
-            
-                    
-            
                     <div class="mb-3">
                       <label for="biography" class="form-label" style="font-weight: bold;">Biography</label>
                       <textarea id="biography" class="form-control" rows="4" placeholder="Write something about yourself..." value ="">{{instructor.job_title}}</textarea>
                       <div class="form-text">
-
                       </div>
                     </div>
-            
-
-
                     <button type="submit" class="btn btn-save border" style="background-color: #4eb8dd;">Save</button>
                   </form>
           
@@ -111,7 +94,7 @@
                         <div class="d-flex flex-column gap-2">
                           <img id="avatarPreview" src="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" alt="Avatar" style="max-width: 160px; max-height: 160px; object-fit: cover; border-radius: 8px;" onerror="this.src='/img/person/default-avatar.jpg'">
                           <div class="d-flex gap-2 align-items-center">
-                            <input type="url" class="form-control" id="avatarUrl" name="avatar_url" value="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" placeholder="Paste image URL or upload a file">
+                            <input type="url" class="form-control" id="avatarUrl" style="width: auto;" name="avatar_url" value="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" placeholder="Paste image URL or upload a file">
                             <input type="file" accept="image/*" id="file-avatar" class="d-none">
                             <button type="button" id="btnUploadAvatar" class="btn btn-secondary"><i class="bi bi-upload"></i> Upload file</button>
                           </div>
@@ -120,8 +103,8 @@
                       <button type="submit" class="btn btn-save" style="background-color: #4eb8dd;">Save</button>
                     </form>
         </div>
-  <div class="tab-pane fade {{#if (eq activeTab 'settings')}}show active{{/if}}" id="settings-tab-pane" role="tabpanel" aria-labelledby="settings-tab" tabindex="0">
+  {{!-- <div class="tab-pane fade {{#if (eq activeTab 'settings')}}show active{{/if}}" id="settings-tab-pane" role="tabpanel" aria-labelledby="settings-tab" tabindex="0">
                     <label for="">fdsfdsfsdfsf</label>
-        </div>
+        </div> --}}
     </div>
 </div>

@@ -98,7 +98,7 @@ app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 //app.use('/courses', courseRoute);
-app.use('/instructors', instructorsPublicRoute);
+app.use('/instructor', instructorsPublicRoute);
 // instructor course route
 import courseInstructorRouter from './routes/course-instructor.route.js';
 import { restrict,restrictInstructor } from './controllers/auth.controller.js';

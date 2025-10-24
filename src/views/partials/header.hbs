@@ -42,7 +42,7 @@
               <ul>
                 <li><a href="/profile">My Profile</a></li>
                 {{#if (eq user.role 'instructor')}}
-                  <li><a href="/instructors/profile/{{user.id}}">My Instructor Profile</a></li>
+                  <li><a href="/instructor/profile/{{user.id}}">My Instructor Profile</a></li>
                 {{/if}}
                 <li><a href="/{{user.role}}s/dashboard">Dashboard</a></li>
                 <li><hr class="dropdown-divider"></li>

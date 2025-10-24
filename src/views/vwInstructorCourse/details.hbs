@@ -68,9 +68,9 @@
         <div class="card mb-3 border-0 shadow-sm rounded-3">
           <div class="card-body">
             <div class="d-flex align-items-center mb-2">
-              <img src="https://placehold.co/50x50" class="rounded-circle border me-3" alt="User avatar">
+              <img src="{{#if this.user_avatar_url}}{{this.user_avatar_url}}{{else}}https://placehold.co/50x50{{/if}}" class="rounded-circle border me-3" alt="User avatar" width="50" height="50">
               <div>
-                <h6 class="mb-1 fw-bold text-primary">{{this.user_id}}</h6>
+                <h6 class="mb-1 fw-bold text-primary">{{this.user_name}}</h6>
                 <div class="text-warning small">
                   {{#if this.rating}}
                     {{#if (eq this.rating 5)}}
