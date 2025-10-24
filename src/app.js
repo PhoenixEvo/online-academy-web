@@ -10,17 +10,15 @@ import { setupHandlebars } from './config/handlebars.js';
 import { setupSession } from './config/session.js';
 import { setupPassport } from './config/passport.js';
 import { addCategoriesToLocals } from './middlewares/categories.js';
-
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
 import courseRoute from './routes/course.route.js';
 import categoryRoute from './routes/category.route.js';
-//import courseRoute from './routes/course.route.js';
-// import courseRoute from './routes/course.route.js';
 import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
+
 
 const app = express();
 
@@ -70,18 +68,8 @@ app.use((err, req, res, next) => {
         }
         req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
         return res.redirect('back');
-  if (err.code === 'EBADCSRFTOKEN') {
-    // Handle AJAX requests differently
-    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-      return res.status(403).json({
-        success: false,
-        message: 'Session expired or CSRF is invalid. Please try again.'
-      });
     }
-    req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
-    return res.redirect('back');
-  }
-  return next(err);
+    return next(err);
 });
 
 // locals for website
@@ -125,3 +113,4 @@ app.use((err, req, res, next) => {
 // server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
+

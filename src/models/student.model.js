@@ -32,7 +32,6 @@ export async function Getallwatchlist(studentId) {
         )
         .orderBy("watchlist.created_at", "desc");
 }
-import { db } from "./db.js";
 
 export async function showCourses() {
   const rows = await db("courses")

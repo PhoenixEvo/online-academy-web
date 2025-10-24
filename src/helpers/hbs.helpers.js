@@ -9,11 +9,11 @@ Handlebars.registerHelper("eq", (a, b) => a === b); // NEW: Equal comparison
 
 // Format number with commas
 Handlebars.registerHelper("format_number", (value) => {
-  return new Intl.NumberFormat('en-US').format(value);
+    return new Intl.NumberFormat('en-US').format(value);
 });
 
 // Format duration helper for Handlebars
-Handlebars.registerHelper("formatDuration", function(seconds) {
+Handlebars.registerHelper("formatDuration", function (seconds) {
     return formatDuration(seconds);
 });
 
