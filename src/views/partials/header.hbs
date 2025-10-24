@@ -22,20 +22,20 @@
           <li><a href="/students/watchlist">Watchlist</a></li>
           <!-- Categories dropdown for students -->
           <li class="dropdown">
-            <a href="/courses"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <a href="/categories"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
               {{#each categories}}
               {{#if children.length}}
               <!-- Parent category with children -->
               <li class="dropdown">
-                <a href="/courses?category={{id}}">
+                <a href="/categories?category={{id}}">
                   <span>{{name}}</span>
                   <i class="bi bi-chevron-right toggle-dropdown"></i>
                 </a>
                 <ul>
                   {{#each children}}
                   <li>
-                    <a href="/courses?category={{id}}">
+                    <a href="/categories?category={{id}}">
                       {{name}}
                       <small class="text-muted">({{course_count}} courses)</small>
                     </a>
@@ -46,7 +46,7 @@
               {{else}}
               <!-- Single category without children -->
               <li>
-                <a href="/courses?category={{id}}">
+                <a href="/categories?category={{id}}">
                   {{name}}
                   <small class="text-muted">({{course_count}} courses)</small>
                 </a>
@@ -55,7 +55,7 @@
               {{/each}}
               <!-- View all categories link -->
               <li class="view-all">
-                <a href="/courses" class="text-primary">
+                <a href="/categories" class="text-primary">
                   <i class="bi bi-grid-3x3-gap-fill me-2"></i>
                   Browse all categories
                 </a>
@@ -118,20 +118,20 @@
           <li><a href="/" class="active">Home</a></li>
           <!-- Categories -->
           <li class="dropdown">
-            <a href="/courses"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <a href="/categories"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
               {{#each categories}}
               {{#if children.length}}
               <!-- Parent category with children -->
               <li class="dropdown">
-                <a href="/courses?category={{id}}">
+                <a href="/categories?category={{id}}">
                   <span>{{name}}</span>
                   <i class="bi bi-chevron-right toggle-dropdown"></i>
                 </a>
                 <ul>
                   {{#each children}}
                   <li>
-                    <a href="/courses?category={{id}}">
+                    <a href="/categories?category={{id}}">
                       {{name}}
                       <small class="text-muted">({{course_count}} courses)</small>
                     </a>
@@ -142,7 +142,7 @@
               {{else}}
               <!-- Single category without children -->
               <li>
-                <a href="/courses?category={{id}}">
+                <a href="/categories?category={{id}}">
                   {{name}}
                   <small class="text-muted">({{course_count}} courses)</small>
                 </a>
@@ -151,7 +151,7 @@
               {{/each}}
               <!-- View all categories link -->
               <li class="view-all">
-                <a href="/courses" class="text-primary">
+                <a href="/categories" class="text-primary">
                   <i class="bi bi-grid-3x3-gap-fill me-2"></i>
                   Browse all categories
                 </a>
