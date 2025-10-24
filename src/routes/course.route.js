@@ -1,20 +1,18 @@
-// Change if needed to fit the project
-import { Router } from "express";
-import * as courseCtrl from "../controllers/course.controller.js";
-import { requireLogin } from "../middlewares/authGuard.js";
+import express from 'express';
+import * as courseCtrl from '../controllers/course.controller.js';
+import { authGuard } from '../middlewares/authGuard.js';
 
-const r = Router();
+const r = express.Router();
 
-// Guest
-r.get("/", courseCtrl.list);
-r.get("/:id(\\d+)", courseCtrl.detail);
+// Public routes (Guest access)
+r.get('/search', courseCtrl.search);            // GET /courses/search - Search courses
+r.get('/', courseCtrl.list);                    // GET /courses - List all courses
+r.get('/:id', courseCtrl.detail);               // GET /courses/:id - Course detail
 
-// Student actions
-r.post("/:id(\\d+)/watch", requireLogin, courseCtrl.addToWatchlist);
-r.delete("/:id(\\d+)/watch", requireLogin, courseCtrl.removeFromWatchlist);
-r.post("/:id(\\d+)/enroll", requireLogin, courseCtrl.enroll);
-
-// Reviews (only enrolled)
-r.post("/:id(\\d+)/reviews", requireLogin, courseCtrl.createReview);
+// Protected routes (Authenticated users only)
+r.post('/:id/watch', authGuard, courseCtrl.addToWatchlist);           // POST /courses/:id/watch
+r.delete('/:id/watch', authGuard, courseCtrl.removeFromWatchlist);    // DELETE /courses/:id/watch
+r.post('/:id/enroll', authGuard, courseCtrl.enroll);                  // POST /courses/:id/enroll
+r.post('/:id/reviews', authGuard, courseCtrl.createReview);           // POST /courses/:id/reviews
 
 export default r;

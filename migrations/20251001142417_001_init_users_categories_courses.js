@@ -3,7 +3,7 @@
 //  * @returns { Promise<void> }
 //  */
 // exports.up = function(knex) {
-  
+
 // };
 
 // /**
@@ -11,7 +11,7 @@
 //  * @returns { Promise<void> }
 //  */
 // exports.down = function(knex) {
-  
+
 // };
 export async function up(knex) {
     await knex.schema.createTable('users', t => {
