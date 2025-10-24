@@ -35,21 +35,13 @@
         <div class="tab-content" id="myTabContent">
           <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
             <div class="row">
-            <div class="input-group" style="max-width: 300px;">
-              <input type="text" class="form-control" placeholder="Search your courses">
-              <button class="btn btn-primary" type="button">
+            <form class="input-group" method="get" style="max-width: 300px;" role="search">
+              <input type="text" class="form-control" type ="search" aria-label ="Search"  placeholder="Search your courses" name="q" value ="{{q}}">
+              <button class="btn btn-primary" type="submit">
                 <i class="bi bi-search"></i>
               </button>
-            </div>
-            <select class="form-select w-auto" aria-label="Default select example">
-              <option selected>Newest</option>
-              <option value="1">Newest</option>
-              <option value="2">Oldest</option>
-              <option value="3">A-Z</option>
-              <option value="4">Z-A</option>
-              <option value="5">Pub First</option>
-              <option value="6">Unpub First</option>
-            </select>
+            </form>
+            
             <button class="btn btn-primary w-auto ms-auto me-4" type="button" >
                 <a href="/instructor/courses/add" style="color: white;">
                 New Courses
@@ -58,35 +50,88 @@
             </div>
             
             <div class="course-list mt-3">
-              {{#each courses}}
-              <div class="card mb-3" style="max-width: 540px;">
+              {{#if empty}}
+                <div class="row">
+                  <div class="col">
+                    <p>There is no product fit for requirements</p>
+                  </div>
+                </div>
+              {{else}}
+                {{#if q}}
+                  {{!-- <p>Search results for "{{q}}":</p> --}}
+                {{/if}}
+                {{#each courses}}
+              <div class="row">
+                          <div class="col-9">
+              <div class="card mb-3 w-auto" style="max-width: 1000px;">
                 <div class="row g-0">
                   <div class="col-md-4">
-                    <div class="image-container">
-                    <!-- Use the thumbnail_url; add onerror fallback and show the URL for debugging -->
+                    <div class="image-container ">
                     <img src="{{this.thumbnail_url}}" class="img-fluid rounded-start" alt="{{this.title}}" onerror="this.onerror=null;this.src='https://placehold.co/600x400'">
                     <div class="course-overlay">
                        <a href="/instructor/courses/edit/{{this.id}}" class="course-link">Edit course</a>
                      </div>
                      </div>
-                    {{!-- <div class="text-muted small mt-1">{{this.thumbnail_url}}</div> --}}
                   </div>
                   <div class="col-md-8">
                     <div class="card-body">
-                      <h5 class="card-title">{{this.title}}</h5>
-                      <p class="card-text">{{this.description}}</p>
-                      <p class="card-text"><small class="text-body-secondary">
-                        Last updated {{this.updated_at}}
+                      <h5 class="card-title" 
+                      style="margin-top: -4px; font-size: 1.1rem;font-weight: bold;">{{this.title}}</h5>
+                      <small class="card-text line-height: 0.2;margin-top: -4px;padding-top: 0px;">{{this.short_desc}}</small>
+                      <div class="row">
+                      <div class="col-4">
+                      <p class="card-text line-height: 1;"><small class="text-body-secondary" style="font-weight: bold;">
+                        Rate: {{this.rating_avg}}
                       </small></p>
+                      </div>
+                      <div class="col-4">
+                      <p class="card-text line-height: 0.2;"><small class="text-body-secondary" style="font-weight: bold;">
+                        Status: {{this.status}}
+                      </small></p>
+                      </div>
+
+                      </div>
+
                     </div>
                   </div>
                 </div>
-              </div>
+          </div>
+          </div>
+          
+                      <div class="col-3 w-auto ms-7 ">
+                      <a href="/instructor/courses/details/{{this.id}}" class="btn btn-primary ms-auto"><i class="bi bi-info-circle-fill"></i></a>
+                      </div>
+                      </div>
               {{/each}}
-          </div>
-          <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-            course bundle
-          </div>
+              {{/if}}
+        </div>
+        <nav aria-label="...">
+                <ul class="pagination justify-content-center" style="color: #4eb8dd;hover: #4eb8dd;">
+                  <li class="page-item"><a href="#" class="page-link">Previous</a></li>
+                  {{#each page_numbers}}
+                  {{#if isCurrent}}
+                  <li class="page-item active">
+                    <a class="page-link" href="javascript:void(0);">
+                    {{value}}
+                    </a>
+                    </li>
+                    {{else}}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{value}}"> 
+                    {{value}}
+                    </a>
+                    </li>
+                    {{/if}}
+                  {{/each}}
+                  <li class="page-item">
+                    <a class="page-link" href="#">
+                    Next
+                    </a>
+                    </li>
+                </ul>
+              </nav>
+        <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                    course bundle
         </div>
     </div>
 </div>
