@@ -104,6 +104,10 @@ export async function list(req, res, next) {
 
     const page = req.query.page || 1;
     const categoryId = req.query.category ? parseInt(req.query.category) : null;
+
+    // Handle duplicate sort values (take first one if array)
+    const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
+    const sort = sortRaw || null; // Let model handle default sorting
     const search = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
 
     // --- multi-sort: parse CSV ---
@@ -255,6 +259,9 @@ export async function search(req, res, next) {
       return res.redirect(302, `/courses?${p.toString()}`);
     }
     const page = req.query.page || 1;
+    // Handle duplicate sort values (take first one if array)
+    const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
+    const sort = sortRaw || null; // Let model handle default sorting
     const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
 
     // --- multi-sort: parse CSV ---

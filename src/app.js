@@ -14,11 +14,11 @@ import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
 import courseRoute from './routes/course.route.js';
+import categoryRoute from './routes/category.route.js';
 import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
 import categoryRoute from './routes/category.route.js';
-
 
 const app = express();
 
