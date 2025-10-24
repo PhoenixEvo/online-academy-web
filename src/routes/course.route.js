@@ -6,8 +6,8 @@ import { requireLogin } from "../middlewares/authGuard.js";
 const r = Router();
 
 // Guest
-r.get("/", courseCtrl.list); // /courses?page=1&sort=rating_desc
-r.get("/:id(\\d+)", courseCtrl.detail); // /courses/123
+r.get("/", courseCtrl.list);
+r.get("/:id(\\d+)", courseCtrl.detail);
 
 // Student actions
 r.post("/:id(\\d+)/watch", requireLogin, courseCtrl.addToWatchlist);

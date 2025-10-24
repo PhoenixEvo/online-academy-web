@@ -23,5 +23,22 @@ export function addCourse(course) {
 export function updateCourse(id, course) {
     return db('courses').where('id', id).update(course).returning('*');
 }
-
+export function getLessonsBySectionId(sectionId) {
+    return db('lessons').where('section_id', sectionId);
+}
+export function addLesson(lesson) {
+    return db('lessons').insert(lesson).returning('*');
+}
+export function getSectionsByCourseId(courseId) {
+    return db('sections').where('course_id', courseId);
+}
+export function addSection(section) {
+    return db('sections').insert(section).returning('*');
+}
+export function getReviewsByCourseId(courseId) {
+    return db('reviews').where('course_id', courseId);
+}
+export function getCourseInformation(courseId) {
+    return db('courses').where('id', courseId).first();
+}
 
