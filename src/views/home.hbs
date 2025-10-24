@@ -17,8 +17,6 @@
             </ul>
             <a href="/auth/register" class="read-more"><span>Start Learning Today</span><i
                 class="bi bi-arrow-right"></i></a>
-            <a href="#" class="read-more"><span>Start Learning Today</span><i class="bi bi-arrow-right"></i></a>
-            <!-- TODO: Change to link to courses page -->
           </div>
         </div>
       </div>
@@ -51,34 +49,6 @@
                 </div>
                 <div class="col-md-6 text-white d-flex align-items-center">
                   <div class="p-4 w-100">
-    <section id="featured-this-week" class="featured-this-week section py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-      <div class="container">
-        <div class="row mb-4">
-          <div class="col-12 text-center">
-            <h2 class="h3 fw-bold text-white mb-2">🔥 Featured This Week</h2>
-            <p class="text-white-50">Most popular courses enrolled this week</p>
-          </div>
-        </div>
-        
-        {{#if featuredThisWeek.length}}
-        <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-indicators">
-            {{#each featuredThisWeek}}
-            <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="{{@index}}" 
-              {{#if @first}}class="active" aria-current="true"{{/if}} aria-label="Slide {{add @index 1}}"></button>
-            {{/each}}
-          </div>
-          
-          <div class="carousel-inner">
-            {{#each featuredThisWeek}}
-            <div class="carousel-item {{#if @first}}active{{/if}}">
-              <div class="row align-items-center">
-                <div class="col-md-6">
-                  <img src="{{thumbnail_url}}" class="d-block w-100 rounded shadow" alt="{{title}}" 
-                    style="height: 400px; object-fit: cover;">
-                </div>
-                <div class="col-md-6 text-white">
-                  <div class="p-4">
                     <div class="mb-3">
                       {{#if is_bestseller}}
                       <span class="badge bg-warning text-dark me-2">🏆 Best Seller</span>
@@ -100,9 +70,6 @@
                           {{#each (range 1 5)}}
                           <i class="bi bi-star{{#if (gte ../rating_avg this)}}-fill{{/if}} text-warning me-1"></i>
                           {{/each}}
-                          {{#range 1 5}}
-                          <i class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning"></i>
-                          {{/range}}
                         </div>
                         <span>{{rating_avg}} ({{rating_count}} reviews)</span>
                       </div>
@@ -121,7 +88,6 @@
                         {{/if}}
                       </div>
                       <a href="/courses/detail?id={{id}}" class="btn btn-warning btn-lg fw-bold">
-                      <a href="/courses/{{id}}" class="btn btn-warning btn-lg fw-bold">
                         View Course <i class="bi bi-arrow-right"></i>
                       </a>
                     </div>
@@ -139,15 +105,6 @@
               @first}}class="active" aria-current="true" {{/if}} aria-label="Slide {{add @index 1}}"></button>
             {{/each}}
           </div>
-          
-          <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
         </div>
         {{else}}
         <div class="text-center text-white py-5">
@@ -182,39 +139,12 @@
                     class="bi bi-arrow-right"></i></a>
               </div>
 
-    <!-- Popular Categories Section -->
-    <section id="popular-categories" class="popular-categories section py-5 bg-light">
-      <div class="container">
-        <div class="row">
-          <div class="col-12">
-            <h2 class="h3 fw-bold mb-4 text-center">Popular Categories</h2>
-            <p class="text-center text-muted mb-5">Explore our most popular course categories</p>
-          </div>
-        </div>
-        <div class="row g-4">
-          {{#each popularCategories}}
-          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="category-card bg-white rounded shadow-sm border-0 h-100 p-4 text-center"
-              style="transition: all 0.3s ease; cursor: pointer;"
-              onclick="window.location.href='/courses?category={{id}}'">
-              <div class="category-icon mb-3">
-                <i class="bi bi-{{#if (eq name 'Web Development')}}code-slash{{else if (eq name 'Data Science')}}bar-chart{{else if (eq name 'Mobile Development')}}phone{{else if (eq name 'Design')}}palette{{else if (eq name 'Marketing')}}megaphone{{else if (eq name 'Business')}}briefcase{{else}}book{{/if}} text-primary"
-                  style="font-size: 3rem;"></i>
-              </div>
-              <h5 class="category-title fw-bold mb-2">{{name}}</h5>
-              <p class="text-muted small mb-3">{{enrollment_count}} students enrolled</p>
-              <div class="category-link">
-                <span class="text-primary fw-semibold">Explore Courses <i class="bi bi-arrow-right"></i></span>
-              </div>
             </div>
           </div>
           {{/each}}
           <div class="text-center mt-4">
             <a href="/categories" class="btn btn-outline-primary">Explore all categories</a>
           </div>
-        </div>
-        <div class="text-center mt-4">
-          <a href="/courses" class="btn btn-outline-primary">View All Categories</a>
         </div>
       </div>
     </section><!-- /Popular Categories Section -->
@@ -282,121 +212,6 @@
         </div>
         <div class="text-center mt-4">
           <a href="/courses" class="btn btn-outline-primary">Explore all courses</a>
-    <!-- Featured Courses Section - Udemy Style -->
-    <section id="featured-courses" class="featured-courses section py-5">
-      <div class="container">
-        <div class="row">
-          <div class="col-12">
-            <h2 class="h3 fw-bold mb-4">Featured courses</h2>
-          </div>
-        </div>
-        <div class="row g-4">
-          {{#each mostViewed}}
-          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="course-card bg-white rounded shadow-sm border-0 h-100"
-              style="transition: all 0.3s ease; overflow: hidden;">
-              <div class="course-thumbnail position-relative">
-                <img src="{{thumbnail_url}}" referrerpolicy="no-referrer" class="img-fluid w-100" alt="{{title}}"
-                  style="height: 200px; object-fit: cover;">
-                {{#if is_new}}
-                <span class="badge bg-success position-absolute top-0 end-0 m-2">New</span>
-                {{/if}}
-                <div
-                  class="course-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-                  style="background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s ease;">
-                  <a href="/courses/{{id}}" class="btn btn-warning btn-sm">View Course</a>
-                </div>
-              </div>
-              <div class="course-content p-3">
-                <h6 class="course-title fw-bold mb-2" style="font-size: 0.9rem; line-height: 1.3;">
-                  <a href="/courses/{{id}}" class="text-decoration-none text-dark">{{title}}</a>
-                </h6>
-                <p class="course-instructor text-muted small mb-2">{{instructor_name}}</p>
-                <div class="course-rating d-flex align-items-center mb-2">
-                  <div class="rating me-2">
-                    {{#range 1 5}}
-                    <i class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning"
-                      style="font-size: 0.8rem;"></i>
-                    {{/range}}
-                  </div>
-                  <span class="text-muted small">{{rating_avg}} ({{rating_count}})</span>
-                </div>
-                <div class="course-price d-flex align-items-center justify-content-between">
-                  <div>
-                    {{#if sale_price}}
-                    <span class="h6 text-dark fw-bold mb-0">{{formatPrice sale_price}}đ</span>
-                    <span class="text-decoration-line-through text-muted small ms-2">{{formatPrice price}}đ</span>
-                    {{else}}
-                    <span class="h6 text-dark fw-bold mb-0">{{formatPrice price}}đ</span>
-                    {{/if}}
-                  </div>
-                  {{#if sale_price}}
-                  <span class="badge bg-danger small">Sale</span>
-                  {{/if}}
-                </div>
-              </div>
-            </div>
-          </div>
-          {{/each}}
-        </div>
-        <div class="text-center mt-4">
-          <a href="/courses" class="btn btn-outline-primary">Explore all courses</a>
-        </div>
-      </div>
-    </section><!-- /Featured Courses Section -->
-
-    <!-- New Courses Section -->
-    <section id="new-courses" class="courses section light-background">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Newest Courses</h2>
-        <p>Newest Courses For You</p>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row">
-          {{#each newest}}
-          <div class="col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="zoom-in" data-aos-delay="100">
-            <div class="course-item">
-              <img src="{{thumbnail_url}}" onerror="this.src='/img/course/course-1.webp';" class="img-fluid"
-                alt="{{title}}">
-              <div class="course-content">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <p class="category">{{category_name}}</p>
-                  <p class="price">
-                    {{#if sale_price}}
-                    <span class="text-decoration-line-through text-muted">{{formatPrice price}}đ</span>
-                    <span class="text-danger fw-bold">{{formatPrice sale_price}}đ</span>
-                    {{else}}
-                    {{formatPrice price}}đ
-                    {{/if}}
-                  </p>
-                </div>
-
-                <h3><a href="/courses/{{id}}">{{title}}</a></h3>
-                <p class="description">{{short_desc}}</p>
-                <div class="trainer d-flex justify-content-between align-items-center">
-                  <div class="trainer-profile d-flex align-items-center">
-                    <img src="/img/person/person-m-7.webp" class="img-fluid rounded-circle me-2"
-                      alt="{{instructor_name}}" style="width: 30px; height: 30px;">
-                    <a href="#" class="trainer-link">{{instructor_name}}</a>
-                  </div>
-                  <div class="trainer-rank d-flex align-items-center">
-                    <i class="bi bi-star text-warning"></i>&nbsp;{{rating_avg}}
-                    &nbsp;&nbsp;
-                    <i class="bi bi-eye text-primary"></i>&nbsp;{{views}}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> <!-- End Course Item-->
-          {{/each}}
-        </div>
-
-        <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="400">
-          <a href="/courses?sort=newest" class="btn btn-outline-primary">Show more courses</a>
         </div>
       </div>
     </section><!-- /Featured Courses Section -->
@@ -410,11 +225,6 @@
           <div class="border-bottom border-primary border-3" style="width: 100px;"></div>
         </div>
       </div>
-    </section><!-- /New Courses Section -->
-
-    <!-- Trainers Index Section -->
-    <section id="trainers-index" class="section trainers-index">
-
       <div class="container">
         <div class="row">
           {{#each newest}}
@@ -438,16 +248,6 @@
                   <a href="/courses/detail?id={{id}}" class="text-decoration-none text-dark">{{title}}</a>
                 </h6>
                 <p class="course-category mb-1"><span class="badge bg-primary text-white small">{{category_name}}</span>
-
-          <div class="col-lg-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="100">
-            <div class="member">
-              <img src="/img/trainers/trainer-1.jpg" class="img-fluid" alt="">
-              <div class="member-content">
-                <h4>Walter White</h4>
-                <span>Web Development</span>
-                <p>
-                  Magni qui quod omnis unde et eos fuga et exercitationem. Odio veritatis perspiciatis quaerat qui aut
-                  aut aut
                 </p>
                 <p class="course-instructor text-muted small mb-2">{{instructor_name}}</p>
                 <div class="course-rating d-flex align-items-center mb-2">
@@ -476,46 +276,6 @@
           </div>
           {{/each}}
         </div>
-          </div><!-- End Team Member -->
-
-          <div class="col-lg-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="200">
-            <div class="member">
-              <img src="/img/trainers/trainer-2.jpg" class="img-fluid" alt="">
-              <div class="member-content">
-                <h4>Sarah Jhinson</h4>
-                <span>Marketing</span>
-                <p>
-                  Repellat fugiat adipisci nemo illum nesciunt voluptas repellendus. In architecto rerum rerum
-                  temporibus
-                </p>
-                <div class="social">
-                  <a href=""><i class="bi bi-twitter-x"></i></a>
-                  <a href=""><i class="bi bi-facebook"></i></a>
-                  <a href=""><i class="bi bi-instagram"></i></a>
-                  <a href=""><i class="bi bi-linkedin"></i></a>
-                </div>
-              </div>
-            </div>
-          </div><!-- End Team Member -->
-
-          <div class="col-lg-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="300">
-            <div class="member">
-              <img src="/img/trainers/trainer-3.jpg" class="img-fluid" alt="">
-              <div class="member-content">
-                <h4>William Anderson</h4>
-                <span>Content</span>
-                <p>
-                  Voluptas necessitatibus occaecati quia. Earum totam consequuntur qui porro et laborum toro des clara
-                </p>
-                <div class="social">
-                  <a href=""><i class="bi bi-twitter-x"></i></a>
-                  <a href=""><i class="bi bi-facebook"></i></a>
-                  <a href=""><i class="bi bi-instagram"></i></a>
-                  <a href=""><i class="bi bi-linkedin"></i></a>
-                </div>
-              </div>
-            </div>
-          </div><!-- End Team Member -->
 
         <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="400">
           <a href="/courses?sort=newest" class="btn btn-outline-primary">Show more courses</a>

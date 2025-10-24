@@ -14,10 +14,10 @@ import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
 import courseRoute from './routes/course.route.js';
-import categoryRoute from './routes/category.route.js';
 import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
+import categoryRoute from './routes/category.route.js';
 
 
 const app = express();
@@ -29,10 +29,10 @@ app.use(
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
             styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+            fontSrc: ["'self'", "data:", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:", "http:"], // Allow images from any HTTPS source
             mediaSrc: ["'self'", "https:", "http:"],
-            frameSrc: ["'self'", "https://www.youtube.com","https://drive.google.com"],
+            frameSrc: ["'self'", "https://www.youtube.com", "https://drive.google.com"],
             connectSrc: ["'self'"]
         },
     })
@@ -82,6 +82,7 @@ app.use((req, res, next) => {
     res.locals.error = req.flash('error');
     next();
 });
+
 // Add categories to locals for guest users
 app.use(addCategoriesToLocals);
 
@@ -90,9 +91,8 @@ app.use(addCategoriesToLocals);
 app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
-// app.use('/courses', courseRoute);
-//app.use('/courses', courseRoute);
 app.use('/courses', courseRoute);
+app.use('/categories', categoryRoute);
 app.use('/students', studentsRoute);
 app.use('/learn', learnRoutes);
 app.use('/lessons', lessonsRoutes);
@@ -113,4 +113,3 @@ app.use((err, req, res, next) => {
 // server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running http://localhost:${PORT}`));
-

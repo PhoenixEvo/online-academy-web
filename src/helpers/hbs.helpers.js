@@ -1,11 +1,102 @@
 import Handlebars from "handlebars";
+// --- Utils ---
 
+function normalizeToken(token) {
+    if (token === 'newest') return { field: 'date', dir: 'desc' };
+    if (token === 'oldest') return { field: 'date', dir: 'asc' };
+    const [field, dir] = token.split('_');
+    return { field, dir: (dir === 'asc' ? 'asc' : 'desc') };
+}
+function parseSortList(sortStr) {
+    if (!sortStr) return [];
+    return String(sortStr).split(',').map(s => s.trim()).filter(Boolean).map(normalizeToken);
+}
+Handlebars.registerHelper('buildSetSortUrl', function (baseUrl, currentSort, field, dir) {
+    const url = new URL(baseUrl, 'http://localhost:3000');
+    const list = parseSortList(url.searchParams.get('sort') || currentSort || '');
+
+    // bỏ field nếu đã có
+    const rest = list.filter(x => x.field !== field);
+    // thêm bản mới lên đầu
+    rest.unshift({ field, dir: (dir === 'asc' ? 'asc' : 'desc') });
+
+    url.searchParams.set('sort', rest.map(x => `${x.field}_${x.dir}`).join(','));
+    return url.pathname + url.search;
+});
+
+Handlebars.registerHelper('buildRemoveSortUrl', function (baseUrl, currentSort, field) {
+    const url = new URL(baseUrl, 'http://localhost:3000');
+    const list = parseSortList(url.searchParams.get('sort') || currentSort || '');
+    const kept = list.filter(x => x.field !== field);
+
+    if (kept.length) url.searchParams.set('sort', kept.map(x => `${x.field}_${x.dir}`).join(','));
+    else url.searchParams.delete('sort');
+
+    return url.pathname + url.search;
+});
 // Math helpers
 Handlebars.registerHelper("increment", (v) => v + 1);
 Handlebars.registerHelper("decrement", (v) => v - 1);
 Handlebars.registerHelper("gt", (a, b) => a > b);
 Handlebars.registerHelper("lt", (a, b) => a < b);
 Handlebars.registerHelper("eq", (a, b) => a === b); // NEW: Equal comparison
+
+// URL helpers
+Handlebars.registerHelper("buildSortUrl", function (baseUrl, newSort) {
+    // Remove existing sort parameter and add new one, keep other parameters
+    const url = new URL(baseUrl, 'http://localhost:3000');
+    url.searchParams.delete('sort');
+    url.searchParams.set('sort', newSort);
+    return url.pathname + url.search;
+});
+
+// Build URL with multiple parameters
+Handlebars.registerHelper("buildUrl", function (baseUrl, params) {
+    const url = new URL(baseUrl, 'http://localhost:3000');
+
+    // Update parameters
+    Object.keys(params).forEach(key => {
+        if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+            url.searchParams.set(key, params[key]);
+        } else {
+            url.searchParams.delete(key);
+        }
+    });
+
+    return url.pathname + url.search;
+});
+
+// Build sort URL with current filters
+Handlebars.registerHelper("buildSortUrlWithFilters", function (baseUrl, newSort, currentCategory, currentSearch) {
+    const url = new URL(baseUrl, 'http://localhost:3000');
+
+    // Set sort (remove if empty)
+    if (newSort && newSort.trim() !== '') {
+        url.searchParams.set('sort', newSort);
+    } else {
+        url.searchParams.delete('sort');
+    }
+
+    // Keep category if exists
+    if (currentCategory) {
+        url.searchParams.set('category', currentCategory);
+    }
+
+    // Keep search if exists
+    if (currentSearch) {
+        url.searchParams.set('q', currentSearch);
+    }
+
+    // CRITICAL: Keep current page parameter to avoid reset to page 1
+    const currentPage = url.searchParams.get('page');
+    if (currentPage && currentPage !== '1') {
+        url.searchParams.set('page', currentPage);
+    } else {
+        url.searchParams.delete('page'); // Remove page=1 to keep URL clean
+    }
+
+    return url.pathname + url.search;
+});
 
 // Format number with commas
 Handlebars.registerHelper("format_number", (value) => {
@@ -68,5 +159,54 @@ export function formatDuration(seconds) {
     }
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
+
+// --- Multi-sort helpers ---
+
+
+
+Handlebars.registerHelper('hasSort', function (currentSort, field) {
+    if (!currentSort) return false;
+    const list = parseSortList(currentSort);          // luôn parse CSV
+    return list.some(x => x.field === field);
+});
+
+Handlebars.registerHelper('sortDir', function (currentSort, field) {
+    if (!currentSort) return null;
+    const list = parseSortList(currentSort);          // luôn parse CSV
+    const hit = list.find(x => x.field === field);
+    return hit ? hit.dir : null;
+});
+
+// Toggle 3 trạng thái cho 1 nút: (không có) -> asc -> desc -> (bỏ ra)
+// Khi thêm/toggle, đưa tiêu chí đó lên ĐẦU danh sách (ưu tiên cao nhất)
+Handlebars.registerHelper('buildMultiSortUrl', function (baseUrl, currentSort, field) {
+    const url = new URL(baseUrl, 'http://localhost:3000');
+
+    // đọc từ URL trước, nếu trống thì lấy currentSort render từ server
+    const list = parseSortList(url.searchParams.get('sort') || currentSort || '');
+
+    const idx = list.findIndex(x => x.field === field);
+    if (idx === -1) {
+        // chưa có -> thêm asc lên đầu
+        list.unshift({ field, dir: 'asc' });
+    } else if (list[idx].dir === 'asc') {
+        // asc -> desc, rồi đưa lên đầu
+        list[idx].dir = 'desc';
+        const [it] = list.splice(idx, 1);
+        list.unshift(it);
+    } else {
+        // desc -> remove
+        list.splice(idx, 1);
+    }
+
+    if (list.length) {
+        url.searchParams.set('sort', list.map(x => `${x.field}_${x.dir}`).join(','));
+    } else {
+        url.searchParams.delete('sort');
+    }
+
+    return url.pathname + url.search;
+});
+
 
 export default Handlebars;

@@ -1,6 +1,6 @@
 import express from "express";
 import { listEnrolled, listWatchlist, getEnrolledCourses, removeCourse, showCheckout, processPurchase } from "../controllers/student.controller.js";
-import { removeFromWatchlist}  from "../controllers/course.controller.js";
+import { removeFromWatchlist } from "../controllers/course.controller.js";
 import { startCourse } from "../controllers/learn.controller.js";
 import { authGuard } from "../middlewares/authGuard.js";
 

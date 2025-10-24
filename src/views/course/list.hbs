@@ -22,13 +22,13 @@
                 <!-- Filters -->
                 <div class="row mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="col-12">
-                        <form method="GET" class="row g-3 align-items-center" id="filterForm">
+                        <form method="GET" action="/courses/search" class="row g-3 align-items-center" id="filterForm"
+                            onsubmit="return handleFormSubmit(event)">
                             <div class="col-md-5">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-search"></i></span>
                                     <input type="text" name="q" class="form-control" placeholder="Search courses..."
                                         value="{{currentSearch}}">
-
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -66,91 +66,100 @@
                             </p>
                             <div class="d-flex align-items-center">
                                 <span class="text-muted me-2">Sort by:</span>
-                                <div class="btn-group" role="group">
-                                    <!-- Rating Toggle -->
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "
-                                        rating_asc")}}rating_desc{{else}}rating_asc{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "
-                                        rating_desc") (eq currentSort "rating_asc" ))}}active{{/if}}"
-                                        title="Click to toggle sort direction">
-                                        <i class="bi bi-star-fill"></i> Rating
-                                        {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}
-                                        {{#if (eq currentSort "rating_asc")}}
-                                        <i class="bi bi-arrow-up"></i>
-                                        {{else}}
-                                        <i class="bi bi-arrow-down"></i>
-                                        {{/if}}
-                                        {{/if}}
-                                    </a>
+                                <div class="d-flex gap-2">
+                                    <!-- Rating Dropdown -->
+                                    <div class="dropdown">
+                                        <button
+                                            class="btn btn-outline-secondary btn-sm dropdown-toggle {{#if (hasSort currentSort 'rating')}}active{{/if}}"
+                                            type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-star-fill"></i> Rating
+                                            {{#if (hasSort currentSort 'rating')}}
+                                            {{#if (eq (sortDir currentSort 'rating') 'asc')}}<i
+                                                class="bi bi-arrow-up"></i>{{else}}<i
+                                                class="bi bi-arrow-down"></i>{{/if}}
+                                            {{/if}}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {{#if (hasSort currentSort 'rating')}}
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildRemoveSortUrl sortBaseUrl currentSort 'rating'}}">Remove
+                                                    Rating sort</a></li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            {{/if}}
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildSetSortUrl sortBaseUrl currentSort 'rating' 'asc'}}">Rating
+                                                    ↑ (Low to High)</a></li>
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildSetSortUrl sortBaseUrl currentSort 'rating' 'desc'}}">Rating
+                                                    ↓ (High to Low)</a></li>
+                                        </ul>
+                                    </div>
 
-                                    <!-- Price Toggle -->
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "
-                                        price_desc")}}price_asc{{else}}price_desc{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort " price_asc")
-                                        (eq currentSort "price_desc" ))}}active{{/if}}"
-                                        title="Click to toggle sort direction">
-                                        <i class="bi bi-tag-fill"></i> Price
-                                        {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}
-                                        {{#if (eq currentSort "price_desc")}}
-                                        <i class="bi bi-arrow-down"></i>
-                                        {{else}}
-                                        <i class="bi bi-arrow-up"></i>
-                                        {{/if}}
-                                        {{/if}}
-                                    </a>
+                                    <!-- Price Dropdown -->
+                                    <div class="dropdown">
+                                        <button
+                                            class="btn btn-outline-secondary btn-sm dropdown-toggle {{#if (hasSort currentSort 'price')}}active{{/if}}"
+                                            type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-tag-fill"></i> Price
+                                            {{#if (hasSort currentSort 'price')}}
+                                            {{#if (eq (sortDir currentSort 'price') 'asc')}}
+                                            <i class="bi bi-arrow-up"></i>
+                                            {{else}}
+                                            <i class="bi bi-arrow-down"></i>
+                                            {{/if}}
+                                            {{/if}}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {{#if (hasSort currentSort 'price')}}
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildRemoveSortUrl sortBaseUrl currentSort 'price'}}">Remove
+                                                    Price sort</a></li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            {{/if}}
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildSetSortUrl sortBaseUrl currentSort 'price' 'asc'}}">Price ↑
+                                                    (Low to High)</a></li>
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildSetSortUrl sortBaseUrl currentSort 'price' 'desc'}}">Price
+                                                    ↓ (High to Low)</a></li>
+                                        </ul>
+                                    </div>
 
-                                    <!-- Date Toggle -->
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "
-                                        oldest")}}newest{{else}}oldest{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort " newest") (eq
-                                        currentSort "oldest" ))}}active{{/if}}" title="Click to toggle sort direction">
-                                        <i class="bi bi-clock-fill"></i> Date
-                                        {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}
-                                        {{#if (eq currentSort "oldest")}}
-                                        <i class="bi bi-arrow-up"></i>
-                                        {{else}}
-                                        <i class="bi bi-arrow-down"></i>
-                                        {{/if}}
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "rating_asc")}}rating_desc{{else}}rating_asc{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}active{{/if}}"
-                                        title="Click to toggle sort direction">
-                                        <i class="bi bi-star-fill"></i> Rating
-                                        {{#if (or (eq currentSort "rating_desc") (eq currentSort "rating_asc"))}}
-                                            {{#if (eq currentSort "rating_asc")}}
+                                    <!-- Date Dropdown -->
+                                    <div class="dropdown">
+                                        <button
+                                            class="btn btn-outline-secondary btn-sm dropdown-toggle {{#if (hasSort currentSort 'date')}}active{{/if}}"
+                                            type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-clock-fill"></i> Date
+                                            {{#if (hasSort currentSort 'date')}}
+                                            {{#if (eq (sortDir currentSort 'date') 'asc')}}
                                             <i class="bi bi-arrow-up"></i>
                                             {{else}}
                                             <i class="bi bi-arrow-down"></i>
                                             {{/if}}
-                                        {{/if}}
-                                    </a>
-                                    
-                                    <!-- Price Toggle -->
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "price_desc")}}price_asc{{else}}price_desc{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}active{{/if}}"
-                                        title="Click to toggle sort direction">
-                                        <i class="bi bi-tag-fill"></i> Price
-                                        {{#if (or (eq currentSort "price_asc") (eq currentSort "price_desc"))}}
-                                            {{#if (eq currentSort "price_desc")}}
-                                            <i class="bi bi-arrow-down"></i>
-                                            {{else}}
-                                            <i class="bi bi-arrow-up"></i>
                                             {{/if}}
-                                        {{/if}}
-                                    </a>
-                                    
-                                    <!-- Date Toggle -->
-                                    <a href="{{baseUrl}}sort={{#if (eq currentSort "oldest")}}newest{{else}}oldest{{/if}}"
-                                        class="btn btn-outline-secondary btn-sm {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}active{{/if}}"
-                                        title="Click to toggle sort direction">
-                                        <i class="bi bi-clock-fill"></i> Date
-                                        {{#if (or (eq currentSort "newest") (eq currentSort "oldest"))}}
-                                            {{#if (eq currentSort "oldest")}}
-                                            <i class="bi bi-arrow-up"></i>
-                                            {{else}}
-                                            <i class="bi bi-arrow-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {{#if (hasSort currentSort 'date')}}
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildRemoveSortUrl sortBaseUrl currentSort 'date'}}">Remove Date
+                                                    sort</a></li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
                                             {{/if}}
-                                        {{/if}}
-                                    </a>
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildSetSortUrl sortBaseUrl currentSort 'date' 'asc'}}">Date ↑
+                                                    (Oldest First)</a></li>
+                                            <li><a class="dropdown-item"
+                                                    href="{{buildSetSortUrl sortBaseUrl currentSort 'date' 'desc'}}">Date ↓
+                                                    (Newest First)</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -290,28 +299,35 @@
     <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
         <i class="bi bi-arrow-up-short"></i>
     </a>
-
-
     <script>
-        // Preserve current sort when submitting filter form
-        document.addEventListener('DOMContentLoaded', function () {
-            const filterForm = document.getElementById('filterForm');
-            if (filterForm) {
-                filterForm.addEventListener('submit', function (e) {
-                    // Get current sort from URL if not already in form
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const currentSort = urlParams.get('sort');
+        function handleFormSubmit(event) {
+            event.preventDefault();
 
-                    // Only add if sort exists in URL and not already in form
-                    if (currentSort && !filterForm.querySelector('input[name="sort"]')) {
-                        const sortInput = document.createElement('input');
-                        sortInput.type = 'hidden';
-                        sortInput.name = 'sort';
-                        sortInput.value = currentSort;
-                        filterForm.appendChild(sortInput);
-                    }
-                });
+            const form = event.target;
+            const formData = new FormData(form);
+
+            // Lấy query hiện có (giữ sort, page, ...)
+            const urlParams = new URLSearchParams(window.location.search);
+            const params = {};
+            for (const [k, v] of urlParams.entries()) params[k] = v;
+
+            // Ghi đè bằng dữ liệu form
+            for (const [k, v] of formData.entries()) params[k] = v;
+
+            // Xoá key rỗng
+            Object.keys(params).forEach(k => {
+                if (params[k] === '' || params[k] == null) delete params[k];
+            });
+
+            const qs = new URLSearchParams(params).toString();
+
+            // has q -> /courses/search ; no q -> /courses
+            if (params.q && params.q.trim() !== '') {
+                window.location.href = `/courses/search?${qs}`;
+            } else {
+                window.location.href = `/courses?${qs}`;
             }
-        });
+        }
     </script>
+
 </body>

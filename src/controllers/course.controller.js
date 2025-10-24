@@ -8,7 +8,7 @@ import * as Category from "../models/category.model.js";
 function buildBaseUrl(req) {
   const q = new URLSearchParams(req.query);
   q.delete("page");
-  q.delete("sort");  // Remove sort so buttons can set their own sort
+  // Keep sort, category, and search parameters for pagination
   const base = req.baseUrl + req.path;
   const qs = q.toString();
   return base + (qs ? "?" + qs + "&" : "?");
@@ -17,65 +17,141 @@ function buildBaseUrl(req) {
 // GET /courses - List all courses with pagination and filters
 export const listValidators = [
   query("page").optional().isInt({ min: 1 }).toInt(),
-  query("sort").optional().isIn([
-    "rating_desc", "rating_asc",     // Rating: High to Low, Low to High
-    "price_desc", "price_asc",       // Price: High to Low, Low to High
-    "newest", "oldest"               // Date: Newest First, Oldest First
-  ]),
+
+  query("sort").optional().custom(validateSortCsv),
   query("category").optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
   query("q").optional({ nullable: true, checkFalsy: true }).trim().isLength({ max: 100 }),
+
 ];
 
+const ALLOWED_SORTS = new Set([
+  'rating_desc', 'rating_asc',
+  'price_desc', 'price_asc',
+  'date_desc', 'date_asc',   // dùng 'date_*' thay cho 'newest/oldest' cho thống nhất
+  'newest', 'oldest'         // tạm vẫn hỗ trợ nếu bạn đang dùng ở view
+]);
 
+function validateSortCsv(val) {
+  if (!val) return true;
+  const items = String(val).split(',').map(s => s.trim()).filter(Boolean);
+  return items.every(x => ALLOWED_SORTS.has(x));
+}
+
+// export async function list(req, res, next) {
+//   try {
+//     await Promise.all(listValidators.map((v) => v.run(req)));
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty())
+//       return res.status(400).render("error", { message: "Bad query" });
+
+//     const page = req.query.page || 1;
+
+//     // Handle duplicate sort values (take last one if array - most recent selection)
+//     const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[req.query.sort.length - 1] : req.query.sort;
+//     const sort = sortRaw || null; // Let model handle default sorting
+//     const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
+//     const search = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
+
+
+//     const pageSize = 12;
+
+//     const [courseResult, categories] = await Promise.all([
+//       Course.findPaged({ page, pageSize, sort, categoryId, search }),
+//       Category.getAll()
+//     ]);
+
+//     const { rows, total } = courseResult;
+//     const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+//     // Add badges and enrollment count to courses
+//     const coursesWithBadges = await Promise.all(rows.map(async (course) => {
+//       const enrollmentCount = await Course.getEnrollmentCount(course.id);
+//       return {
+//         ...course,
+//         is_new: Course.isNewCourse(course.created_at),
+//         is_bestseller: course.weekly_enrollments >= 5, // 5+ enrollments this week = bestseller
+//         enrollment_count: enrollmentCount
+//       };
+//     }));
+
+//     res.render("course/list", {
+//       title: "All courses",
+//       courses: coursesWithBadges,
+//       categories,
+//       page,
+//       totalPages,
+//       currentSort: sort,
+//       currentCategory: categoryId,
+//       currentSearch: search,
+//       baseUrl: buildBaseUrl(req),
+//     });
+//   } catch (e) {
+//     console.error('Error in course list:', e);
+//     console.error('Error details:', {
+//       message: e.message,
+//       stack: e.stack,
+//       categoryId: req.query.category,
+//       search: req.query.q
+//     });
+//     next(e);
+//   }
+// }
 export async function list(req, res, next) {
   try {
-    await Promise.all(listValidators.map((v) => v.run(req)));
+    await Promise.all(listValidators.map(v => v.run(req)));
     const errors = validationResult(req);
-    if (!errors.isEmpty())
-      return res.status(400).render("error", { message: "Bad query" });
+    if (!errors.isEmpty()) return res.status(400).render('error', { message: 'Bad query' });
 
     const page = req.query.page || 1;
-
-    // Handle duplicate sort values (take first one if array)
-    const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
-    const sort = sortRaw || null; // Let model handle default sorting
-    const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
+    const categoryId = req.query.category ? parseInt(req.query.category) : null;
     const search = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
+
+    // --- multi-sort: parse CSV ---
+    const sortCsv = Array.isArray(req.query.sort)
+      ? req.query.sort[req.query.sort.length - 1]
+      : (req.query.sort || '');
+    const sortList = parseSortList(sortCsv).map(x => {
+      // map newest/oldest (nếu còn dùng)
+      if (x.field === 'newest') return { field: 'date', dir: 'desc' };
+      if (x.field === 'oldest') return { field: 'date', dir: 'asc' };
+      return x;
+    });
 
     const pageSize = 12;
 
+    // Model nên nhận sortList
     const [courseResult, categories] = await Promise.all([
-      Course.findPaged({ page, pageSize, sort, categoryId, search }),
+      Course.findPaged({ page, pageSize, sortList, categoryId, search }),
       Category.getAll()
     ]);
 
     const { rows, total } = courseResult;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-    // Add badges and enrollment count to courses
     const coursesWithBadges = await Promise.all(rows.map(async (course) => {
       const enrollmentCount = await Course.getEnrollmentCount(course.id);
       return {
         ...course,
         is_new: Course.isNewCourse(course.created_at),
-        is_bestseller: course.weekly_enrollments >= 5, // 5+ enrollments this week = bestseller
+        is_bestseller: course.weekly_enrollments >= 5,
         enrollment_count: enrollmentCount
       };
     }));
 
-    res.render("course/list", {
-      title: "All courses",
+    res.render('course/list', {
+      title: 'All courses',
       courses: coursesWithBadges,
       categories,
       page,
       totalPages,
-      currentSort: sort,
+      currentSort: sortCsv,                 // giữ nguyên CSV cho UI
       currentCategory: categoryId,
       currentSearch: search,
-      baseUrl: buildBaseUrl(req),
+      baseUrl: buildUrl(req, { keepPage: false }),
+      sortBaseUrl: buildUrl(req, { keepPage: true }),
     });
+
   } catch (e) {
-    console.error('Error in course list:', e);
     next(e);
   }
 }
@@ -162,6 +238,7 @@ export const searchValidators = [
   ]),
   query("category").optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
 ];
+
 export async function search(req, res, next) {
   try {
     await Promise.all(searchValidators.map((v) => v.run(req)));
@@ -170,17 +247,33 @@ export async function search(req, res, next) {
       return res.status(400).render("error", { message: "Bad query" });
 
     const searchQuery = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
+    if (!searchQuery) {
+      const p = new URLSearchParams(req.query);
+      p.delete('q');
+      // dọn category rỗng nếu có
+      if (!p.get('category')) p.delete('category');
+      return res.redirect(302, `/courses?${p.toString()}`);
+    }
     const page = req.query.page || 1;
-    // Handle duplicate sort values (take first one if array)
-    const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
-      const sort = sortRaw || null; // Let model handle default sorting
     const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
+
+    // --- multi-sort: parse CSV ---
+    const sortCsv = Array.isArray(req.query.sort)
+      ? req.query.sort[req.query.sort.length - 1]
+      : (req.query.sort || '');
+    const sortList = parseSortList(sortCsv).map(x => {
+      // map newest/oldest (nếu còn dùng)
+      if (x.field === 'newest') return { field: 'date', dir: 'desc' };
+      if (x.field === 'oldest') return { field: 'date', dir: 'asc' };
+      return x;
+    });
+
     const pageSize = 12;
 
     const { rows, total } = await Course.findPaged({
       page,
       pageSize,
-      sort,
+      sortList,
       categoryId,
       search: searchQuery
     });
@@ -206,14 +299,22 @@ export async function search(req, res, next) {
       categories,
       page,
       totalPages,
-      currentSort: sort,
+      currentSort: sortCsv,                 // giữ nguyên CSV cho UI
       currentCategory: categoryId,
       currentSearch: searchQuery,
-      baseUrl: buildBaseUrl(req),
+      baseUrl: buildUrl(req, { keepPage: false }),
+      sortBaseUrl: buildUrl(req, { keepPage: true }),
     });
   } catch (e) {
     next(e);
   }
+}
+function buildUrl(req, { keepPage = false } = {}) {
+  const q = new URLSearchParams(req.query);
+  if (!keepPage) q.delete("page");          // giữ mặc định cũ cho phân trang
+  const base = req.baseUrl + req.path;
+  const qs = q.toString();
+  return base + (qs ? "?" + qs + "&" : "?");
 }
 
 // POST /courses/:id/watch - Add to watchlist (authenticated users only)
@@ -300,4 +401,28 @@ export async function createReview(req, res, next) {
   } catch (e) {
     next(e);
   }
+}
+export function parseSortList(sortStr) {
+  if (!sortStr) return [];
+  return sortStr
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+    .map(s => {
+      const [field, dir] = s.split('_');
+      return { field, dir: dir === 'asc' ? 'asc' : 'desc' };
+    });
+}
+
+export function multiCompare(a, b, criteria) {
+  for (const { field, dir } of criteria) {
+    let av, bv;
+    if (field === 'price') { av = a.price; bv = b.price; }
+    if (field === 'rating') { av = a.rating_avg; bv = b.rating_avg; }
+    if (field === 'date') { av = new Date(a.created_at); bv = new Date(b.created_at); }
+
+    if (av < bv) return dir === 'asc' ? -1 : 1;
+    if (av > bv) return dir === 'asc' ? 1 : -1;
+  }
+  return 0;
 }

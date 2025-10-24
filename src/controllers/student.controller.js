@@ -1,21 +1,5 @@
 import e from "connect-flash";
 import "../helpers/hbs.helpers.js";
-<<<<<<< HEAD
-import Handlebars from "handlebars";
-
-export async function listEnrolled(req, res) {
-  res.render('students/enrollments');
-}
-
-export async function listWatchlist(req, res) {
-  res.render('students/watchlist');
-import { showCourses, getPagedCourses } from "../models/student.model.js";
-import "../helpers/hbs.helpers.js";
-// import { getPageData } from "../helpers/mockData.js";
-import { getPageData } from "../helpers/mockData.js";
-
-=======
->>>>>>> 8b01d51fdc9b3c7c0299d98228129c1df05aefdb
 import { findCoursesByStudentId, Getallwatchlist, remove } from "../models/student.model.js";
 import { findById as findCourseById } from "../models/course.model.js";
 import { isEnrolled, enroll } from "../models/enrollment.model.js";
@@ -105,13 +89,6 @@ export async function listWatchlist(req, res) {
             categoryName: course.category_name,
             purchasedAt: course.purchased_at
         }));
-<<<<<<< HEAD
-<<<<<<< HEAD
-        console.log(courseList);    
-=======
->>>>>>> 1674308 ( Khuong update)
-=======
->>>>>>> 8b01d51fdc9b3c7c0299d98228129c1df05aefdb
         const totalCourses = allCourses.length;
         const totalPages = Math.ceil(totalCourses / itemsPerPage);
 
@@ -138,45 +115,11 @@ export async function listWatchlist(req, res) {
         res.status(500).render("error");
     }
 };
-<<<<<<< HEAD
-export const getLearningPage = (req, res) => {
-    res.render("students/learn");
-};
-import { showCourses, getPagedCourses } from "../models/student.model.js";
-import "../helpers/hbs.helpers.js";
-import { getPageData } from "../helpers/mockData.js";
-import Handlebars from "handlebars";
 
-export async function listEnrolled(req, res) {
-  const page = parseInt(req.query.page) || 1;
-  const { courses, pagination } = getPageData(page, 6);
+export const removeCourse = async (req, res) => {
 
-  res.render('students/enrollments', {
-    courses,
-    currentPage: pagination.currentPage,
-    totalPages: pagination.totalPages,
-    pages: pagination.pages
-  });
-}
-
-export async function listWatchlist(req, res) {
-  const page = parseInt(req.query.page) || 1;
-  const { courses, pagination } = getPageData(page, 6);
-
-  res.render('students/watchlist', {
-    courses,
-    currentPage: pagination.currentPage,
-    totalPages: pagination.totalPages,
-    pages: pagination.pages
-  });
-}
-=======
->>>>>>> 8b01d51fdc9b3c7c0299d98228129c1df05aefdb
-
-export const removeCourse = async(req, res) => {
-   
     try {
-       console.log('body:', req.body);
+        console.log('body:', req.body);
         console.log('_csrf from body:', req.body && req.body._csrf);
         const courseId = req.params.id;
         const userId = req.user.id;
@@ -191,7 +134,7 @@ export const removeCourse = async(req, res) => {
 };
 
 // GET /students/checkout/:id - Show checkout page
-export const showCheckout = async(req, res) => {
+export const showCheckout = async (req, res) => {
     try {
         const courseId = parseInt(req.params.id);
         const userId = req.user.id;
@@ -224,7 +167,7 @@ export const showCheckout = async(req, res) => {
 };
 
 // POST /students/purchase/:id - Process purchase
-export const processPurchase = async(req, res) => {
+export const processPurchase = async (req, res) => {
     try {
         const courseId = parseInt(req.params.id);
         const userId = req.user.id;
@@ -276,9 +219,4 @@ export const processPurchase = async(req, res) => {
         req.flash('error', 'Payment failed. Please try again.');
         res.redirect(`/students/checkout/${req.params.id}`);
     }
-<<<<<<< HEAD
 };
-}
-=======
-};
->>>>>>> 8b01d51fdc9b3c7c0299d98228129c1df05aefdb
