@@ -1,0 +1,305 @@
+
+{{#fill_section 'css'}} 
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<link href="https://releases.transloadit.com/uppy/v5.1.6/uppy.min.css" rel="stylesheet">
+<link href="/css/instructors.css" rel="stylesheet">
+
+
+{{/fill_section}}
+{{#fill_section 'js'}} 
+<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script src="https://releases.transloadit.com/uppy/v5.1.6/uppy.min.js"></script>
+<script>
+  //var cleavePrice = new Cleave('#coursePrice', {
+  //      numeral: true,
+  //      numeralThousandsGroupStyle: 'thousand'
+  //  });
+  //  var cleaveSalePrice = new Cleave('#courseSalePrice', {
+  //      numeral: true,
+  //      numeralThousandsGroupStyle: 'thousand'
+  //  });
+  (function(){
+    // Initialize Quill only when the editor exists (Edit tab)
+    const editorEl = document.getElementById('editor');
+    if (!editorEl) return;
+    const quill = new Quill(editorEl, { theme: 'snow' });
+    try {
+      const initHTML = document.getElementById('txtFullDes')?.value;
+      if (initHTML) quill.root.innerHTML = initHTML;
+    } catch (e) {}
+    quill.on('text-change', function() {
+      const hidden = document.getElementById('txtFullDes');
+      if (hidden) hidden.value = quill.root.innerHTML;
+    });
+  })();
+
+    (function(){
+      const csrfToken = '{{csrfToken}}';
+      async function uploadFile(file){
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'videos');
+        const res = await fetch('/api/uploads/file', {
+          method: 'POST',
+          headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' },
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Upload failed');
+        return data.publicUrl;
+      }
+      async function onUploadClick(e){
+        const btn = e.currentTarget;
+        const sectionId = btn.getAttribute('data-upload-for');
+        const form = btn.closest('form');
+        const urlInput = form?.querySelector('input[name="video_url"]');
+        const tmp = document.createElement('input');
+        tmp.type = 'file';
+        tmp.accept = 'video/*';
+        tmp.style.position = 'fixed';
+        tmp.style.left = '-9999px';
+        document.body.appendChild(tmp);
+        tmp.addEventListener('change', async function(ev){
+          const file = tmp.files?.[0];
+          if (!file) { document.body.removeChild(tmp); return; }
+          try {
+            const publicUrl = await uploadFile(file);
+            if (urlInput) urlInput.value = publicUrl;
+            alert('Uploaded. Video URL set into the form.');
+          } catch (err) {
+            console.error(err);
+            alert('Upload failed. Please try again.');
+          } finally {
+            document.body.removeChild(tmp);
+          }
+        }, { once: true });
+        tmp.click();
+      }
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('[data-upload-for]').forEach(btn => btn.addEventListener('click', onUploadClick));
+      });
+    })();
+
+    (function(){
+      const csrfToken = '{{csrfToken}}';
+      const uploadBtn = document.getElementById('btnUploadThumbnail');
+      const fileInput = document.getElementById('file-course-thumbnail');
+      const urlInput = document.getElementById('courseThumbnail');
+      const preview = document.getElementById('courseThumbnailPreview');
+      function onClick(){ fileInput?.click(); }
+      async function onFileChange(e){
+        const f = e.currentTarget.files?.[0];
+        if (!f) return;
+        const fd = new FormData();
+        fd.append('file', f);
+        fd.append('folder', 'course-thumbnails');
+  const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' }, body: fd });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          if (urlInput) urlInput.value = data.publicUrl;
+          if (preview) preview.src = data.publicUrl;
+          alert('Thumbnail uploaded and URL inserted.');
+        } else {
+          alert(data.message || 'Upload failed');
+        }
+        e.currentTarget.value = '';
+      }
+      document.addEventListener('DOMContentLoaded', function(){
+        uploadBtn?.addEventListener('click', onClick);
+        fileInput?.addEventListener('change', onFileChange);
+      });
+    })();
+    // Delete
+    (function(){
+      const csrfToken = '{{csrfToken}}';
+      async function onDeleteClick(e){
+        const btn = e.currentTarget;
+        const lessonId = btn.getAttribute('data-id');
+        if (!lessonId) return;
+        if (!confirm('Delete this lesson?')) return;
+        try {
+          const res = await fetch(`/instructor/courses/edit/{{course.id}}/lessons/${lessonId}/delete`, {
+            method: 'POST',
+            headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' },
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || data.success === false) throw new Error(data.message || 'Failed to delete');
+          location.href = `/instructor/courses/edit/{{course.id}}/sections`;
+        } catch (err) {
+          console.error(err);
+          alert('Delete failed. Please try again.');
+        }
+      }
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('[data-action="delete-lesson"]').forEach(btn => btn.addEventListener('click', onDeleteClick));
+      });
+    })();
+</script>
+{{/fill_section}}
+<link href="/css/instructors.css" rel="stylesheet">
+<div class="card me-5 ms-5 mt-4 mb-4">
+    <div class="card-body no-border">
+        <h4 class="card-title" style="font-weight: bold;font-size: 1.5rem;">Edit Course</h4>
+        <div class="tab-wrapper">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link {{#if isEditTab}}active{{/if}}" id="home-tab" href="/instructor/courses/edit/{{course.id}}" style="font-weight: bold;">Edit Courses</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link {{#if isLessonsTab}}active{{/if}}" id="lessons-tab" href="/instructor/courses/edit/{{course.id}}/sections" style="font-weight: bold;">Lessons Management</a>
+          </li>
+        </ul>
+        </div>
+        
+        <div class="tab-content" id="myTabContent">
+          {{#if isEditTab}}
+          <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+            <div class="course-list mt-3">
+              <form action="/instructor/courses/edit/{{course.id}}" method="POST">
+                <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                <div class="mb-3">
+                  <label for="courseThumbnail" class="form-label"style="font-weight: bold;">Course Thumbnail</label>
+                  <div class="mb-2 d-flex flex-column gap-2">
+                    <img id="courseThumbnailPreview" src="{{course.thumbnail_url}}" alt="Course Thumbnail" style="max-width: 280px; max-height: 160px; object-fit: cover; border-radius: 6px;" onerror="this.src='/img/course/default-thumbnail.jpg'">
+                    <div class="d-flex gap-2 align-items-center">
+                      <input type="text" class="form-control" id="courseThumbnail" name="thumbnail_url" value="{{course.thumbnail_url}}" placeholder="Paste image URL">
+                      <input type="file" accept="image/*" id="file-course-thumbnail" class="d-none">
+                      <button type="button" id="btnUploadThumbnail" class="btn btn-secondary"><i class="bi bi-upload"></i> Upload file</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="courseTitle" class="form-label"style="font-weight: bold;">Course Title</label>
+                  <input type="text" class="form-control" id="courseTitle" name="title" value="{{course.title}}" required>
+                </div>
+                <div class="mb-3">
+                  <label for="shortCourseDescription" class="form-label" style="font-weight: bold;">Short Course Description</label>
+                  <textarea class="form-control" id="shortCourseDescription" name="short_desc" rows="4" required>{{course.short_desc}}</textarea>
+                </div>
+                <div class="mb-3">
+                                <label class="form-label" style="font-weight: bold;" placeholder ="Draft Description">Full Description</label>
+                        <div id="editor" style="height: 200px;"></div>
+            <input type="hidden" name ="full_desc" id="txtFullDes" value="{{{course.full_desc}}}"> 
+                            </div>
+                <div class="mb-3">
+                  <label for="coursePrice" class="form-label" style="font-weight: bold;">Course Price</label>
+                  <input type="number" class="form-control" id="coursePrice" name="price" value="{{course.price}}" required>
+                </div>
+                <div class="mb-3">
+                  <label for="courseSalePrice" class="form-label" style="font-weight: bold;">Course Sale Price</label>
+                  <input type="number" class="form-control" id="courseSalePrice" name="sale_price" value="{{course.sale_price}}">
+                </div>
+                <div class="mb-3">
+                  <label for="courseStatus" class="form-label" style="font-weight: bold;">Course Status</label>
+                  <select class="form-select" id="courseStatus" name="status" required>
+                    <option value="draft" {{#if (eq course.status "draft")}}selected{{/if}}>Draft</option>
+                    <option value="published" {{#if (eq course.status "published")}}selected{{/if}}>Published</option>
+                    <option value="archived" {{#if (eq course.status "archived")}}selected{{/if}}>Archived</option>
+                  </select>
+                  
+                </div>
+                <a href="/instructor/courses" class="btn btn-secondary"style="background-color: #4eb8dd;"><i class="bi bi-skip-backward-fill"></i> Back</a>  
+                <button type="submit" class="btn btn-primary" >Save Changes</button>
+              </form>              
+          </div>
+                 
+          </div>
+          {{/if}}
+
+          {{#if isLessonsTab}}
+          <div class="tab-pane fade show active" id="lessons-tab-pane" role="tabpanel" aria-labelledby="lessons-tab" tabindex="0">
+            {{!--Lessons Management --}}
+             <form class="row g-2 mt-3" action="/instructor/courses/edit/{{course.id}}/sections" method="POST">
+              <input type="hidden" name="_csrf" value="{{csrfToken}}">
+              <div class="col-md-6 mb-2">
+                <input type="text" class="form-control" name="title" placeholder="New section title" required>
+              </div>
+              <div class="col-auto">
+                <button type="submit" class="btn btn-outline-primary">Add Section</button>
+              </div>
+            </form>
+          
+            {{#each sections}}
+            <div class="accordion" id="accordion-{{id}}">
+                                          <div class="accordion-item">
+                                            <h2 class="accordion-header" id="heading-{{id}}">
+                                              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapse-{{id}}" aria-expanded="false" style="font-weight: bold;" aria-controls="collapse-{{id}}">
+                                                {{increment @index}}. {{this.title}}
+                                              </button>
+                                            </h2>
+                                            <div id="collapse-{{id}}" class="accordion-collapse collapse" aria-labelledby="heading-{{id}}"
+                                              data-bs-parent="#accordion-{{id}}">
+                                              <div class="accordion-body p-0">
+                                                <table class="table mb-0">
+                                                  <tbody>
+                                                    {{#each this.lessons}}
+                                                    <tr>
+                                                      <td>
+                                                        <strong>{{this.title}}</strong>
+                                                        <br>
+                                                        {{#if this.duration_sec}}
+                                                          <small class="text-muted">{{this.duration_sec}} sec</small>
+                                                        {{/if}}
+                                                        <br>
+                                                        {{#if this.isYouTube}}
+                                                          <div class="ratio ratio-16x9" style="width: 320px; height: 180px;">
+                                                            <iframe src="{{this.youtubeEmbedUrl}}" title="Video preview" allowfullscreen></iframe>
+                                                          </div>
+                                                        {{else}}
+                                                          {{#if this.video_url}}
+                                                            <video width="320" height="180" controls>
+                                                              <source src="{{this.video_url}}">
+                                                              Your browser does not support the video tag. <a href="{{this.video_url}}" target="_blank" rel="noopener">Open video</a>
+                                                            </video>
+                                                          {{/if}}
+                                                        {{/if}}
+                                                      </td>
+                                          
+                                                      <td class="text-end">
+                                                        <button type="button" class="btn btn-sm btn-danger" data-action="delete-lesson" data-id="{{this.id}}"><i class="bi bi-x-lg"></i></button>
+                                                      </td>
+                                                    </tr>
+                                                    {{/each}}
+                                                  </tbody>
+                                                </table>
+                                                <form class="row g-2 mt-2" action="/instructor/courses/edit/{{../course.id}}/sections/{{id}}/lessons" method="POST">
+                                                  <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                                                  <div class="col-md-4">
+                                                    <input type="text" class="form-control" name="title" placeholder="Lesson title" required>
+                                                  </div>
+                                                  <div class="col-md-5">
+                                                    <input type="url" class="form-control" name="video_url" placeholder="Video URL (mp4 or YouTube link)" required>
+                                                  </div>
+                                                  <div class="col-md-3 col-12">
+                                                    <div class="d-flex gap-2">
+                                                      <input type="file" accept="video/*" class="form-control d-none" id="file-{{id}}">
+                                                      <button type="button" class="btn btn-secondary" data-upload-for="{{id}}"><i class="bi bi-upload"></i> Upload video</button>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-md-2">
+                                                    <input type="number" class="form-control" name="duration_sec" placeholder="Duration (sec)" min="0" value="0">
+                                                  </div>
+                                                  <div class="col-md-1 d-flex align-items-center">
+                                                    <div class="form-check">
+                                                      <input class="form-check-input" type="checkbox" name="is_preview" value="1" id="preview-{{id}}">
+                                                      <label class="form-check-label" for="preview-{{id}}">Preview</label>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-auto ms-5 mb-2">
+                                                    <button type="submit" class="btn btn-outline-success" style="color:#4eb8dd;">Add Lesson</button>
+                                                  </div>
+                                                </form>
+                                              </div>
+                                            </div>
+                                          </div>
+              </div>
+            {{/each}}
+            <a href="/instructor/courses" class="btn btn-secondary mt-3"style="background-color: #4eb8dd;"><i class="bi bi-skip-backward-fill"></i> Back</a>  
+          </div>
+          {{/if}}
+        </div>
+       
+    </div>
+</div>
