@@ -106,3 +106,18 @@ export async function getPopularWeekly(limit = 6) {
         .limit(limit);
 }
 
+// Get courses by category
+export async function getCoursesByCategory(categoryId) {
+    return db('courses')
+        .select(
+            'courses.*',
+            'users.name as instructor_name',
+            'categories.name as category_name'
+        )
+        .leftJoin('users', 'courses.instructor_id', 'users.id')
+        .leftJoin('categories', 'courses.category_id', 'categories.id')
+        .where('courses.category_id', categoryId)
+        .andWhere('courses.status', 'published')
+        .orderBy('courses.created_at', 'desc');
+}
+
