@@ -1,110 +1,409 @@
+{{#unless (eq user.role 'instructor')}}
+<!-- ======= Page Title ======= -->
+<div class="page-title">
+  <div class="heading">
+    <div class="container">
+      <h1>Profile Settings</h1>
+      <p>Manage your personal information and account settings</p>
+    </div>
+  </div>
+</div><!-- End Page Title -->
 
-{{#fill_section 'css'}} 
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
-<link href="/css/instructors.css" rel="stylesheet">
+{{/unless}}
 
+<!-- ======= Profile Section ======= -->
+<section id="profile" class="section profile">
+  <div class="container">
+    {{#if (eq user.role 'instructor')}}
+      {{#fill_section 'css'}} 
+        <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+        <link href="/css/instructors.css" rel="stylesheet">
+      {{/fill_section}}
+      {{#fill_section 'js'}} 
+        <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+          (function(){
+            const csrfToken = '{{csrfToken}}';
+            function ready(){
+              const btn = document.getElementById('btnUploadAvatar');
+              const fileInput = document.getElementById('file-avatar');
+              const urlInput = document.getElementById('avatarUrl');
+              const preview = document.getElementById('avatarPreview');
+              function onClick(){ fileInput?.click(); }
+              async function onChange(e){
+                const f = e.currentTarget.files?.[0];
+                if (!f) return;
+                const fd = new FormData();
+                fd.append('file', f);
+                fd.append('folder', 'instructor-avatars');
+                const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken }, body: fd });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                  if (urlInput) urlInput.value = data.publicUrl;
+                  if (preview) preview.src = data.publicUrl;
+                  await Swal.fire({ icon: 'success', title: 'Avatar uploaded', text: 'URL inserted. Click Save to apply.' });
+                } else {
+                  Swal.fire({ icon: 'error', title: 'Upload failed', text: data.message || 'Please try again.' });
+                }
+                e.currentTarget.value = '';
+              }
+              btn?.addEventListener('click', onClick);
+              fileInput?.addEventListener('change', onChange);
+            }
+            document.addEventListener('DOMContentLoaded', ready);
+          })();
+        </script>
+      {{/fill_section}}
 
-{{/fill_section}}
-{{#fill_section 'js'}} 
-<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-  (function(){
-    const csrfToken = '{{csrfToken}}';
-    const btn = document.getElementById('btnUploadAvatar');
-    const fileInput = document.getElementById('file-avatar');
-    const urlInput = document.getElementById('avatarUrl');
-    const preview = document.getElementById('avatarPreview');
-    function onClick(){ fileInput?.click(); }
-    async function onChange(e){
-      const f = e.currentTarget.files?.[0];
-      if (!f) return;
-      const fd = new FormData();
-      fd.append('file', f);
-      fd.append('folder', 'instructor-avatars');
-      const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken }, body: fd });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        urlInput.value = data.publicUrl;
-        if (preview) preview.src = data.publicUrl;
-        await Swal.fire({ icon: 'success', title: 'Avatar uploaded', text: 'URL inserted. Click Save to apply.' });
-      } else {
-        Swal.fire({ icon: 'error', title: 'Upload failed', text: data.message || 'Please try again.' });
-      }
-      e.currentTarget.value = '';
-    }
-    document.addEventListener('DOMContentLoaded', function(){
-      btn?.addEventListener('click', onClick);
-      fileInput?.addEventListener('change', onChange);
-    });
-  })();
-</script>
-{{/fill_section}}
-<link href="/css/instructors.css" rel="stylesheet">
-<div class="card me-5 ms-5 mt-4 mb-4">
-    <div class="card-body no-border">
-        <h4 class="card-title" style="font-weight: bold;font-size: 1.5rem;">My Instructor Profile</h4>
-        <div class="tab-wrapper">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <a class="nav-link {{#if (eq activeTab 'info')}}active{{/if}}" id="home-tab" href="/instructor/profile/{{instructor.user_id}}?tab=info" style="font-weight: bold;">My Profiles</a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a class="nav-link {{#if (eq activeTab 'photo')}}active{{/if}}" id="profile-tab" href="/instructor/profile/{{instructor.user_id}}?tab=photo" style="font-weight: bold;">My Picture Profile</a>
-          </li>
-          {{!-- <li class="nav-item" role="presentation">
-            <a class="nav-link {{#if (eq activeTab 'settings')}}active{{/if}}" id="settings-tab" href="/instructor/profile/{{instructor.user_id}}?tab=settings" style="font-weight: bold;">Private & Setting</a>
-          </li> --}}
-        </ul>
-        </div>
-        
-        <div class="tab-content" id="myTabContent">
-          <div class="tab-pane fade {{#if (eq activeTab 'info')}}show active{{/if}}" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
-            <form class="settings-form">
-                    <div class="row mb-3">
-                      <div class="col-md-6">
-                        <label for="fullName" class="form-label" style="font-weight: bold;">Full Name</label>
-                        <input id="fullName" type="text" class="form-control" placeholder="" value ="{{instructor.title}}">
-                        <label for="displayName" class="form-label mt-4" style="font-weight: bold;">Display Name</label>
-                        <input id="displayName" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label" style="font-weight: bold;">Display Image</label>
-                        <div class="mb-2">
-                          <img src="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" alt="Instructor image" style="max-width: 160px; max-height: 160px; object-fit: cover; border-radius: 8px;" onerror="this.src='/img/person/default-avatar.jpg'">
+      <div class="card me-0 ms-0 mt-4 mb-4">
+        <div class="card-body no-border">
+          <h4 class="card-title" style="font-weight: bold;font-size: 1.5rem;">My Instructor Profile</h4>
+          <div class="tab-wrapper">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <a class="nav-link {{#if (eq activeTab 'account')}}active{{/if}}" id="account-tab" href="/profile?tab=account" style="font-weight: bold;">Account</a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link {{#if (eq activeTab 'info')}}active{{/if}}" id="info-tab" href="/profile?tab=info" style="font-weight: bold;">My Profiles</a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link {{#if (eq activeTab 'photo')}}active{{/if}}" id="photo-tab" href="/profile?tab=photo" style="font-weight: bold;">My Picture Profile</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="tab-content" id="myTabContent">
+            <!-- Account tab content: reuse user profile forms -->
+            <div class="tab-pane fade {{#if (eq activeTab 'account')}}show active{{/if}}" id="account-tab-pane" role="tabpanel" aria-labelledby="account-tab" tabindex="0">
+              <!-- User Account Forms: Personal Info and Change Password -->
+              <div class="row">
+                <div class="col-lg-8 mx-auto">
+                  <!-- Profile Information Card -->
+                  <div class="card mb-4">
+                    <div class="card-header">
+                      <h4 class="mb-0">
+                        <i class="bi bi-person-circle me-2"></i>
+                        Personal Information
+                      </h4>
+                    </div>
+                    <div class="card-body">
+                      {{#if errors}}
+                        <div class="alert alert-danger">
+                          <ul class="mb-0">
+                            {{#each errors}}
+                              <li>{{this.msg}}</li>
+                            {{/each}}
+                          </ul>
                         </div>
-                      </div>
-                    </div>
-                    <div class="mb-3">
-                      <label for="biography" class="form-label" style="font-weight: bold;">Biography</label>
-                      <textarea id="biography" class="form-control" rows="4" placeholder="Write something about yourself..." value ="">{{instructor.job_title}}</textarea>
-                      <div class="form-text">
-                      </div>
-                    </div>
-                    <button type="submit" class="btn btn-save border" style="background-color: #4eb8dd;">Save</button>
-                  </form>
-          
-        </div>
-  <div class="tab-pane fade {{#if (eq activeTab 'photo')}}show active{{/if}}" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-                    <form class="settings-form" action="/instructor/profile/upload-avatar/{{instructor.user_id}}" method="POST">
-                      <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                      <div class="mb-3">
-                        <label class="form-label" style="font-weight: bold;">Profile Image</label>
-                        <div class="d-flex flex-column gap-2">
-                          <img id="avatarPreview" src="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" alt="Avatar" style="max-width: 160px; max-height: 160px; object-fit: cover; border-radius: 8px;" onerror="this.src='/img/person/default-avatar.jpg'">
-                          <div class="d-flex gap-2 align-items-center">
-                            <input type="url" class="form-control" id="avatarUrl" style="width: auto;" name="avatar_url" value="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" placeholder="Paste image URL or upload a file">
-                            <input type="file" accept="image/*" id="file-avatar" class="d-none">
-                            <button type="button" id="btnUploadAvatar" class="btn btn-secondary"><i class="bi bi-upload"></i> Upload file</button>
+                      {{/if}}
+
+                      {{#if error}}
+                        <div class="alert alert-danger">{{error}}</div>
+                      {{/if}}
+
+                      <form action="/profile/update" method="POST" class="needs-validation" novalidate>
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                        <div class="row">
+                          <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{#if values.name}}{{values.name}}{{else}}{{user.name}}{{/if}}" required>
+                            <div class="invalid-feedback">Please provide a valid name (2-50 characters).</div>
+                          </div>
+
+                          <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{#if values.email}}{{values.email}}{{else}}{{user.email}}{{/if}}" required>
+                            <div class="invalid-feedback">Please provide a valid email address.</div>
                           </div>
                         </div>
-                      </div>
-                      <button type="submit" class="btn btn-save" style="background-color: #4eb8dd;">Save</button>
-                    </form>
+
+                        <div class="row">
+                          <div class="col-md-6 mb-3">
+                            <label for="role" class="form-label">Account Type</label>
+                            <input type="text" class="form-control" id="role" value="{{user.role}}" readonly>
+                            <small class="form-text text-muted">Account type cannot be changed</small>
+                          </div>
+
+                          <div class="col-md-6 mb-3">
+                            <label for="created_at" class="form-label">Member Since</label>
+                            <input type="text" class="form-control" id="created_at" value="{{formatDate user.created_at}}" readonly>
+                          </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                          <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Update Profile
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- Change Password Card -->
+                  <div class="card">
+                    <div class="card-header">
+                      <h4 class="mb-0">
+                        <i class="bi bi-shield-lock me-2"></i>
+                        Change Password
+                      </h4>
+                    </div>
+                    <div class="card-body">
+                      {{#if passwordErrors}}
+                        <div class="alert alert-danger">
+                          <ul class="mb-0">
+                            {{#each passwordErrors}}
+                              <li>{{this.msg}}</li>
+                            {{/each}}
+                          </ul>
+                        </div>
+                      {{/if}}
+
+                      {{#if passwordError}}
+                        <div class="alert alert-danger">{{passwordError}}</div>
+                      {{/if}}
+
+                      <form action="/profile/change-password" method="POST" class="needs-validation" novalidate>
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                        <div class="mb-3">
+                          <label for="currentPassword" class="form-label">Current Password <span class="text-danger">*</span></label>
+                          <div class="input-group">
+                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="currentPassword" aria-label="Show password">
+                              <i class="bi bi-eye"></i>
+                            </button>
+                          </div>
+                          <div class="invalid-feedback">Please enter your current password.</div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-md-6 mb-3">
+                            <label for="newPassword" class="form-label">New Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                              <input type="password" class="form-control" id="newPassword" name="newPassword" minlength="8" required>
+                              <button type="button" class="btn btn-outline-secondary toggle-password" data-target="newPassword" aria-label="Show password">
+                                <i class="bi bi-eye"></i>
+                              </button>
+                            </div>
+                            <div class="invalid-feedback">Password must be at least 6 characters long.</div>
+                          </div>
+
+                          <div class="col-md-6 mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" minlength="8" required>
+                              <button type="button" class="btn btn-outline-secondary toggle-password" data-target="confirmPassword" aria-label="Show password">
+                                <i class="bi bi-eye"></i>
+                              </button>
+                            </div>
+                            <div class="invalid-feedback">Passwords must match.</div>
+                          </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                          <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-key me-2"></i>
+                            Change Password
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Instructor info tab -->
+            <div class="tab-pane fade {{#if (eq activeTab 'info')}}show active{{/if}}" id="info-tab-pane" role="tabpanel" aria-labelledby="info-tab" tabindex="0">
+              <form class="settings-form">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="fullName" class="form-label" style="font-weight: bold;">Full Name</label>
+                    <input id="fullName" type="text" class="form-control" placeholder="" value ="{{instructor.title}}">
+                    <label for="displayName" class="form-label mt-4" style="font-weight: bold;">Display Name</label>
+                    <input id="displayName" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" style="font-weight: bold;">Display Image</label>
+                    <div class="mb-2">
+                      <img src="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" alt="Instructor image" style="max-width: 160px; max-height: 160px; object-fit: cover; border-radius: 8px;" onerror="this.src='/img/person/default-avatar.jpg'">
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="biography" class="form-label" style="font-weight: bold;">Biography</label>
+                  <textarea id="biography" class="form-control" rows="4" placeholder="Write something about yourself..." value ="">{{instructor.job_title}}</textarea>
+                  <div class="form-text"></div>
+                </div>
+                <button type="submit" class="btn btn-save border" style="background-color: #4eb8dd;">Save</button>
+              </form>
+            </div>
+
+            <!-- Instructor photo tab -->
+            <div class="tab-pane fade {{#if (eq activeTab 'photo')}}show active{{/if}}" id="photo-tab-pane" role="tabpanel" aria-labelledby="photo-tab" tabindex="0">
+              <form class="settings-form" action="/instructor/profile/upload-avatar/{{user.id}}" method="POST">
+                <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                <div class="mb-3">
+                  <label class="form-label" style="font-weight: bold;">Profile Image</label>
+                  <div class="d-flex flex-column gap-2">
+                    <img id="avatarPreview" src="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" alt="Avatar" style="max-width: 160px; max-height: 160px; object-fit: cover; border-radius: 8px;" onerror="this.src='/img/person/default-avatar.jpg'">
+                    <div class="d-flex gap-2 align-items-center">
+                      <input type="url" class="form-control" id="avatarUrl" style="width: auto;" name="avatar_url" value="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" placeholder="Paste image URL or upload a file">
+                      <input type="file" accept="image/*" id="file-avatar" class="d-none">
+                      <button type="button" id="btnUploadAvatar" class="btn btn-secondary"><i class="bi bi-upload"></i> Upload file</button>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-save" style="background-color: #4eb8dd;">Save</button>
+              </form>
+            </div>
+          </div>
         </div>
-  {{!-- <div class="tab-pane fade {{#if (eq activeTab 'settings')}}show active{{/if}}" id="settings-tab-pane" role="tabpanel" aria-labelledby="settings-tab" tabindex="0">
-                    <label for="">fdsfdsfsdfsf</label>
-        </div> --}}
-    </div>
-</div>
+      </div>
+    {{else}}
+      <!-- Non-instructor: just show account forms -->
+      <!-- User Account Forms: Personal Info and Change Password -->
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <!-- Profile Information Card -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4 class="mb-0">
+                <i class="bi bi-person-circle me-2"></i>
+                Personal Information
+              </h4>
+            </div>
+            <div class="card-body">
+              {{#if errors}}
+                <div class="alert alert-danger">
+                  <ul class="mb-0">
+                    {{#each errors}}
+                      <li>{{this.msg}}</li>
+                    {{/each}}
+                  </ul>
+                </div>
+              {{/if}}
+
+              {{#if error}}
+                <div class="alert alert-danger">{{error}}</div>
+              {{/if}}
+
+              <form action="/profile/update" method="POST" class="needs-validation" novalidate>
+                <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{#if values.name}}{{values.name}}{{else}}{{user.name}}{{/if}}" required>
+                    <div class="invalid-feedback">Please provide a valid name (2-50 characters).</div>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{#if values.email}}{{values.email}}{{else}}{{user.email}}{{/if}}" required>
+                    <div class="invalid-feedback">Please provide a valid email address.</div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="role" class="form-label">Account Type</label>
+                    <input type="text" class="form-control" id="role" value="{{user.role}}" readonly>
+                    <small class="form-text text-muted">Account type cannot be changed</small>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label for="created_at" class="form-label">Member Since</label>
+                    <input type="text" class="form-control" id="created_at" value="{{formatDate user.created_at}}" readonly>
+                  </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Update Profile
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Change Password Card -->
+          <div class="card">
+            <div class="card-header">
+              <h4 class="mb-0">
+                <i class="bi bi-shield-lock me-2"></i>
+                Change Password
+              </h4>
+            </div>
+            <div class="card-body">
+              {{#if passwordErrors}}
+                <div class="alert alert-danger">
+                  <ul class="mb-0">
+                    {{#each passwordErrors}}
+                      <li>{{this.msg}}</li>
+                    {{/each}}
+                  </ul>
+                </div>
+              {{/if}}
+
+              {{#if passwordError}}
+                <div class="alert alert-danger">{{passwordError}}</div>
+              {{/if}}
+
+              <form action="/profile/change-password" method="POST" class="needs-validation" novalidate>
+                <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                <div class="mb-3">
+                  <label for="currentPassword" class="form-label">Current Password <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="currentPassword" aria-label="Show password">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                  <div class="invalid-feedback">Please enter your current password.</div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="newPassword" class="form-label">New Password <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <input type="password" class="form-control" id="newPassword" name="newPassword" minlength="8" required>
+                      <button type="button" class="btn btn-outline-secondary toggle-password" data-target="newPassword" aria-label="Show password">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </div>
+                    <div class="invalid-feedback">Password must be at least 6 characters long.</div>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" minlength="8" required>
+                      <button type="button" class="btn btn-outline-secondary toggle-password" data-target="confirmPassword" aria-label="Show password">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </div>
+                    <div class="invalid-feedback">Passwords must match.</div>
+                  </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-key me-2"></i>
+                    Change Password
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {{/if}}
+  </div>
+</section><!-- End Profile Section -->
