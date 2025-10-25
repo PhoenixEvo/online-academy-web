@@ -11,7 +11,7 @@ r.get("/", (req, res) => {
 	const uid = req.user?.id;
 	if (!uid) return res.redirect('/auth/login');
 	const tab = req.query.tab || 'info';
-	return res.redirect(`/instructor/profile/${uid}?tab=${encodeURIComponent(tab)}`);
+	return res.redirect(`/profile?tab=${encodeURIComponent(tab === 'info' ? 'account' : tab)}`);
 });
 
 r.get("/:id", profileCtrl.showInstructorProfile);
