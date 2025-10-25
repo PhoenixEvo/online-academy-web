@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { body, validationResult } from 'express-validator';
 import { db } from '../models/db.js';
 
-export function showProfile(req, res) {
+export async function showProfile(req, res, next) {
   try {
     const userData = {
       id: req.user?.id,
@@ -12,20 +12,27 @@ export function showProfile(req, res) {
       created_at: req.user?.created_at || new Date()
     };
 
-    res.render('profile', {
+    const model = {
       layout: 'main',
       page: 'profile',
       title: 'Profile Settings',
       user: userData,
-      values: userData, 
+      values: userData,
+      activeTab: req.query.tab || (userData.role === 'instructor' ? 'account' : 'account'),
       csrfToken: req.csrfToken ? req.csrfToken() : ''
-    });
+    };
+
+    if (userData.role === 'instructor') {
+      // Load instructor info for unified profile view
+      const InstructorModel = (await import('../models/instructor.model.js')).default;
+      const information = await InstructorModel.findByUserId(userData.id);
+      model.instructor = information || { user_id: userData.id };
+    }
+
+    res.render('profile', model);
   } catch (error) {
     console.error('Profile page error:', error);
-    res.status(500).render('error', { 
-      message: 'Error loading profile page',
-      error: error.message 
-    });
+    next(error);
   }
 }
 
@@ -178,15 +185,12 @@ export async function showInstructorProfile(req, res, next) {
     const userIdNum = Number(rawId);
     if (!rawId || Number.isNaN(userIdNum)) {
       req.flash?.('error', 'Missing user');
-      if (req.user?.id) return res.redirect(`/instructor/profile/${req.user.id}?tab=${encodeURIComponent(req.query.tab||'info')}`);
+      if (req.user?.id) return res.redirect(`/profile?tab=${encodeURIComponent(req.query.tab||'account')}`);
       return res.redirect('/auth/login');
     }
-    const activeTab = req.query.tab || 'info';
-    const information = await InstructorModel.findByUserId(userIdNum);
-    if (!information) {
-      return res.render('vwInstructors/profile', { instructor: { user_id: userIdNum }, activeTab });
-    }
-    res.render('vwInstructors/profile', { instructor: information, activeTab });
+    const activeTab = req.query.tab || 'account';
+    // Unified: redirect to single profile page with tab
+    return res.redirect(`/profile?tab=${encodeURIComponent(activeTab)}`);
   } catch (err) {
     next(err);
   }
@@ -211,13 +215,13 @@ export async function updateInstructorProfilePicture(req, res, next) {
     const { avatar_url } = req.body;
     if (!avatar_url) {
       req.flash?.('error', 'Missing avatar URL');
-      return res.redirect(`/instructor/profile/${userId}?tab=photo`);
+      return res.redirect(`/profile?tab=photo`);
     }
     //update instructors.image_100x100 and users.avatar_url
     await db('instructors').where({ user_id: userId }).update({ image_100x100: avatar_url, updated_at: new Date() });
     await db('users').where({ id: userId }).update({ avatar_url, updated_at: new Date() });
     req.flash?.('success', 'Profile image updated');
-    res.redirect(`/instructor/profile/${userId}?tab=photo`);
+    res.redirect(`/profile?tab=photo`);
   } catch (err) {
     next(err);
   }
