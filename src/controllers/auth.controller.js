@@ -355,3 +355,18 @@ export async function doResetPassword(req, res, next) {
     next(e); 
   }
 }
+
+export function restrict(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  req.flash('error', 'You must be logged in to access that page');
+  res.redirect('/auth/login');
+}
+export function restrictInstructor(req, res, next) {
+  if (req.isAuthenticated() && req.user.role === 'instructor') {
+    return next();
+  }
+  req.flash('error', 'You must be logged in as an instructor to access that page');
+  res.redirect('/auth/login');
+}

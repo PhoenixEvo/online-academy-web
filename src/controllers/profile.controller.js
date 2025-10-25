@@ -2,10 +2,8 @@ import bcrypt from 'bcrypt';
 import { body, validationResult } from 'express-validator';
 import { db } from '../models/db.js';
 
-// Show profile page
-export function showProfile(req, res) {
+export async function showProfile(req, res, next) {
   try {
-    // Ensure user data is properly formatted
     const userData = {
       id: req.user?.id,
       name: req.user?.name || '',
@@ -14,20 +12,27 @@ export function showProfile(req, res) {
       created_at: req.user?.created_at || new Date()
     };
 
-    res.render('profile', {
+    const model = {
       layout: 'main',
       page: 'profile',
       title: 'Profile Settings',
       user: userData,
-      values: userData, // pre-fill form with current user data
+      values: userData,
+      activeTab: req.query.tab || (userData.role === 'instructor' ? 'account' : 'account'),
       csrfToken: req.csrfToken ? req.csrfToken() : ''
-    });
+    };
+
+    if (userData.role === 'instructor') {
+      // Load instructor info for unified profile view
+      const InstructorModel = (await import('../models/instructor.model.js')).default;
+      const information = await InstructorModel.findByUserId(userData.id);
+      model.instructor = information || { user_id: userData.id };
+    }
+
+    res.render('profile', model);
   } catch (error) {
     console.error('Profile page error:', error);
-    res.status(500).render('error', { 
-      message: 'Error loading profile page',
-      error: error.message 
-    });
+    next(error);
   }
 }
 
@@ -170,5 +175,54 @@ export async function changePassword(req, res, next) {
   } catch (e) {
     console.error('Password change error:', e);
     next(e);
+  }
+}
+// Show instructor profile
+import InstructorModel from '../models/instructor.model.js';
+export async function showInstructorProfile(req, res, next) {
+  try {
+    const rawId = req.params.id || req.user?.id;
+    const userIdNum = Number(rawId);
+    if (!rawId || Number.isNaN(userIdNum)) {
+      req.flash?.('error', 'Missing user');
+      if (req.user?.id) return res.redirect(`/profile?tab=${encodeURIComponent(req.query.tab||'account')}`);
+      return res.redirect('/auth/login');
+    }
+    const activeTab = req.query.tab || 'account';
+    // Unified: redirect to single profile page with tab
+    return res.redirect(`/profile?tab=${encodeURIComponent(activeTab)}`);
+  } catch (err) {
+    next(err);
+  }
+}
+
+//update instructor profile
+export async function updateInstructorProfile(req, res, next) {
+  const instructorId = req.params.id;
+  res.render('instructor-profile', {
+    layout: 'main',
+    page: 'instructor-profile',
+    title: 'Instructor Profile',
+    instructor: {}, //updated instructor data
+    csrfToken: req.csrfToken ? req.csrfToken() : ''
+  });
+
+}
+// update the instructor profile picture
+export async function updateInstructorProfilePicture(req, res, next) {
+  try {
+    const userId = req.params.id;
+    const { avatar_url } = req.body;
+    if (!avatar_url) {
+      req.flash?.('error', 'Missing avatar URL');
+      return res.redirect(`/profile?tab=photo`);
+    }
+    //update instructors.image_100x100 and users.avatar_url
+    await db('instructors').where({ user_id: userId }).update({ image_100x100: avatar_url, updated_at: new Date() });
+    await db('users').where({ id: userId }).update({ avatar_url, updated_at: new Date() });
+    req.flash?.('success', 'Profile image updated');
+    res.redirect(`/profile?tab=photo`);
+  } catch (err) {
+    next(err);
   }
 }

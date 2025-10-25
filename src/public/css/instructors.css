@@ -1,0 +1,140 @@
+.tab-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+.tab-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  background-color: #99a89e;
+  z-index: 0;
+}
+.nav-tabs {
+  border-bottom: none;
+  position: relative;
+  z-index: 0;
+}
+.nav-tabs .nav-link.active {
+  border: none;
+  border-bottom: 4px solid #4eb8dd;
+  color: #000000;
+  left: 0%;
+  width: 100%;        
+
+  background-color: transparent;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #495057;
+}
+.nav-tabs .nav-link:hover {
+  color: #4eb8dd;
+}
+.btn-primary{
+  background-color: #4eb8dd;
+  border-color: #4eb8dd;
+}
+.card{
+  border-color: white;
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.course-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-container:hover .course-overlay {
+  opacity: 1;
+}
+
+.course-link {
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 8px 12px;
+  border-radius: 5px;
+}
+
+.course-link:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+
+
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu .dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-left: 0.1rem;
+}
+.dropdown-submenu { position: relative; }
+.dropdown-submenu > .dropdown-menu { 
+    top: 0; left: 100%; margin-left: .1rem; margin-right: .1rem; 
+}
+.category-menu .dropdown-item { cursor: pointer; }
+
+
+.accordion-button::after {
+  display: none;
+}
+
+.accordion-button::before {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+  content: "";
+  background-image: var(--bs-accordion-btn-icon);
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.accordion-button:not(.collapsed)::before {
+  transform: rotate(180deg);
+}
+.btn-outline-success {
+  color: #4eb8dd;
+  border-color: #4eb8dd;
+  background-color: transparent;
+}
+.btn-outline-success:hover {
+  /* color: white; */
+  /* border-color: white; */
+
+  /* background-color: #4eb8dd; */
+  border-color: white;
+}
+.btn-outline-primary {
+  color: #4eb8dd;
+  border-color: #4eb8dd;
+  background-color: transparent;
+}
+.btn-outline-primary:hover {
+  color: white;
+  border-color: white;
+
+  background-color: #4eb8dd;
+  border-color: white;
+}

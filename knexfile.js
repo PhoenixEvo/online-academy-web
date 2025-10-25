@@ -1,16 +1,13 @@
 // Update with your config settings.
 import 'dotenv/config';
 
-const useUrl = !!process.env.DB_CONNECTION;
+const useUrl = !!process.env.DATABASE_URL || !!process.env.DB_CONNECTION;
 
 const connection = useUrl
   ? {
-      // Prefer single DB_CONNECTION when provided
-      connectionString: process.env.DB_CONNECTION,
-      ssl:
-        process.env.DB_SSL === 'true'
-          ? { rejectUnauthorized: false }
-          : false,
+      // Prefer DATABASE_URL or DB_CONNECTION when provided
+      connectionString: process.env.DATABASE_URL || process.env.DB_CONNECTION,
+      ssl: { rejectUnauthorized: false },
     }
   : {
       host: process.env.DB_HOST || 'localhost',

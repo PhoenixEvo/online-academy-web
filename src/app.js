@@ -13,6 +13,8 @@ import { addCategoriesToLocals } from './middlewares/categories.js';
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
+import InstructorProfile, { instructorsRouter as instructorsPublicRoute } from './routes/instructor.route.js';
+//import courseRoute from './routes/course.route.js';
 import courseRoute from './routes/course.route.js';
 import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
@@ -23,18 +25,18 @@ const app = express();
 
 // helmet for website security
 app.use(
-    helmet.contentSecurityPolicy({
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
-            styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:", "http:"], // Allow images from any HTTPS source
-            mediaSrc: ["'self'", "https:", "http:"],
-            frameSrc: ["'self'", "https://www.youtube.com","https://drive.google.com"],
-            connectSrc: ["'self'"]
-        },
-    })
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://releases.transloadit.com", "'unsafe-eval'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://releases.transloadit.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "data:", "https://fonts.googleapis.com", "https://fonts.gstatic.com"], 
+      imgSrc: ["'self'", 'data:', 'blob:', 'https:', "http:"],
+      frameSrc: ["'self'", 'https://drive.google.com', 'https://www.youtube.com', 'https://youtube.com', 'https://www.youtube-nocookie.com'],
+  mediaSrc: ["'self'", 'https://drive.google.com', 'https://*.supabase.co', 'https://*.supabase.in'],
+  connectSrc: ["'self'", 'https://*.supabase.co', 'https://*.supabase.in'],
+    },
+  })
 );
 
 // middleware for website
@@ -86,10 +88,32 @@ app.use((req, res, next) => {
 app.use(addCategoriesToLocals);
 
 
+// Inject global categories for all views (must be BEFORE routes that render views)
+import categoryModel from './models/instructor-category.model.js';
+app.use(async function (req, res, next) {
+  try {
+    res.locals.globalCategories = await categoryModel.findAllTree();
+  } catch (e) {
+    console.error('load globalCategories failed:', e);
+    res.locals.globalCategories = [];
+  }
+  next();
+});
+
 // ROUTES (thin, no logic)
 app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
+//app.use('/courses', courseRoute);
+app.use('/instructor', instructorsPublicRoute);
+// instructor course route
+import courseInstructorRouter from './routes/course-instructor.route.js';
+import { restrict,restrictInstructor } from './controllers/auth.controller.js';
+app.use('/instructor/courses', restrict, restrictInstructor, courseInstructorRouter);
+app.use('/instructor/profile', restrict, restrictInstructor, InstructorProfile);
+// Upload API (signed URLs to GCS)
+import uploadRouter from './routes/upload.route.js';
+app.use('/api/uploads', restrict, restrictInstructor, uploadRouter);
 app.use('/courses', courseRoute);
 app.use('/students', studentsRoute);
 app.use('/learn', learnRoutes);

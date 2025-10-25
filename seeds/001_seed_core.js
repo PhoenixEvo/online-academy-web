@@ -20,6 +20,7 @@ export async function seed(knex) {
   await knex('courses').del();
   await knex('categories').del();
   await knex('users').del();
+  await knex('instructors').del();//new by xuanthanh
 
   const [adminId] = await knex('users').insert({
     name: 'Admin',
@@ -42,9 +43,20 @@ export async function seed(knex) {
     role: 'student'
   }).returning('id');
 
+  const [instructorProfileId] = await knex('instructors').insert({//new by xuanthanh
+    name: 'Jane Instructor',
+    display_name: 'Dr. Jane Smith', 
+    job_title: 'Senior Full Stack Developer',
+    user_id: instructorId.id ?? instructorId,
+    image_50x50: 'https://placehold.co/50x50',
+    image_100x100: 'https://placehold.co/100x100',
+    initials: 'JS',
+    url: 'https://jane-instructor.com'
+  }).returning('id');
+  
   const [itId] = await knex('categories').insert({ name: 'IT' }).returning('id');
   const [webId] = await knex('categories').insert({ name: 'Lập trình Web', parent_id: itId.id ?? itId }).returning('id');
-
+  
   const courseRows = [];
   for (let i = 1; i <= 10; i++) {
     courseRows.push({
