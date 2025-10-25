@@ -5,7 +5,7 @@ import { authGuard } from '../middlewares/authGuard.js';
 const r = express.Router();
 
 // Public routes (Guest access)
-r.get('/search', courseCtrl.search);            // GET /courses/search - Search courses
+r.get('/search', courseCtrl.search_guest);       // GET /courses/search - Search courses (using guest version)
 r.get('/', courseCtrl.list);                    // GET /courses - List all courses
 r.get('/:id', courseCtrl.detail);               // GET /courses/:id - Course detail
 
