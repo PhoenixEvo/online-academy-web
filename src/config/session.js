@@ -8,7 +8,11 @@ export function setupSession(app) {
 
   // Supabase requires SSL
   const pool = new pg.Pool({
-    connectionString: process.env.DB_CONNECTION,
+    host: 'aws-1-ap-southeast-1.pooler.supabase.com',
+    port: 6543,
+    database: 'postgres',
+    user: 'postgres.eeokomgvickduxzgxunj',
+    password: 'k#ty82PyBnjti-T',
     ssl: { rejectUnauthorized: false }
   });
 
@@ -19,14 +23,14 @@ export function setupSession(app) {
       createTableIfMissing: true, // create table if not exists
       // pruneSessionInterval: 60 // prune session interval (minutes) – optional
     }),
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'fallback-secret-key-for-development-only-123456789',
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
       secure: false,        // set true if running HTTPS
-      maxAge: 1000 * 60 * 60 * 4
+      maxAge: 1000 * 60 * 60 * 4,
     }
   }));
 }
