@@ -3,14 +3,12 @@
     <h1 class="admin-title">
       <i class="bi bi-people-fill me-2"></i>User Management
     </h1>
-    <a href="/admins/users/add" class="btn-add-user">
+    <a href="/admins/users/add" class="btn-primary">
       <i class="bi bi-plus-circle"></i> Add New
     </a>
   </div>
 
-  <!-- Flash Messages (đã có trong main.hbs) -->
-  
-  <!-- Stats Cards -->
+  <!-- Stats Section -->
   <div class="row mb-4">
     <div class="col-md-3">
       <div class="stat-card">
@@ -41,33 +39,35 @@
     </div>
   </div>
 
-  <!-- Beautiful Table -->
+  <!-- Users Table -->
   <div class="table-container">
     <div class="table-responsive">
       <table class="admin-table">
         <thead>
           <tr>
-            <th><i class="bi bi-hash"></i></th>
-            <th><i class="bi bi-person"></i> Name</th>
-            <th><i class="bi bi-envelope"></i> Email</th>
-            <th><i class="bi bi-shield"></i> Role</th>
-            <th><i class="bi bi-check-circle"></i> Verified</th>
-            <th><i class="bi bi-gear"></i></th>
+            <th>#</th>
+            <th>Avatar</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Verified</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {{#each users}}
           <tr class="table-row">
             <td class="id">{{id}}</td>
-            <td class="name">
+            <td class="avatar-col text-center">
               {{#if avatar_url}}
-                <img src="{{avatar_url}}" alt="{{name}}'s avatar" class="avatar-img me-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
-                <span class="avatar-placeholder me-2" style="display:none;">No Avatar</span>
+                <img src="{{avatar_url}}" alt="{{name}}'s avatar" class="avatar-img"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="avatar-placeholder" style="display:none;">N/A</span>
               {{else}}
-                <span class="avatar-placeholder me-2">No Avatar</span>
+                <span class="avatar-placeholder">N/A</span>
               {{/if}}
-              {{name}}
             </td>
+            <td class="name">{{name}}</td>
             <td class="email">{{email}}</td>
             <td class="role">
               {{#if (eq role 'student')}}
@@ -78,14 +78,14 @@
                 <span class="badge bg-danger">Admin</span>
               {{/if}}
             </td>
-            <td class="verified">
+            <td class="verified text-center">
               {{#if is_verified}}
                 <i class="bi bi-check-circle text-success"></i>
               {{else}}
                 <i class="bi bi-x-circle text-secondary"></i>
               {{/if}}
             </td>
-            <td class="actions">
+            <td class="actions text-center">
               <a href="/admins/users/{{id}}/edit" class="btn-action edit" title="Edit">
                 <i class="bi bi-pencil"></i>
               </a>
@@ -99,7 +99,7 @@
           </tr>
           {{else}}
           <tr>
-            <td colspan="6" class="empty-state">
+            <td colspan="7" class="empty-state">
               <i class="bi bi-person-x"></i>
               <p>No users yet. <a href="/admins/users/add">Create one!</a></p>
             </td>
@@ -112,79 +112,129 @@
 </div>
 
 <style>
-.admin-wrapper { padding: 20px 0; }
-.admin-header { 
-  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
-  color: var(--contrast-color); padding: 15px 20px; 
-  border-radius: 12px; margin-bottom: 20px; 
-  display: flex; justify-content: space-between; align-items: center;
+.admin-wrapper { padding: 20px; }
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
 }
-.admin-title { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--contrast-color); }
-.btn-add-user { 
-  background: rgba(255,255,255,0.2); border: 1px solid var(--contrast-color); 
-  color: var(--contrast-color); padding: 8px 16px; 
-  border-radius: 20px; text-decoration: none; font-size: 0.9rem;
-  transition: all 0.3s; 
+.admin-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--heading-color);
 }
-.btn-add-user:hover { background: var(--contrast-color); color: var(--accent-color); }
+.btn-primary {
+  background-color: var(--accent-color);
+  color: var(--contrast-color);
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-primary:hover {
+  background-color: color-mix(in srgb, var(--accent-color), black 20%);
+}
 
-.stat-card { 
-  background: var(--surface-color); padding: 15px; 
-  border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); 
-  display: flex; align-items: center; gap: 10px; 
+.stat-card {
+  background: var(--surface-color);
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
-.stat-card i { font-size: 1.5rem; color: var(--accent-color); }
-.stat-card h3 { margin: 0; font-size: 1.5rem; color: var(--heading-color); }
-.stat-card p { margin: 0; color: var(--default-color); font-size: 0.9rem; }
+.stat-card i {
+  font-size: 1.8rem;
+  color: var(--accent-color);
+}
+.stat-card h3 { margin: 0; font-size: 1.4rem; }
+.stat-card p { margin: 0; font-size: 0.9rem; color: var(--default-color); }
 
-.table-container { 
-  background: var(--surface-color); border-radius: 12px; 
-  overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+.table-container {
+  background: var(--surface-color);
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  overflow: hidden;
 }
-.admin-table { 
-  width: 100%; border-collapse: collapse; 
-  table-layout: fixed; 
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
 }
-.admin-table th { 
-  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); padding: 12px 10px; 
-  text-align: left; font-weight: 600; color: var(--heading-color); font-size: 0.9rem;
+.admin-table th {
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%);
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
 }
-.admin-table td { 
-  padding: 12px 10px; border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%); font-size: 0.9rem;
-  vertical-align: middle; 
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
 }
-.table-row:hover { background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); }
-.id { font-weight: 600; color: color-mix(in srgb, var(--default-color), transparent 50%); width: 5%; }
-.name { width: 25%; }
-.email { width: 25%; }
-.role { width: 15%; }
-.verified { width: 10%; text-align: center; }
-.actions { width: 20%; text-align: center; }
-.avatar-img { 
-  width: 30px; height: 30px; border-radius: 50%; object-fit: cover; 
-  border: 1px solid var(--default-color); 
+.table-row:hover {
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%);
 }
-.avatar-placeholder { 
-  display: inline-block; width: 30px; height: 30px; 
-  background: var(--default-color); color: var(--contrast-color); 
-  border-radius: 50%; text-align: center; line-height: 30px; font-size: 0.8rem;
+
+.avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
 }
-.btn-action { 
-  width: 32px; height: 32px; border-radius: 50%; 
-  margin: 0 2px; font-size: 0.9rem; 
-  display: inline-flex; align-items: center; justify-content: center;
+.avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--default-color), transparent 60%);
+  color: var(--contrast-color);
+  display: inline-block;
+  text-align: center;
+  line-height: 36px;
+  font-size: 0.75rem;
 }
-.btn-action.edit { background: var(--accent-color); color: var(--contrast-color); }
-.btn-action.edit:hover { background: color-mix(in srgb, var(--accent-color), black 20%); transform: scale(1.1); }
-.btn-action.delete { background: #dc3545; color: var(--contrast-color); }
-.btn-action.delete:hover { background: #c82333; transform: scale(1.1); }
-.empty-state { text-align: center; padding: 30px; color: var(--default-color); }
-.empty-state i { font-size: 3rem; margin-bottom: 10px; }
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px;
+  transition: all 0.3s;
+}
+.btn-action.edit {
+  background: var(--accent-color);
+  color: var(--contrast-color);
+}
+.btn-action.edit:hover {
+  transform: scale(1.1);
+  background: color-mix(in srgb, var(--accent-color), black 20%);
+}
+.btn-action.delete {
+  background: #dc3545;
+  color: #fff;
+}
+.btn-action.delete:hover {
+  transform: scale(1.1);
+  background: #b52a35;
+}
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: var(--default-color);
+}
 
 @media (max-width: 768px) {
-  .admin-header { flex-direction: column; gap: 10px; text-align: center; padding: 12px; }
-  .admin-table th, .admin-table td { padding: 8px 6px; font-size: 0.85rem; }
-  .actions { text-align: center; }
-  .avatar-img, .avatar-placeholder { width: 24px; height: 24px; line-height: 24px; }
+  .admin-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .admin-title { font-size: 1.3rem; }
+  .admin-table th, .admin-table td {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
 }
 </style>

@@ -52,30 +52,28 @@
         <tbody>
           {{#each courses}}
           <tr class="table-row">
-           <td class="id">{{id}}</td>
-
+            <td class="id">{{id}}</td>
             <td class="title">
               <div class="course-title">{{title}}</div>
               {{#if category}}
                 <small class="text-muted">{{category}}</small>
               {{/if}}
             </td>
-
             <td class="desc text-truncate" title="{{short_desc}}">
               {{short_desc}}
             </td>
-
-                <td class="created">
-                <span>{{formatCreatedUpdated this.created_at this.updated_at}}</span>
-              </td>
+            <td class="created">
+              <span>{{formatCreatedUpdated this.created_at this.updated_at}}</span>
+            </td>
             <td class="actions">
               <a 
-  href="/admins/courses/{{id}}/delete" 
-  class="btn-action delete" 
-  title="Delete"
->
-  <i class="bi bi-trash"></i>
-</a>
+                href="/admins/courses/{{id}}/delete" 
+                class="btn-action delete" 
+                title="Delete"
+                onclick="return confirm('Are you sure you want to delete {{title}}?')"
+              >
+                <i class="bi bi-trash"></i>
+              </a>
             </td>
           </tr>
           {{else}}
@@ -95,130 +93,69 @@
 <style>
 .admin-wrapper { padding: 20px 0; }
 
-.admin-header {
-  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%);
-  color: var(--contrast-color);
-  padding: 15px 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.admin-header { 
+  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
+  color: var(--contrast-color); padding: 15px 20px; 
+  border-radius: 12px; margin-bottom: 20px; 
+  display: flex; justify-content: space-between; align-items: center;
 }
+.admin-title { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--contrast-color); }
 
-.admin-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+/* === Stats Card === */
+.stat-card { 
+  background: var(--surface-color); padding: 15px; 
+  border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); 
+  display: flex; align-items: center; gap: 10px; 
 }
+.stat-card i { font-size: 1.5rem; color: var(--accent-color); }
+.stat-card h3 { margin: 0; font-size: 1.5rem; color: var(--heading-color); }
+.stat-card p { margin: 0; color: var(--default-color); font-size: 0.9rem; }
 
-/* Stats card */
-.stat-card {
-  background: var(--surface-color);
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* === Table === */
+.table-container { 
+  background: var(--surface-color); border-radius: 12px; 
+  overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
 }
-.stat-card i {
-  font-size: 1.5rem;
-  color: var(--accent-color);
+.admin-table { 
+  width: 100%; border-collapse: collapse; 
+  table-layout: fixed; 
 }
-.stat-card h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--heading-color);
+.admin-table th { 
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); 
+  padding: 12px 10px; text-align: left; 
+  font-weight: 600; color: var(--heading-color); font-size: 0.9rem;
 }
-.stat-card p {
-  margin: 0;
-  color: var(--default-color);
-  font-size: 0.9rem;
+.admin-table td { 
+  padding: 12px 10px; border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%); 
+  font-size: 0.9rem; vertical-align: middle; 
 }
+.table-row:hover { background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); }
 
-/* Table */
-.table-container {
-  background: var(--surface-color);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-}
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-.admin-table th {
-  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%);
-  padding: 12px 10px;
-  text-align: left;
-  font-weight: 600;
-  color: var(--heading-color);
-  font-size: 0.9rem;
-}
-.admin-table td {
-  padding: 12px 10px;
-  border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
-  font-size: 0.9rem;
-  vertical-align: middle;
-}
-.table-row:hover {
-  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%);
-}
-
-/* Columns */
+/* === Columns === */
 .id { width: 5%; font-weight: 600; color: color-mix(in srgb, var(--default-color), transparent 50%); }
 .title { width: 30%; }
 .desc { width: 35%; }
 .created { width: 15%; }
 .actions { width: 15%; text-align: center; }
 
-/* Delete button only */
-.btn-action.delete {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  margin: 0;
-  font-size: 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #dc3545;
-  color: white;
-  border: none;
+/* === Delete Button === */
+.btn-action.delete { 
+  width: 32px; height: 32px; border-radius: 50%; 
+  margin: 0; font-size: 0.9rem; 
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #dc3545; color: var(--contrast-color); border: none;
+  transition: all 0.2s ease;
 }
-.btn-action.delete:hover {
-  background: #c82333;
-  transform: scale(1.1);
-}
+.btn-action.delete:hover { background: #c82333; transform: scale(1.1); }
 
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 30px;
-  color: var(--default-color);
-}
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 10px;
-}
+/* === Empty State === */
+.empty-state { text-align: center; padding: 30px; color: var(--default-color); }
+.empty-state i { font-size: 3rem; margin-bottom: 10px; }
 
-/* Responsive */
+/* === Responsive === */
 @media (max-width: 768px) {
-  .admin-header {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-    padding: 12px;
-  }
-  .admin-table th,
-  .admin-table td {
-    padding: 8px 6px;
-    font-size: 0.85rem;
-  }
-  .course-title + small {
-    display: none;
-  }
+  .admin-header { flex-direction: column; gap: 10px; text-align: center; padding: 12px; }
+  .admin-table th, .admin-table td { padding: 8px 6px; font-size: 0.85rem; }
+  .course-title + small { display: none; }
 }
 </style>

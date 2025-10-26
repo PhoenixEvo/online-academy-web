@@ -10,6 +10,6 @@ r.get("/", homeCtrl.home);
 r.get("/about", homeCtrl.about);
 
 // newsletter subscription
-r.post("/newsletter", homeCtrl.subscribeNewsletter);
+//r.post("/newsletter", homeCtrl.subscribeNewsletter);
 r.use('/admins/courses', adminCourseRoute);
 export default r;

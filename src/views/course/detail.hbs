@@ -1,0 +1,434 @@
+<body class="course-detail-page">
+
+    <main class="main">
+
+        <!-- Course Hero Section - Udemy Style -->
+        <section class="course-hero section" style="background: #f8f9fa; padding: 2rem 0;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="course-hero-content" data-aos="fade-up" data-aos-delay="100">
+                            <div class="course-breadcrumb mb-3">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a>
+                                        </li>
+                                        <li class="breadcrumb-item"><a href="/courses"
+                                                class="text-decoration-none">Courses</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">{{category_name}}</li>
+                                    </ol>
+                                </nav>
+                            </div>
+
+                            <div class="mb-3">
+                                {{#if course.is_bestseller}}
+                                <span class="badge bg-warning text-dark me-2">🏆 Best Seller</span>
+                                {{/if}}
+                                {{#if course.is_new}}
+                                <span class="badge bg-success">✨ New</span>
+                                {{/if}}
+                            </div>
+
+                            <h1 class="course-title h2 fw-bold mb-3" style="color: #1c1d1f;">{{course.title}}</h1>
+                            <p class="course-subtitle lead text-muted mb-4">{{course.short_desc}}</p>
+
+                            <div class="course-meta mb-4">
+                                <div class="d-flex align-items-center flex-wrap gap-3">
+                                    <div class="rating d-flex align-items-center">
+                                        {{#range 1 5}}
+                                        <i
+                                            class="bi bi-star{{#if (gt ../course.rating_avg this)}}-fill{{/if}} text-warning me-1"></i>
+                                        {{/range}}
+                                        <span class="ms-2 fw-bold">{{course.rating_avg}}</span>
+                                        <span class="text-muted ms-1">({{course.rating_count}} ratings)</span>
+                                    </div>
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-people me-1"></i>
+                                        <span>{{course.enrollment_count}} students</span>
+                                    </div>
+                                    {{#if courseStats}}
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-play-circle me-1"></i>
+                                        <span>{{courseStats.lesson_count}} lectures</span>
+                                    </div>
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-clock me-1"></i>
+                                        <span>{{formatDuration courseStats.total_duration}}</span>
+                                    </div>
+                                    {{/if}}
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        <span>Updated {{formatDate course.updated_at}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="course-sidebar bg-white rounded shadow-sm p-4" data-aos="fade-up"
+                            data-aos-delay="200" style="position: sticky; top: 2rem;">
+                            <div class="course-thumbnail mb-3">
+                                <img src="{{course.thumbnail_url}}" class="img-fluid rounded" alt="{{course.title}}"
+                                    style="width: 100%; height: 200px; object-fit: cover;">
+                            </div>
+
+                            <div class="course-pricing mb-3">
+                                {{#if course.sale_price}}
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <span class="h3 text-dark fw-bold mb-0">{{formatPrice course.sale_price}}đ</span>
+                                        <span class="text-decoration-line-through text-muted ms-2">{{formatPrice
+                                            course.price}}đ</span>
+                                    </div>
+                                    <span class="badge bg-danger">Sale</span>
+                                </div>
+                                {{else}}
+                                <div class="h3 text-dark fw-bold mb-0">{{formatPrice course.price}}đ</div>
+                                {{/if}}
+                            </div>
+
+                            <div class="course-actions">
+                                {{#if isAuthenticated}}
+                                {{#if isEnrolled}}
+                                <a href="/my-courses/{{id}}" class="btn btn-success w-100 mb-2 fw-bold">
+                                    <i class="bi bi-play-circle me-2"></i> Start Learning
+                                </a>
+                                {{else}}
+                                    <!-- Thay đổi: Chuyển đến trang checkout thay vì enroll trực tiếp -->
+                                        <a href="/students/checkout/{{course.id}}" class="btn btn-warning w-100 mb-2 fw-bold">
+                                            <i class="bi bi-cart-plus me-2"></i>Buy this course
+                                        </a>
+                                {{/if}}
+
+                                {{#if isInWatchlist}}
+                                <form method="POST" action="/courses/{{course.id}}/watch?_method=DELETE"
+                                    class="d-inline w-100">
+                                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                    <button type="submit" class="btn btn-outline-dark w-100">
+                                        <i class="bi bi-heart-fill me-2"></i>Remove from wishlist
+                                    </button>
+                                </form>
+                                {{else}}
+                                <form method="POST" action="/courses/{{course.id}}/watch" class="d-inline w-100">
+                                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                    <button type="submit" class="btn btn-outline-dark w-100">
+                                        <i class="bi bi-heart me-2"></i>Add to wishlist
+                                    </button>
+                                </form>
+                                {{/if}}
+                                {{else}}
+                                <a href="/auth/login" class="btn btn-warning w-100 mb-2 fw-bold">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Log in to enroll
+                                </a>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Course Content -->
+        <section class="course-content section py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+
+                        <!-- Course Description -->
+                        <div class="course-section mb-5" data-aos="fade-up" data-aos-delay="100">
+                            <h3 class="h4 fw-bold mb-3">What you'll learn</h3>
+                            <div class="course-description">
+                                {{{course.full_desc}}}
+                            </div>
+                        </div>
+
+                        <!-- Course Stats -->
+                        {{#if courseStats}}
+                        <div class="course-section mb-5" data-aos="fade-up" data-aos-delay="150">
+                            <h3 class="h4 fw-bold mb-3">Course details</h3>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="stats-card bg-light p-3 rounded text-center">
+                                        <i class="bi bi-folder2-open display-6 text-primary"></i>
+                                        <h5 class="mt-2 mb-1">{{courseStats.section_count}}</h5>
+                                        <p class="text-muted small mb-0">Sections</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stats-card bg-light p-3 rounded text-center">
+                                        <i class="bi bi-play-circle display-6 text-success"></i>
+                                        <h5 class="mt-2 mb-1">{{courseStats.lesson_count}}</h5>
+                                        <p class="text-muted small mb-0">Lectures</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stats-card bg-light p-3 rounded text-center">
+                                        <i class="bi bi-clock display-6 text-warning"></i>
+                                        <h5 class="mt-2 mb-1">{{formatDuration courseStats.total_duration}}</h5>
+                                        <p class="text-muted small mb-0">Total Duration</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{/if}}
+
+                        <!-- Course Curriculum -->
+                        {{#if courseContent.length}}
+                        <div class="course-section mb-5" data-aos="fade-up" data-aos-delay="200">
+                            <h3 class="h4 fw-bold mb-3">Course content</h3>
+                            <div class="accordion" id="courseCurriculum">
+                                {{#each courseContent}}
+                                <div class="accordion-item border-0 mb-2 rounded shadow-sm">
+                                    <h2 class="accordion-header" id="heading{{id}}">
+                                        <button class="accordion-button {{#unless @first}}collapsed{{/unless}} fw-bold"
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{id}}"
+                                            aria-expanded="{{#if @first}}true{{else}}false{{/if}}"
+                                            aria-controls="collapse{{id}}" style="background: #f8f9fa; border: none;">
+                                            {{title}}
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{id}}"
+                                        class="accordion-collapse collapse {{#if @first}}show{{/if}}"
+                                        aria-labelledby="heading{{id}}" data-bs-parent="#courseCurriculum">
+                                        <div class="accordion-body bg-white">
+                                            <ul class="list-unstyled">
+                                                {{#each lessons}}
+                                                <li
+                                                    class="d-flex justify-content-between align-items-center py-2 border-bottom {{#if is_preview}}lesson-preview-item{{/if}}"
+                                                    {{#if is_preview}}style="cursor: pointer;" data-video-url="{{video_url}}" data-lesson-title="{{title}}"{{/if}}>
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-play-circle me-2 text-primary"></i>
+                                                        <span>{{title}}</span>
+                                                        {{#if is_preview}}
+                                                        <span class="badge bg-info ms-2 small">Preview</span>
+                                                        {{/if}}
+                                                    </div>
+                                                    <small class="text-muted">{{duration_sec}} min</small>
+                                                </li>
+                                                {{/each}}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{/each}}
+                            </div>
+                        </div>
+                        {{/if}}
+
+                        <!-- Reviews Section -->
+                        <div class="course-section mb-5" data-aos="fade-up" data-aos-delay="300">
+                            <h3 class="h4 fw-bold mb-4">Student feedback</h3>
+
+                            {{#if reviewStats.total_reviews}}
+                            <div class="review-stats mb-4">
+                                <div class="row">
+                                    <div class="col-md-4 text-center">
+                                        <div class="rating-display">
+                                            <div class="h2 text-dark mb-0 fw-bold">{{reviewStats.avg_rating}}</div>
+                                            <div class="rating">
+                                                {{#range 1 5}}
+                                                <i
+                                                    class="bi bi-star{{#if (gt ../reviewStats.avg_rating this)}}-fill{{/if}} text-warning"></i>
+                                                {{/range}}
+                                            </div>
+                                            <div class="text-muted">{{reviewStats.total_reviews}} ratings</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="rating-breakdown">
+                                            {{#each reviewStats.rating_distribution}}
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="me-2 small">{{@key}} star</span>
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                    <div class="progress-bar bg-warning"
+                                                        style="width: {{divide this ../reviewStats.total_reviews}}%">
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted small">{{this}}</span>
+                                            </div>
+                                            {{/each}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{/if}}
+
+                            <!-- Reviews List -->
+                            <div class="reviews-list">
+                                {{#each reviews}}
+                                <div class="review-item border-bottom py-3">
+                                    <div class="d-flex align-items-start">
+                                        <img src="{{avatar_url}}" class="rounded-circle me-3" alt="{{user_name}}"
+                                            style="width: 40px; height: 40px;">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h6 class="mb-1 fw-bold">{{user_name}}</h6>
+                                                    <div class="rating">
+                                                        {{#range 1 5}}
+                                                        <i
+                                                            class="bi bi-star{{#if (gt ../rating this)}}-fill{{/if}} text-warning small"></i>
+                                                        {{/range}}
+                                                    </div>
+                                                </div>
+                                                <small class="text-muted">{{formatDate created_at}}</small>
+                                            </div>
+                                            {{#if comment}}
+                                            <p class="mb-0">{{comment}}</p>
+                                            {{/if}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {{else}}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-chat-square-text display-4 text-muted"></i>
+                                    <p class="text-muted mt-3">No reviews yet</p>
+                                </div>
+                                {{/each}}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4">
+
+                        <!-- Instructor Info -->
+                        <div class="instructor-card mb-4 bg-white rounded shadow-sm p-4" data-aos="fade-up"
+                            data-aos-delay="100">
+                            <h4 class="h5 fw-bold mb-3">Instructor</h4>
+                            <div class="d-flex align-items-start mb-3">
+                                <img src="/img/person/person-m-7.webp" class="rounded-circle me-3"
+                                    alt="{{course.instructor_name}}" style="width: 60px; height: 60px;">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">{{course.instructor_name}}</h6>
+                                    <p class="text-muted mb-0 small">Professional Instructor</p>
+                                </div>
+                            </div>
+                            
+                            {{#if instructorStats}}
+                            <div class="instructor-stats">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-star-fill text-warning me-2"></i>
+                                    <span class="small">{{instructorStats.avg_rating}} Instructor Rating</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-people-fill text-primary me-2"></i>
+                                    <span class="small">{{instructorStats.total_students}} Students</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-book-fill text-success me-2"></i>
+                                    <span class="small">{{instructorStats.course_count}} Courses</span>
+                                </div>
+                            </div>
+                            {{/if}}
+                        </div>
+
+                        <!-- Related Courses -->
+                        {{#if bestInCategory.length}}
+                        <div class="related-courses bg-white rounded shadow-sm p-4" data-aos="fade-up"
+                            data-aos-delay="200">
+                            <h4 class="h5 fw-bold mb-3">Students also bought</h4>
+                            {{#each bestInCategory}}
+                            <div class="related-course-item d-flex mb-3">
+                                <img src="{{thumbnail_url}}" class="rounded me-3" alt="{{title}}"
+                                    style="width: 80px; height: 60px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 small">
+                                        <a href="/courses/{{id}}"
+                                            class="text-decoration-none text-dark fw-bold">{{title}}</a>
+                                    </h6>
+                                    <div class="rating mb-1">
+                                        {{#range 1 5}}
+                                        <i class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning"
+                                            style="font-size: 0.7rem;"></i>
+                                        {{/range}}
+                                        <span class="ms-1 small text-muted">{{rating_avg}}</span>
+                                    </div>
+                                    <div class="price">
+                                        {{#if sale_price}}
+                                        <span class="text-danger fw-bold small">{{formatPrice sale_price}}đ</span>
+                                        {{else}}
+                                        <span class="text-dark fw-bold small">{{formatPrice price}}đ</span>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                            </div>
+                            {{/each}}
+                        </div>
+                        {{/if}}
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Video Preview Modal -->
+    <div class="modal fade" id="videoPreviewModal" tabindex="-1" aria-labelledby="videoPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="videoPreviewModalLabel">Preview Lesson</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="videoPlayerContainer" style="background: #000;">
+                        <video id="videoPlayer" class="w-100" controls>
+                            <source id="videoSource" src="" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
+
+    <script>
+        // Preview video functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const previewItems = document.querySelectorAll('.lesson-preview-item');
+            const videoModal = new bootstrap.Modal(document.getElementById('videoPreviewModal'));
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            const modalTitle = document.getElementById('videoPreviewModalLabel');
+
+            previewItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const videoUrl = this.getAttribute('data-video-url');
+                    const lessonTitle = this.getAttribute('data-lesson-title');
+                    
+                    if (videoUrl) {
+                        videoSource.src = videoUrl;
+                        modalTitle.textContent = 'Preview: ' + lessonTitle;
+                        videoPlayer.load();
+                        videoModal.show();
+                    }
+                });
+            });
+
+            // Stop video when modal is closed
+            document.getElementById('videoPreviewModal').addEventListener('hidden.bs.modal', function() {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+            });
+
+            // Hover effect for preview items
+            previewItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f9fa';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'transparent';
+                });
+            });
+        });
+    </script>
+
+</body>

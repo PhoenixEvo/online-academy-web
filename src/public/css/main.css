@@ -1189,6 +1189,7 @@ section,
   background-color: var(--surface-color);
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
   border-radius: 5px;
+  position: relative;
 }
 
 .courses .course-content {
@@ -2453,6 +2454,133 @@ body {
 .footer .footer-newsletter .error-message.show,
 .footer .footer-newsletter .sent-message.show {
   display: block !important;
+}
+/*--------------------------------------------------------------
+# Remove Course Watchlist Button Section
+--------------------------------------------------------------*/
+.remove-btn-form {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+    opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.remove-btn {
+    background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: #b30000;
+}
+
+.course-item:hover .remove-btn-form {
+  opacity: 1;
+}
+/*--------------------------------------------------------------
+# Payment Logo Section
+--------------------------------------------------------------*/
+.payment-logo {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 6px;
+  background-color: #fff;
+  margin-right: 10px;
+  transition: transform 0.2s ease;
+}
+
+.payment-logo:hover {
+  transform: scale(1.05);
+  border-color: #007bff;
+}
+
+.payment-logo.selected {
+  border-color: #0070f3; /* hoặc màu bạn thích */
+  opacity: 1;
+  box-shadow: 0 0 8px rgba(0, 112, 243, 0.4);
+}
+/*--------------------------------------------------------------
+# Star Rating Section
+--------------------------------------------------------------*/
+.star-rating {
+  font-size: 2rem;
+  color: #ddd;
+  cursor: pointer;
+  display: flex;
+  gap: 5px;
+}
+
+.star-rating i {
+  transition: color 0.2s, transform 0.2s;
+}
+
+.star-rating i:hover {
+  transform: scale(1.1);
+  color: #ffca2c;
+}
+
+.star-rating .selected {
+  color: #c4960d;
+}
+
+/*--------------------------------------------------------------
+# Popular Categories Section
+--------------------------------------------------------------*/
+.popular-categories .category-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.popular-categories .category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border-color: var(--accent-color);
+}
+
+.popular-categories .category-card:hover .category-icon i {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.popular-categories .category-card:hover .category-link {
+  color: var(--accent-color) !important;
+}
+
+.popular-categories .category-icon i {
+  transition: transform 0.3s ease;
+}
+
+/*--------------------------------------------------------------
+# Popular Categories Section
+--------------------------------------------------------------*/
+.popular-categories .category-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.popular-categories .category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border-color: var(--accent-color);
+}
+
+.popular-categories .category-card:hover .category-icon i {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.popular-categories .category-card:hover .category-link {
+  color: var(--accent-color) !important;
+}
+
+.popular-categories .category-icon i {
+  transition: transform 0.3s ease;
 }
 
 /*--------------------------------------------------------------

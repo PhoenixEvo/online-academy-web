@@ -26,3 +26,7 @@ export function requireAdmin(req, res, next) {
   // Nếu hợp lệ thì cho qua
   next();
 }
+  
+
+// Alias for requireLogin - commonly used name
+export const authGuard = requireLogin;

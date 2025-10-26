@@ -12,109 +12,180 @@
       <nav id="navmenu" class="navmenu">
         <ul>
           {{#if isAuthenticated}}
-            <!-- Authenticated user navigation -->
-            <!-- Home -->
-            <li><a href="/" class="active">Home</a></li>
-            
-            {{#if (eq user.role 'student')}}
-              <!-- Student navigation -->
-              <li><a href="/students/courses">My Courses</a></li>
-              <li><a href="/students/watchlist">Watchlist</a></li>
-            {{else if (eq user.role 'instructor')}}
-              <!-- Instructor navigation -->
-              <li><a href="/instructors/courses">My Courses</a></li>
-              <li><a href="/instructors/create-course">Create Course</a></li>
-            {{else if (eq user.role 'admin')}}
-              <!-- Admin navigation -->
-              <li class="dropdown dropdown-menu-end">
-                <a href="#"><span>Manage</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <!-- Authenticated user navigation -->
+          <!-- Home -->
+          <li><a href="/" class="active">Home</a></li>
+
+          {{#if (eq user.role 'student')}}
+          <!-- Student navigation -->
+          <li><a href="/students/enrolled">My Courses</a></li>
+          <li><a href="/students/watchlist">Watchlist</a></li>
+          <!-- Categories dropdown for students -->
+          <li class="dropdown">
+            <a href="/courses"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              {{#each categories}}
+              {{#if children.length}}
+              <!-- Parent category with children -->
+              <li class="dropdown">
+                <a href="/courses?category={{id}}">
+                  <span>{{name}}</span>
+                  <i class="bi bi-chevron-right toggle-dropdown"></i>
+                </a>
                 <ul>
-                  <li><a href="/admins/users">Users</a></li>
-                  <li><a href="/admins/courses">Courses</a></li>
-                  <li><a href="/admins/categories">Categories</a></li>
+                  {{#each children}}
+                  <li>
+                    <a href="/courses?category={{id}}">
+                      {{name}}
+                      <small class="text-muted">({{course_count}} courses)</small>
+                    </a>
+                  </li>
+                  {{/each}}
                 </ul>
               </li>
-            {{/if}}
-            
-            <!-- Profile dropdown for all authenticated users -->
-            <li class="dropdown dropdown-menu-end">
-              <a href="#"><span>Hi, {{user.name}}</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-              <ul>
-                <li><a href="/profile">My Profile</a></li>
-                <li><a href="/{{user.role}}s/dashboard">Dashboard</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a href="/auth/logout">Logout</a></li>
-              </ul>
-            </li>
+              {{else}}
+              <!-- Single category without children -->
+              <li>
+                <a href="/courses?category={{id}}">
+                  {{name}}
+                  <small class="text-muted">({{course_count}} courses)</small>
+                </a>
+              </li>
+              {{/if}}
+              {{/each}}
+              <!-- View all categories link -->
+              <li class="view-all">
+                <a href="/courses" class="text-primary">
+                  <i class="bi bi-grid-3x3-gap-fill me-2"></i>
+                  Browse all categories
+                </a>
+              </li>
+            </ul>
+          </li>
+          <!-- All Courses -->
+          <li><a href="/courses">All Courses</a></li>
+          <!-- Search -->
+          <li>
+            <form class="d-flex" role="search" action="/courses/search" method="GET">
+              <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
+              <button class="btn btn-outline-success" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          </li>
+          {{else if (eq user.role 'instructor')}}
+          <!-- Instructor navigation -->
+          <li><a href="/instructors/courses">My Courses</a></li>
+          <li><a href="/instructors/create-course">Create Course</a></li>
+          <!-- Browse all courses for reference -->
+          <li><a href="/courses">Browse Courses</a></li>
+          <!-- Search -->
+          <li>
+            <form class="d-flex" role="search" action="/courses/search" method="GET">
+              <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
+              <button class="btn btn-outline-success" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          </li>
+          {{else if (eq user.role 'admin')}}
+          <!-- Admin navigation -->
+          <li class="dropdown dropdown-menu-end">
+            <a href="#"><span>Manage</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              <li><a href="/admins/users">Users</a></li>
+              <li><a href="/admins/courses">Courses</a></li>
+              <li><a href="/admins/categories">Categories</a></li>
+            </ul>
+          </li>
+          {{/if}}
+
+          <!-- Profile dropdown for all authenticated users -->
+          <li class="dropdown dropdown-menu-end">
+            <a href="#"><span>Hi, {{user.name}}</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              <li><a href="/profile">My Profile</a></li>
+              <li><a href="/{{user.role}}s/dashboard">Dashboard</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a href="/auth/logout">Logout</a></li>
+            </ul>
+          </li>
           {{else}}
-            <!-- Guest navigation -->
-            <!-- Home -->
-            <li><a href="/" class="active">Home</a></li>
-            <!-- Categories -->
-            <li class="dropdown"><a href="#"><span>Categories</span> <i
-                  class="bi bi-chevron-down toggle-dropdown"></i></a>
-              <ul>
-                <!-- Subcategories 1-->
-                <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i
-                      class="bi bi-chevron-right toggle-dropdown"></i></a>
-                  <ul>
-                    <li><a href="#">Deep Dropdown 1</a></li>
-                    <li><a href="#">Deep Dropdown 2</a></li>
-                    <li><a href="#">Deep Dropdown 3</a></li>
-                    <li><a href="#">Deep Dropdown 4</a></li>
-                    <li><a href="#">Deep Dropdown 5</a></li>
-                  </ul>
-                </li>
-                <!-- Subcategories 2-->
-                <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i
-                      class="bi bi-chevron-right toggle-dropdown"></i></a>
-                  <ul>
-                    <li><a href="#">Deep Dropdown 1</a></li>
-                    <li><a href="#">Deep Dropdown 2</a></li>
-                    <li><a href="#">Deep Dropdown 3</a></li>
-                    <li><a href="#">Deep Dropdown 4</a></li>
-                    <li><a href="#">Deep Dropdown 5</a></li>
-                  </ul>
-                </li>
-                <!-- Subcategories 3-->
-                <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i
-                      class="bi bi-chevron-right toggle-dropdown"></i></a>
-                  <ul>
-                    <li><a href="#">Deep Dropdown 1</a></li>
-                    <li><a href="#">Deep Dropdown 2</a></li>
-                    <li><a href="#">Deep Dropdown 3</a></li>
-                    <li><a href="#">Deep Dropdown 4</a></li>
-                    <li><a href="#">Deep Dropdown 5</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <!-- Courses -->
-            <li><a href="/courses">Courses</a></li>
-            <!-- Instructors -->
-            <li><a href="/instructors">Instructors</a></li>
-            <!-- About -->
-            <li><a href="/about">About</a></li>
-            <!-- Contact -->
-            <li><a href="/contact">Contact</a></li>
-            <!-- Search -->
-            <li>
-              <form class="d-flex" role="search">
-                <input class="form-control" type="search" placeholder="Search" aria-label="Search" />
-                <button class="btn btn-outline-success" type="submit">Search</button>
-              </form>
-            </li>
+          <!-- Guest navigation -->
+          <!-- Home -->
+          <li><a href="/" class="active">Home</a></li>
+          <!-- Categories -->
+          <li class="dropdown">
+            <a href="/courses"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              {{#each categories}}
+              {{#if children.length}}
+              <!-- Parent category with children -->
+              <li class="dropdown">
+                <a href="/courses?category={{id}}">
+                  <span>{{name}}</span>
+                  <i class="bi bi-chevron-right toggle-dropdown"></i>
+                </a>
+                <ul>
+                  {{#each children}}
+                  <li>
+                    <a href="/courses?category={{id}}">
+                      {{name}}
+                      <small class="text-muted">({{course_count}} courses)</small>
+                    </a>
+                  </li>
+                  {{/each}}
+                </ul>
+              </li>
+              {{else}}
+              <!-- Single category without children -->
+              <li>
+                <a href="/courses?category={{id}}">
+                  {{name}}
+                  <small class="text-muted">({{course_count}} courses)</small>
+                </a>
+              </li>
+              {{/if}}
+              {{/each}}
+              <!-- View all categories link -->
+              <li class="view-all">
+                <a href="/courses" class="text-primary">
+                  <i class="bi bi-grid-3x3-gap-fill me-2"></i>
+                  Browse all categories
+                </a>
+              </li>
+            </ul>
+          </li>
+          <!-- Courses -->
+          <li><a href="/courses">Courses</a></li>
+          <!-- Instructors -->
+          <li><a href="/instructors">Instructors</a></li>
+          <!-- About -->
+          <li><a href="/about">About</a></li>
+          <!-- Contact -->
+          <li><a href="/contact">Contact</a></li>
+          <!-- Search -->
+          <li>
+            <form class="d-flex" role="search" action="/courses/search" method="GET">
+              <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
+              <button class="btn btn-outline-success" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          </li>
           {{/if}}
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
       {{#unless isAuthenticated}}
-        <!-- Guest buttons -->
-        <div class="d-flex gap-2">
-          <a class="btn-getstarted" href="/auth/login">LOGIN</a>
-          <a class="btn-getstarted" href="/auth/register">REGISTER</a>
-        </div>
+      <!-- Guest buttons -->
+      <div class="d-flex gap-2">
+        <a class="btn-getstarted" href="/auth/login">LOGIN</a>
+        <a class="btn-getstarted" href="/auth/register">REGISTER</a>
+      </div>
       {{/unless}}
     </div>
   </div>
