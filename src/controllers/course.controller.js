@@ -98,7 +98,7 @@ export async function list(req, res, next) {
 
 
 // GET /courses/:id - Course detail page
-export const detailValidators = [param("id").isInt().toInt()];
+export const detailValidators = [query("id").isInt().toInt()];
 export async function detail(req, res, next) {
   try {
     await Promise.all(detailValidators.map((v) => v.run(req)));
@@ -106,7 +106,7 @@ export async function detail(req, res, next) {
     if (!errors.isEmpty())
       return res.status(404).render("error", { message: "Not found" });
 
-    const id = req.params.id;
+    const id = req.query.id;
     const course = await Course.findById(id);
     if (!course)
       return res

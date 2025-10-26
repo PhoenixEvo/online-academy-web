@@ -1185,6 +1185,16 @@ section,
 /*--------------------------------------------------------------
 # Courses Section
 --------------------------------------------------------------*/
+.course-card {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+}
+
 .courses .course-item {
   background-color: var(--surface-color);
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
@@ -2701,4 +2711,107 @@ body {
   background-color: #fff;
   border-color: #dee2e6;
   opacity: 0.7;
+}
+
+/* Badge Animations */
+@keyframes blink {
+
+  0%,
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  31%,
+  50% {
+    opacity: 0.2;
+    transform: scale(0.9);
+  }
+
+  51%,
+  70% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  71%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes discordBlink {
+
+  0%,
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  21%,
+  40% {
+    opacity: 0.1;
+    transform: scale(0.85);
+  }
+
+  41%,
+  60% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  61%,
+  80% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+
+  81%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Sale badge with Discord-style glow effect */
+.badge.bg-danger {
+  box-shadow: 0 0 15px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.4);
+  animation: discordBlink 0.8s infinite, glowPulse 2s infinite;
+}
+
+/* New badge with Discord-style glow effect */
+.badge.bg-success {
+  box-shadow: 0 0 15px rgba(25, 135, 84, 0.8), 0 0 30px rgba(25, 135, 84, 0.4);
+}
+
+/* Best Seller badge with Discord-style glow effect */
+.badge.bg-warning {
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.8), 0 0 30px rgba(255, 193, 7, 0.4);
+}
+
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(220, 53, 69, 1), 0 0 50px rgba(220, 53, 69, 0.6);
+  }
 }
