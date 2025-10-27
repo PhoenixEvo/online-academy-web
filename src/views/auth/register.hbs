@@ -97,7 +97,11 @@
           name="role" 
           value="student" 
           required 
-          checked
+          {{#if values}}
+            {{#if (eq values.role 'student')}}checked{{/if}}
+          {{else}}
+            checked
+          {{/if}}
         />
         <span class="radioLabel">Student - Learn courses</span>
       </label>

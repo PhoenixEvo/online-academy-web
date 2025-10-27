@@ -6,7 +6,7 @@ function showToast(message, type = 'success') {
     const toastMessage = document.getElementById('toastMessage');
     const toast = new bootstrap.Toast(toastEl);
 
-    toastEl.className = `toast align-items-center text-white border-0 ${type === 'success' ? 'bg-success' : 'bg-danger'}`;
+    toastEl.className = `toast align-items-center text-white border-0 ${type === 'success' ? 'bg-success' : type === 'info' ? 'bg-info' : 'bg-danger'}`;
     toastMessage.textContent = message;
     toast.show();
 }
@@ -130,49 +130,93 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ========== YOUTUBE IFRAME API INTEGRATION ==========
+    // ========== PLYR VIDEO PLAYER INTEGRATION ==========
     let player;
     let progressUpdateInterval;
     let lastSavedTime = 0;
     let hasAutoCompleted = false;
-    let initialProgressLoaded = false;
-    let lessonDuration = 0; // Store lesson duration
+    let lessonDuration = 0;
 
-    const iframe = document.querySelector('iframe[src*="youtube.com"]');
-    if (iframe) {
-        iframe.id = 'lesson-video-player';
+    // Initialize Plyr for YouTube
+    const youtubePlayer = document.getElementById('plyr-youtube-player');
+    if (youtubePlayer) {
+        player = new Plyr(youtubePlayer, {
+            controls: [
+                'play-large',
+                'play',
+                'progress',
+                'current-time',
+                'mute',
+                'volume',
+                'captions',
+                'settings',
+                'pip',
+                'airplay',
+                'fullscreen'
+            ],
+            youtube: {
+                noCookie: false,
+                rel: 0,
+                showinfo: 0,
+                iv_load_policy: 3,
+                modestbranding: 1
+            }
+        });
 
-        if (!window.YT) {
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        }
+        // Plyr events for YouTube
+        player.on('ready', onPlayerReady);
+        player.on('playing', startProgressTracking);
+        player.on('pause', () => {
+            stopProgressTracking();
+            saveProgress(false);
+        });
+        player.on('ended', () => {
+            stopProgressTracking();
+            if (!hasAutoCompleted) {
+                saveProgress(true);
+            }
+        });
+    }
 
-        window.onYouTubeIframeAPIReady = function() {
-            player = new YT.Player('lesson-video-player', {
-                events: {
-                    'onStateChange': onPlayerStateChange,
-                    'onReady': onPlayerReady
-                }
-            });
-        };
+    // Initialize Plyr for regular video
+    const regularVideo = document.getElementById('lesson-video-player');
+    if (regularVideo) {
+        player = new Plyr(regularVideo, {
+            controls: [
+                'play-large',
+                'play',
+                'progress',
+                'current-time',
+                'mute',
+                'volume',
+                'captions',
+                'settings',
+                'pip',
+                'airplay',
+                'fullscreen'
+            ]
+        });
 
-        if (window.YT && window.YT.Player) {
-            player = new YT.Player('lesson-video-player', {
-                events: {
-                    'onStateChange': onPlayerStateChange,
-                    'onReady': onPlayerReady
-                }
-            });
-        }
+        // Plyr events for regular video
+        player.on('ready', onPlayerReady);
+        player.on('playing', startProgressTracking);
+        player.on('pause', () => {
+            stopProgressTracking();
+            saveProgress(false);
+        });
+        player.on('ended', () => {
+            stopProgressTracking();
+            if (!hasAutoCompleted) {
+                saveProgress(true);
+            }
+        });
     }
 
     async function onPlayerReady(event) {
-        console.log('YouTube player ready');
+        console.log('Plyr player ready');
 
-        // Get lesson duration from player
-        lessonDuration = Math.floor(player.getDuration());
+        // Get lesson duration
+        lessonDuration = Math.floor(player.duration);
 
         const lessonId = markCompleteBtn ? markCompleteBtn.getAttribute('data-lesson-id') : null;
         if (!lessonId) return;
@@ -194,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Resume from last position if not completed
                 if (!completed && watchedSec > 5) {
-                    player.seekTo(watchedSec, true);
+                    player.currentTime = watchedSec;
                     showToast(`Resuming from ${formatTime(watchedSec)}`, 'info');
                 }
 
@@ -207,27 +251,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     hasAutoCompleted = true;
                 }
             }
-
-            initialProgressLoaded = true;
         } catch (error) {
             console.error('Error loading progress:', error);
-        }
-    }
-
-    function onPlayerStateChange(event) {
-        const lessonId = markCompleteBtn ? markCompleteBtn.getAttribute('data-lesson-id') : null;
-        if (!lessonId) return;
-
-        if (event.data === YT.PlayerState.PLAYING) {
-            startProgressTracking();
-        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
-            stopProgressTracking();
-            saveProgress(false);
-        } else if (event.data === YT.PlayerState.ENDED) {
-            stopProgressTracking();
-            if (!hasAutoCompleted) {
-                saveProgress(true);
-            }
         }
     }
 
@@ -248,12 +273,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function saveProgress(autoComplete = false) {
-        if (!player || !player.getCurrentTime) return;
+        if (!player || !player.currentTime) return;
 
         const lessonId = markCompleteBtn ? markCompleteBtn.getAttribute('data-lesson-id') : null;
         if (!lessonId) return;
 
-        const currentTime = Math.floor(player.getCurrentTime());
+        const currentTime = Math.floor(player.currentTime);
 
         // Don't save if time hasn't changed and not auto-completing
         if (Math.abs(currentTime - lastSavedTime) < 2 && !autoComplete) return;
@@ -311,125 +336,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // ========== REGULAR VIDEO TAG SUPPORT ==========
-    const video = document.querySelector('video');
-    let regularVideoInterval;
-    let videoHasAutoCompleted = false;
-    let videoDuration = 0;
-
-    if (video) {
-        video.addEventListener('loadedmetadata', function() {
-            videoDuration = Math.floor(video.duration);
-        });
-
-        loadVideoProgress();
-
-        video.addEventListener('play', function() {
-            regularVideoInterval = setInterval(updateVideoProgress, 3000);
-        });
-
-        video.addEventListener('pause', function() {
-            clearInterval(regularVideoInterval);
-            updateVideoProgress();
-        });
-
-        video.addEventListener('ended', function() {
-            clearInterval(regularVideoInterval);
-            if (!videoHasAutoCompleted) {
-                updateVideoProgress(true);
-            }
-        });
-
-        async function loadVideoProgress() {
-            const lessonId = markCompleteBtn ? markCompleteBtn.getAttribute('data-lesson-id') : null;
-            if (!lessonId) return;
-
-            try {
-                const response = await fetch(`/learn/${lessonId}/get-progress`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'CSRF-Token': csrfToken
-
-                    }
-                });
-
-                const data = await response.json();
-
-                if (data.success && data.progress) {
-                    const watchedSec = data.progress.watched_sec || 0;
-                    const completed = data.progress.completed || false;
-
-                    if (!completed && watchedSec > 5) {
-                        video.currentTime = watchedSec;
-                        showToast(`Resuming from ${formatTime(watchedSec)}`, 'info');
-                    }
-
-                    if (completed && markCompleteBtn) {
-                        markCompleteBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Completed';
-                        markCompleteBtn.classList.remove('btn-success');
-                        markCompleteBtn.classList.add('btn-outline-success');
-                        markCompleteBtn.setAttribute('data-completed', 'true');
-                        videoHasAutoCompleted = true;
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading progress:', error);
-            }
-        }
-
-        async function updateVideoProgress(autoComplete = false) {
-            const lessonId = markCompleteBtn ? markCompleteBtn.getAttribute('data-lesson-id') : null;
-            if (!lessonId) return;
-
-            const watchedSec = Math.floor(video.currentTime);
-
-            // Auto-complete if watched >= 95%
-            const watchPercentage = (watchedSec / videoDuration) * 100;
-            const shouldAutoComplete = watchPercentage >= 95 && !videoHasAutoCompleted;
-
-            try {
-                const response = await fetch(`/learn/${lessonId}/progress`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'CSRF-Token': csrfToken
-                    },
-                    body: JSON.stringify({
-                        watched_sec: watchedSec,
-                        completed: autoComplete || shouldAutoComplete
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success && (autoComplete || shouldAutoComplete) && !videoHasAutoCompleted) {
-                    videoHasAutoCompleted = true;
-
-                    if (markCompleteBtn) {
-                        markCompleteBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Completed';
-                        markCompleteBtn.classList.remove('btn-success');
-                        markCompleteBtn.classList.add('btn-outline-success');
-                        markCompleteBtn.setAttribute('data-completed', 'true');
-                    }
-
-                    if (data.progress) {
-                        const progressBar = document.querySelector('.progress-bar');
-                        if (progressBar) {
-                            progressBar.style.width = `${data.progress.percentage}%`;
-                            progressBar.textContent = `${data.progress.completed}/${data.progress.total} lessons (${data.progress.percentage}%)`;
-                        }
-                    }
-
-                    updateSidebarCheckmarks();
-                    showToast('🎉 Lesson completed! Well done!');
-                }
-            } catch (error) {
-                console.error('Error updating progress:', error);
-            }
-        }
-    }
-
     // ========== CRITICAL: Save on page unload/navigation ==========
     let isUnloading = false;
 
@@ -439,15 +345,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Use sendBeacon for reliable sending even when page is closing
         const lessonId = markCompleteBtn ? markCompleteBtn.getAttribute('data-lesson-id') : null;
-        if (!lessonId) return;
+        if (!lessonId || !player) return;
 
-        let currentTime = 0;
-
-        if (player && player.getCurrentTime) {
-            currentTime = Math.floor(player.getCurrentTime());
-        } else if (video) {
-            currentTime = Math.floor(video.currentTime);
-        }
+        const currentTime = Math.floor(player.currentTime);
 
         if (currentTime > 0) {
             // Use sendBeacon for guaranteed delivery
@@ -462,21 +362,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Also save on page visibility change (switching tabs)
     document.addEventListener('visibilitychange', function() {
-        if (document.hidden && !isUnloading) {
-            if (player && player.getCurrentTime) {
-                saveProgress(false);
-            } else if (video) {
-                updateVideoProgress(false);
-            }
+        if (document.hidden && !isUnloading && player) {
+            saveProgress(false);
         }
     });
 
     // Save periodically when video is playing (backup)
     setInterval(function() {
-        if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
+        if (player && player.playing) {
             saveProgress(false);
-        } else if (video && !video.paused) {
-            updateVideoProgress(false);
         }
     }, 5000);
 });
