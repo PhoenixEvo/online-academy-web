@@ -58,8 +58,14 @@
           <span class="ms-2 text-muted">{{course.rating_count}}</span>
         </div>
 
-        <h5 class="text-success fw-bold mb-2 " style="text-decoration: line-through;">Price: {{ formatPrice course.price}}đ</h5>
-        <h5 class="text-danger fw-bold mb-3">Sale Price: {{formatPrice course.sale_price}}đ</h5>
+        <h5 class="text-success fw-bold mb-2 " style="text-decoration: line-through;">
+          <i class="bi bi-tag-fill me-2"></i>
+          Price: {{ formatPrice course.price}}đ
+        </h5>
+        <h5 class="text-danger fw-bold mb-3">
+          <i class="bi bi-cash-coin me-2"></i>
+          Sale Price: {{formatPrice course.sale_price}}đ
+        </h5>
 
         <div class="mb-3">
           <h6 class="fw-bold mb-1 text-dark">Description:</h6>
@@ -67,12 +73,31 @@
         </div>
 
         <div class="row">
-          <div class="col-sm-6 mb-2"><strong>Viewers:</strong> {{#if course.viewers}}{{course.viewers}}{{else}}0{{/if}}</div>
-          <div class="col-sm-6 mb-2"><strong>Status:</strong> {{course.status}}</div>
-          <div class="col-sm-6 mb-2"><strong>Enrollments:</strong> {{course.enrollment_count}} students</div>
-
-          <p><strong>Created:</strong> <span id="created">{{course.created_at}}</span></p>
-          <p><strong>Updated:</strong> <span id="updated">{{course.updated_at}}</span></p>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-eye me-2 text-primary"></i>
+            <strong class="me-1">Viewers:</strong>
+            <span>{{#if course.viewers}}{{course.viewers}}{{else}}0{{/if}}</span>
+          </div>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-flag-fill me-2 text-secondary"></i>
+            <strong class="me-1">Status:</strong>
+            <span>{{course.status}}</span>
+          </div>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-people-fill me-2 text-success"></i>
+            <strong class="me-1">Enrollments:</strong>
+            <span>{{course.enrollment_count}} students</span>
+          </div>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-calendar-plus me-2 text-muted"></i>
+            <strong class="me-1">Created:</strong>
+            <span id="created">{{course.created_at}}</span>
+          </div>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-arrow-clockwise me-2 text-muted"></i>
+            <strong class="me-1">Updated:</strong>
+            <span id="updated">{{course.updated_at}}</span>
+          </div>
         </div>
       </div>
       

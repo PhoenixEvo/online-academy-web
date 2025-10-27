@@ -28,6 +28,22 @@ export async function showProfile(req, res, next) {
       const InstructorModel = (await import('../models/instructor.model.js')).default;
       const information = await InstructorModel.findByUserId(userData.id);
       model.instructor = information || { user_id: userData.id };
+
+      // Load instructor stats (courses, students, rating)
+      try {
+        const courseMod = await import('../models/instructor-course.model.js');
+        // We need instructor_id for stats (not user_id)
+        let instructorId = information?.id;
+        if (!instructorId) {
+          instructorId = await (courseMod.getInstructorId?.(userData.id));
+        }
+        if (instructorId) {
+          const stats = await courseMod.getInstructorStats?.(instructorId);
+          if (stats) model.instructorStats = stats;
+        }
+      } catch (e) {
+        console.warn('Failed to load instructor stats:', e?.message || e);
+      }
     }
 
     res.render('profile', model);

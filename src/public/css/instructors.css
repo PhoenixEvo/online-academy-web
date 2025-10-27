@@ -168,6 +168,13 @@
   background-color: #f8f9fa;
   border-color: #d7eff8;
 }
+.pagination .page-link {
+  border-radius: 0.75rem !important;
+  width: fit-content !important;
+  padding: 4px 7px;
+  /* height: auto !important; */
+}
+
 
 
 
@@ -227,6 +234,41 @@
   pointer-events: auto;
 }
 
+
+
+/* --- Darker borders for key input fields on instructor pages --- */
+/* Profile (Instructor) */
+#fullName.form-control,
+#displayName.form-control,
+textarea#biography.form-control,
+/* Course forms (create/edit) */
+#txtCourseName.form-control,
+#txtPrice.form-control,
+#txtSalePrice.form-control,
+#txtTinyDes.form-control,
+#coursePrice.form-control,
+#courseSalePrice.form-control {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+
+#fullName.form-control:focus:not(.is-invalid):not(.is-valid),
+#displayName.form-control:focus:not(.is-invalid):not(.is-valid),
+textarea#biography.form-control:focus:not(.is-invalid):not(.is-valid),
+#txtCourseName.form-control:focus:not(.is-invalid):not(.is-valid),
+#txtPrice.form-control:focus:not(.is-invalid):not(.is-valid),
+#txtSalePrice.form-control:focus:not(.is-invalid):not(.is-valid),
+#txtTinyDes.form-control:focus:not(.is-invalid):not(.is-valid),
+#coursePrice.form-control:focus:not(.is-invalid):not(.is-valid),
+#courseSalePrice.form-control:focus:not(.is-invalid):not(.is-valid) {
+
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.12);
+}
+
+.form-control.is-invalid { border-color: #dc3545 !important; }
+.form-control.is-valid { border-color: #198754 !important; }
+
 /* --- Mobile responsiveness tweaks --- */
 @media (max-width: 576px) {
   .nav-tabs {
@@ -238,14 +280,58 @@
     flex: 0 0 auto;
   }
 
-  /* Avoid cramped lines inside small cards */
   .card .card-body .row > [class^="col-"],
   .card .card-body .row > [class*=" col-"] {
     margin-bottom: 0.25rem;
   }
 
-  /* Prevent overlay from blocking taps on touch */
   .course-overlay {
     pointer-events: none;
   }
+}
+
+/* === Black borders for specific buttons and URL inputs requested === */
+/* Search button in My Courses page (form has role="search") */
+form[role="search"] .btn.btn-primary {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+
+form[role="search"] input.form-control[type="search"] {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+form[role="search"] input.form-control[type="search"]:focus:not(.is-invalid):not(.is-valid) {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.12);
+}
+
+#btnUploadThumbnail,
+#btnUploadAvatar,
+[data-upload-for] {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+
+#txtThumbnailUrl.form-control,
+#courseThumbnail.form-control,
+#avatarUrl.form-control {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+
+#txtThumbnailUrl.form-control:focus:not(.is-invalid):not(.is-valid),
+#courseThumbnail.form-control:focus:not(.is-invalid):not(.is-valid),
+#avatarUrl.form-control:focus:not(.is-invalid):not(.is-valid) {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.12);
+}
+
+#courseStatus.form-select {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+#courseStatus.form-select:focus {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.12);
 }
