@@ -28,13 +28,22 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://releases.transloadit.com", "'unsafe-eval'", "'unsafe-inline'"],
+      scriptSrc: [
+        "'self'",
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.jsdelivr.net",
+        "https://releases.transloadit.com",
+        "https://www.youtube.com",
+        "https://s.ytimg.com",
+        "'unsafe-eval'",
+        "'unsafe-inline'"
+      ],
       styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://releases.transloadit.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "data:", "https://fonts.googleapis.com", "https://fonts.gstatic.com"], 
-      imgSrc: ["'self'", 'data:', 'blob:', 'https:', "http:"],
+      imgSrc: ["'self'", 'data:', 'blob:', 'https:', "http:", 'https://i.ytimg.com'],
       frameSrc: ["'self'", 'https://drive.google.com', 'https://www.youtube.com', 'https://youtube.com', 'https://www.youtube-nocookie.com'],
-  mediaSrc: ["'self'", 'https://drive.google.com', 'https://*.supabase.co', 'https://*.supabase.in'],
-  connectSrc: ["'self'", 'https://*.supabase.co', 'https://*.supabase.in'],
+      mediaSrc: ["'self'", 'https://drive.google.com', 'https://*.supabase.co', 'https://*.supabase.in'],
+      connectSrc: ["'self'", 'https://*.supabase.co', 'https://*.supabase.in', 'https://www.youtube.com', 'https://s.ytimg.com'],
     },
   })
 );

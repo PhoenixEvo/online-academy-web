@@ -47,6 +47,12 @@
   overflow: hidden;
 }
 
+.image-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .course-overlay {
   position: absolute;
   top: 0;
@@ -137,4 +143,109 @@
 
   background-color: #4eb8dd;
   border-color: white;
+}
+
+
+/* Pagination theme */
+.pagination .page-link {
+  color: #4eb8dd;
+  border-color: #4eb8dd;
+  background-color: #ffffff;
+}
+.pagination .page-link:hover {
+  color: #ffffff;
+  background-color: #4eb8dd;
+  border-color: #4eb8dd;
+}
+.pagination .page-item.active .page-link,
+.pagination .page-item.active .page-link:focus {
+  color: #ffffff;
+  background-color: #4eb8dd;
+  border-color: #4eb8dd;
+}
+.pagination .page-item.disabled .page-link {
+  color: #b6dfee;
+  background-color: #f8f9fa;
+  border-color: #d7eff8;
+}
+
+
+
+.accordion .accordion-item {
+    overflow: visible;
+  }
+
+  .accordion .accordion-header {
+    position: relative;
+  }
+
+  .accordion .accordion-button {
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+  }
+
+  .accordion .accordion-header::before {
+    content: "";
+    position: absolute;
+    inset: 0; 
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color 0.2s ease;
+    z-index: 0; 
+    border-radius: 0.25rem;
+  }
+
+  .accordion .accordion-header:hover::before {
+    background-color: rgba(0, 0, 0, 0.05); 
+  }
+
+  .accordion .btn-delete-section {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2; 
+    padding: 0.25rem 0.5rem;
+    transition: opacity 0.15s ease;
+  }
+  .accordion .btn-delete-section {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  padding: 0.25rem 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.accordion .accordion-header:hover .btn-delete-section {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* --- Mobile responsiveness tweaks --- */
+@media (max-width: 576px) {
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-tabs .nav-item {
+    flex: 0 0 auto;
+  }
+
+  /* Avoid cramped lines inside small cards */
+  .card .card-body .row > [class^="col-"],
+  .card .card-body .row > [class*=" col-"] {
+    margin-bottom: 0.25rem;
+  }
+
+  /* Prevent overlay from blocking taps on touch */
+  .course-overlay {
+    pointer-events: none;
+  }
 }

@@ -219,13 +219,14 @@
 
             <!-- Instructor info tab -->
             <div class="tab-pane fade {{#if (eq activeTab 'info')}}show active{{/if}}" id="info-tab-pane" role="tabpanel" aria-labelledby="info-tab" tabindex="0">
-              <form class="settings-form">
+              <form class="settings-form" action="/instructor/profile/update/{{user.id}}" method="POST">
+                <input type="hidden" name="_csrf" value="{{csrfToken}}">
                 <div class="row mb-3">
                   <div class="col-md-6">
                     <label for="fullName" class="form-label" style="font-weight: bold;">Full Name</label>
-                    <input id="fullName" type="text" class="form-control" placeholder="" value ="{{instructor.title}}">
+                    <input id="fullName" name="name" type="text" class="form-control" placeholder="" value ="{{instructor.name}}">
                     <label for="displayName" class="form-label mt-4" style="font-weight: bold;">Display Name</label>
-                    <input id="displayName" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
+                    <input id="displayName" name="display_name" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label" style="font-weight: bold;">Display Image</label>
@@ -236,7 +237,7 @@
                 </div>
                 <div class="mb-3">
                   <label for="biography" class="form-label" style="font-weight: bold;">Biography</label>
-                  <textarea id="biography" class="form-control" rows="4" placeholder="Write something about yourself..." value ="">{{instructor.job_title}}</textarea>
+                  <textarea id="biography" name="job_title" class="form-control" rows="4" placeholder="Write something about yourself...">{{instructor.job_title}}</textarea>
                   <div class="form-text"></div>
                 </div>
                 <button type="submit" class="btn btn-save border" style="background-color: #4eb8dd;">Save</button>

@@ -6,34 +6,41 @@ export async function editCourse(req, res, next) {
 }
 export async function listInstructorCourses(req, res, next) {
 // List instructor courses
-  const instructorUserId = req.user.id;
-  const q = req.query.q?.trim();
-      const limit = 10;
-      const page = req.query.page || 1;
-      const offset = (page - 1) * limit; 
-      const list = await courseTaughtBy(instructorUserId);
-      const total = await courseTaughtBy(instructorUserId, true);
-      const nPages = Math.ceil(total.amount/ limit);
-      const page_numbers = [];
-      for (let i=1; i<= nPages; i++){
-          page_numbers.push({
-              value: i,
-              catid: id,
-              isCurrent: i === parseInt(page),
-          });
-      }
-  if (q) {
-        const courses = await searchByTitle(q);
-        return res.render('vwInstructorCourse/mycourses', {
-          courses: courses,
-          empty: courses.length === 0,
-          q
-        });
-      }
-  res.render('vwInstructorCourse/mycourses', { 
-    courses: list, 
-    page_numbers: page_numbers
-  });
+  try {
+    const instructorUserId = req.user.id;
+    const q = (req.query.q || '').toString().trim();
+    const limit = 10;
+    let page = parseInt(req.query.page || '1', 10);
+    if (!Number.isFinite(page) || page < 1) page = 1;
+    let base = db('courses').where('instructor_id', instructorUserId);
+    if (q) base = base.andWhere('title', 'ilike', `%${q}%`);
+    const totalRow = await base.clone().count({ count: '*' }).first();
+    const totalCount = parseInt(totalRow?.count ?? totalRow?.COUNT ?? 0, 10) || 0;
+    const nPages = Math.max(1, Math.ceil(totalCount / limit));
+    if (page > nPages) page = nPages;
+    const offset = (page - 1) * limit;
+    const list = await base
+      .clone()
+      .orderBy('updated_at', 'desc')
+      .limit(limit)
+      .offset(offset);
+    const page_numbers = [];
+    for (let i = 1; i <= nPages; i++) {
+      page_numbers.push({ value: i, isCurrent: i === page });
+    }
+    return res.render('vwInstructorCourse/mycourses', {
+      courses: list,
+      empty: totalCount === 0,
+      q: q || undefined,
+      page_numbers,
+      isFirstPage: page <= 1,
+      isLastPage: page >= nPages,
+      prevPage: page > 1 ? page - 1 : 1,
+      nextPage: page < nPages ? page + 1 : nPages,
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 export async function showAddCourseForm(req, res, next) {
   res.render('vwInstructorCourse/course-form');
@@ -120,10 +127,19 @@ export async function showEditCourseForm(req, res, next) {
 export async function updateCourseContent(req, res, next) {
   try {
     const courseId = req.params.id;
-    const { title, short_desc, full_desc, price, sale_price, thumbnail_url, status } = req.body;
+    let { title, short_desc, full_desc, price, sale_price, thumbnail_url, status } = req.body;
     // sanitize status to match DB enum: ['draft','published','completed']
     const allowed = new Set(['draft','published','completed']);
     const safeStatus = allowed.has((status || '').toString()) ? status : undefined;
+    // normalize prices (accept formatted strings with commas)
+    const toNumber = (v) => {
+      if (v === undefined || v === null || String(v).trim() === '') return null;
+      const s = String(v).replace(/[\,\s]/g, '');
+      const num = parseFloat(s);
+      return Number.isNaN(num) ? null : num;
+    };
+    price = toNumber(price) ?? 0;
+    sale_price = toNumber(sale_price);
     await db('courses')
       .where({ id: courseId })
       .update({
@@ -186,15 +202,19 @@ export async function addLessonToSectionOfCourse(req, res, next) {
     const courseId = req.params.id;
     const sectionId = req.params.sectionId || req.params.section_id;
     if (!courseId || !sectionId) return res.redirect('back');
-    const { title, video_url, is_preview, duration_sec } = req.body;
+  const { title, video_url, is_preview, duration_sec } = req.body;
     const maxRow = await db('lessons').where({ section_id: sectionId }).max('order_index as max').first();
     const nextIndex = (maxRow?.max || 0) + 1;
+    const normalizedDuration = (() => {
+      const n = parseInt(String(duration_sec ?? '').replace(/[^0-9-]/g, ''), 10);
+      return Number.isFinite(n) && n > 0 ? n : 0;
+    })();
     await db('lessons').insert({
       section_id: sectionId,
       title,
       video_url,
       is_preview: is_preview ? true : false,
-      duration_sec: duration_sec ? Number(duration_sec) : 0,
+      duration_sec: normalizedDuration,
       order_index: nextIndex,
     });
     res.redirect(`/instructor/courses/edit/${courseId}/sections`);
@@ -313,6 +333,55 @@ export async function deleteLessonOfCourse(req, res, next) {
     }
     req.flash?.('success', 'Lesson deleted');
     res.redirect(`/instructor/courses/edit/${courseId}/sections`);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// delete a section by id for a given course (and all its lessons)
+export async function deleteSectionOfCourse(req, res, next) {
+  try {
+    const courseId = req.params.id;
+    const sectionId = req.params.sectionId;
+    if (!courseId || !sectionId) {
+      const msg = 'Missing identifiers';
+      if (req.xhr || (req.get('accept') || '').includes('json')) return res.status(400).json({ success: false, message: msg });
+      req.flash?.('error', msg);
+      return res.redirect('back');
+    }
+
+    // Check course status
+    const course = await db('courses').where({ id: courseId }).first();
+    if (!course) {
+      const msg = 'Course not found';
+      if (req.xhr || (req.get('accept') || '').includes('json')) return res.status(404).json({ success: false, message: msg });
+      req.flash?.('error', msg);
+      return res.redirect('/instructor/courses');
+    }
+    if (String(course.status) === 'completed') {
+      const msg = 'Cannot delete section on a completed course';
+      if (req.xhr || (req.get('accept') || '').includes('json')) return res.status(400).json({ success: false, message: msg });
+      req.flash?.('error', msg);
+      return res.redirect(`/instructor/courses/edit/${courseId}/sections`);
+    }
+
+    // Ensure section belongs to course
+    const section = await db('sections').where({ id: sectionId, course_id: courseId }).first();
+    if (!section) {
+      const msg = 'Section not found for this course';
+      if (req.xhr || (req.get('accept') || '').includes('json')) return res.status(404).json({ success: false, message: msg });
+      req.flash?.('error', msg);
+      return res.redirect(`/instructor/courses/edit/${courseId}/sections`);
+    }
+
+    await db.transaction(async (trx) => {
+      await trx('lessons').where({ section_id: sectionId }).del();
+      await trx('sections').where({ id: sectionId, course_id: courseId }).del();
+    });
+
+    if (req.xhr || (req.get('accept') || '').includes('json')) return res.json({ success: true });
+    req.flash?.('success', 'Section deleted');
+    return res.redirect(`/instructor/courses/edit/${courseId}/sections`);
   } catch (err) {
     next(err);
   }

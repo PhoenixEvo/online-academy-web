@@ -1,4 +1,5 @@
 
+
 {{#fill_section 'css'}} 
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
 <link href="https://releases.transloadit.com/uppy/v5.1.6/uppy.min.css" rel="stylesheet">
@@ -12,16 +13,8 @@
 <script src="https://releases.transloadit.com/uppy/v5.1.6/uppy.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  //var cleavePrice = new Cleave('#coursePrice', {
-  //      numeral: true,
-  //      numeralThousandsGroupStyle: 'thousand'
-  //  });
-  //  var cleaveSalePrice = new Cleave('#courseSalePrice', {
-  //      numeral: true,
-  //      numeralThousandsGroupStyle: 'thousand'
-  //  });
+  // Initialize Quill (Edit tab only)
   (function(){
-    // Initialize Quill only when the editor exists (Edit tab)
     const editorEl = document.getElementById('editor');
     if (!editorEl) return;
     const quill = new Quill(editorEl, { theme: 'snow' });
@@ -35,26 +28,88 @@
     });
   })();
 
-    (function(){
-      const csrfToken = '{{csrfToken}}';
-      const isDirectVideo = (url) => /\.(mp4|webm|ogg)(\?.*)?$/i.test(url || '');
-      const isYouTube = (url) => /(youtu\.be|youtube\.com)/i.test(url || '');
-      async function uploadFile(file){
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('folder', 'videos');
-        const res = await fetch('/api/uploads/file', {
-          method: 'POST',
-          headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' },
-          body: formData
-        });
-        const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.message || 'Upload failed');
-        return data.publicUrl;
+  // Price formatting with Cleave.js
+  (function(){
+    try {
+      if (window.Cleave) {
+        const priceCleave = new Cleave('#coursePrice', { numeral: true, numeralThousandsGroupStyle: 'thousand', numeralDecimalScale: 0, numeralPositiveOnly: true });
+        const saleCleave = new Cleave('#courseSalePrice', { numeral: true, numeralThousandsGroupStyle: 'thousand', numeralDecimalScale: 0, numeralPositiveOnly: true });
+        // Normalize any initial values like 1000.00 -> 1,000
+        const priceEl = document.getElementById('coursePrice');
+        if (priceEl && priceEl.value) priceCleave.setRawValue(String(priceEl.value).split('.')[0]);
+        const saleEl = document.getElementById('courseSalePrice');
+        if (saleEl && saleEl.value) saleCleave.setRawValue(String(saleEl.value).split('.')[0]);
       }
-      function autoFillDurationFromUrl(url, durationInput){
-        try {
-          if (!durationInput || !url || !isDirectVideo(url)) return;
+    } catch (e) {}
+  })();
+
+  // Lessons: upload video and auto-fill duration (YouTube/file)
+  (function(){
+    const csrfToken = '{{csrfToken}}';
+    const isDirectVideo = (url) => /\.(mp4|webm|ogg)(\?.*)?$/i.test(url || '');
+    const isYouTube = (url) => /(youtu\.be|youtube\.com)/i.test(url || '');
+
+    // debounce helper
+    function debounce(fn, wait){
+      let t; return function(...args){ clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); };
+    }
+
+    async function uploadFile(file){
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'videos');
+      const res = await fetch('/api/uploads/file', {
+        method: 'POST',
+        headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || 'Upload failed');
+      return data.publicUrl;
+    }
+
+    // Lazy-load YouTube Iframe API
+    let ytApiPromise;
+    function ensureYouTubeAPI(){
+      if (window.YT && typeof window.YT.Player === 'function') return Promise.resolve();
+      if (ytApiPromise) return ytApiPromise;
+      ytApiPromise = new Promise((resolve) => {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+        const prev = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = function(){
+          if (typeof prev === 'function') try { prev(); } catch {}
+          resolve();
+        };
+      });
+      return ytApiPromise;
+    }
+
+    function parseYouTubeId(url){
+      try {
+        const u = new URL(url);
+        const host = u.hostname.replace(/^www\./, '').toLowerCase();
+        if (host.includes('youtu.be')) {
+          const path = u.pathname || '';
+          const id = (path.startsWith('/') ? path.slice(1) : path).split('/')[0];
+          return id || '';
+        }
+        if (host.includes('youtube.com') || host.includes('m.youtube.com')) {
+          const v = u.searchParams.get('v');
+          if (v) return v;
+          const m1 = (u.pathname || '').match(/\/(embed|shorts)\/([A-Za-z0-9_-]{11})/);
+          if (m1) return m1[2];
+        }
+      } catch {}
+      const m = (url || '').match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : '';
+    }
+
+    function autoFillDurationFromUrl(url, durationInput){
+      try {
+        if (!durationInput || !url) return;
+        if (isDirectVideo(url)) {
           const v = document.createElement('video');
           v.preload = 'metadata';
           v.crossOrigin = 'anonymous';
@@ -68,59 +123,122 @@
           function cleanup(){
             v.removeEventListener('loadedmetadata', onLoaded);
             v.removeEventListener('error', onError);
-            // revoke if blob/object; here it's URL string so ignore
           }
           v.addEventListener('loadedmetadata', onLoaded);
           v.addEventListener('error', onError);
-          // Some CDNs require a tiny offset to force metadata fetch
           v.src = url + (url.includes('#') ? '' : '#t=0.1');
-        } catch {}
-      }
-      async function onUploadClick(e){
-        const btn = e.currentTarget;
-        const form = btn.closest('form');
-        const urlInput = form?.querySelector('input[name="video_url"]');
-        const durInput = form?.querySelector('input[name="duration_sec"]');
-        const tmp = document.createElement('input');
-        tmp.type = 'file';
-        tmp.accept = 'video/*';
-        tmp.style.position = 'fixed';
-        tmp.style.left = '-9999px';
-        document.body.appendChild(tmp);
-        tmp.addEventListener('change', async function(){
-          const file = tmp.files?.[0];
-          if (!file) { document.body.removeChild(tmp); return; }
-          try {
-            const publicUrl = await uploadFile(file);
-            if (urlInput) urlInput.value = publicUrl;
-            // Try autofill duration for direct videos
-            autoFillDurationFromUrl(publicUrl, durInput);
-            await Swal.fire({ icon: 'success', title: 'Uploaded', text: 'Video URL has been set into the form.' });
-          } catch (err) {
-            console.error(err);
-            Swal.fire({ icon: 'error', title: 'Upload failed', text: 'Please try again.' });
-          } finally {
-            document.body.removeChild(tmp);
-          }
-        }, { once: true });
-        tmp.click();
-      }
-      function onVideoUrlBlur(e){
-        const input = e.currentTarget;
-        const form = input.closest('form');
-        const durInput = form?.querySelector('input[name="duration_sec"]');
-        const url = input.value.trim();
-        autoFillDurationFromUrl(url, durInput);
-      }
-      document.addEventListener('DOMContentLoaded', function(){
-        document.querySelectorAll('[data-upload-for]').forEach(btn => btn.addEventListener('click', onUploadClick));
-        document.querySelectorAll('form input[name="video_url"]').forEach(inp => {
-          inp.addEventListener('change', onVideoUrlBlur);
-          inp.addEventListener('blur', onVideoUrlBlur);
-          inp.addEventListener('paste', () => setTimeout(() => onVideoUrlBlur({ currentTarget: inp }), 0));
-        });
+          return;
+        }
+        if (isYouTube(url)) {
+          const vid = parseYouTubeId(url);
+          if (!vid) return;
+          ensureYouTubeAPI().then(() => {
+            const host = document.createElement('div');
+            host.style.position = 'fixed';
+            host.style.left = '-9999px';
+            host.style.width = '300px';
+            host.style.height = '200px';
+            document.body.appendChild(host);
+            let player;
+            function cleanup(){
+              try { player && player.destroy && player.destroy(); } catch {}
+              if (host && host.parentNode) host.parentNode.removeChild(host);
+            }
+            let tries = 0;
+            const maxTries = 30; // ~6-7s max
+            function trySetDuration(){
+              try {
+                const d = player && typeof player.getDuration === 'function' ? player.getDuration() : 0;
+                if (d && isFinite(d) && d > 0) {
+                  durationInput.value = Math.max(0, Math.round(d));
+                  cleanup();
+                  return true;
+                }
+              } catch {}
+              tries++;
+              return false;
+            }
+            player = new YT.Player(host, {
+              videoId: vid,
+              events: {
+                onReady: (ev) => {
+                  try {
+                    ev.target.mute();
+                    ev.target.loadVideoById(vid);
+                    ev.target.playVideo();
+                  } catch {}
+                  setTimeout(() => { trySetDuration(); }, 300);
+                },
+                onStateChange: (ev) => {
+                  const state = ev?.data;
+                  if (state === YT.PlayerState.CUED || state === YT.PlayerState.PLAYING || state === YT.PlayerState.PAUSED || state === YT.PlayerState.BUFFERING) {
+                    if (trySetDuration()) return;
+                    let delay = 200;
+                    const tick = () => {
+                      if (trySetDuration()) return;
+                      if (tries >= maxTries) { cleanup(); return; }
+                      delay = Math.min(800, delay + 100);
+                      setTimeout(tick, delay);
+                    };
+                    setTimeout(tick, delay);
+                  }
+                }
+              },
+              playerVars: { controls: 0, modestbranding: 1, playsinline: 1, origin: window.location.origin, rel: 0 }
+            });
+          }).catch(() => {});
+        }
+      } catch {}
+    }
+
+    async function onUploadClick(e){
+      const btn = e.currentTarget;
+      const form = btn.closest('form');
+      const urlInput = form?.querySelector('input[name="video_url"]');
+      const durInput = form?.querySelector('input[name="duration_sec"]');
+      const tmp = document.createElement('input');
+      tmp.type = 'file';
+      tmp.accept = 'video/*';
+      tmp.style.position = 'fixed';
+      tmp.style.left = '-9999px';
+      document.body.appendChild(tmp);
+      tmp.addEventListener('change', async function(){
+        const file = tmp.files?.[0];
+        if (!file) { document.body.removeChild(tmp); return; }
+        try {
+          const publicUrl = await uploadFile(file);
+          if (urlInput) urlInput.value = publicUrl;
+          autoFillDurationFromUrl(publicUrl, durInput);
+          await Swal.fire({ icon: 'success', title: 'Uploaded', text: 'Video URL has been set into the form.' });
+        } catch (err) {
+          console.error(err);
+          Swal.fire({ icon: 'error', title: 'Upload failed', text: 'Please try again.' });
+        } finally {
+          document.body.removeChild(tmp);
+        }
+      }, { once: true });
+      tmp.click();
+    }
+
+    function onVideoUrlInput(e){
+      const input = e.currentTarget;
+      const form = input.closest('form');
+      const durInput = form?.querySelector('input[name="duration_sec"]');
+      const url = input.value.trim();
+      autoFillDurationFromUrl(url, durInput);
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      document.querySelectorAll('[data-upload-for]').forEach(btn => btn.addEventListener('click', onUploadClick));
+      document.querySelectorAll('form input[name="video_url"]').forEach(inp => {
+        const debounced = debounce(onVideoUrlInput, 200);
+        inp.addEventListener('input', debounced);
+        inp.addEventListener('change', onVideoUrlInput);
+        inp.addEventListener('blur', onVideoUrlInput);
+        inp.addEventListener('paste', () => setTimeout(() => onVideoUrlInput({ currentTarget: inp }), 0));
       });
-    })();
+    });
+  })();
 
     (function(){
       const csrfToken = '{{csrfToken}}';
@@ -135,7 +253,7 @@
         const fd = new FormData();
         fd.append('file', f);
         fd.append('folder', 'course-thumbnails');
-  const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' }, body: fd });
+        const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' }, body: fd });
         const data = await res.json();
         if (res.ok && data.success) {
           if (urlInput) urlInput.value = data.publicUrl;
@@ -186,6 +304,52 @@
         document.querySelectorAll('[data-action="delete-lesson"]').forEach(btn => btn.addEventListener('click', onDeleteClick));
       });
     })();
+    // Delete Section (global handler for inline onclick)
+    (function(){
+      const csrfToken = '{{csrfToken}}';
+      async function doDelete(sectionId){
+        const result = await Swal.fire({
+          title: 'Delete this section?',
+          text: 'All lessons in this section will also be deleted. This action cannot be undone.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Delete',
+        });
+        if (!result.isConfirmed) return;
+        const res = await fetch(`/instructor/courses/edit/{{course.id}}/sections/${sectionId}/delete`, {
+          method: 'POST',
+          headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) throw new Error(data.message || 'Failed to delete section');
+        await Swal.fire({ icon: 'success', title: 'Section deleted', timer: 900, showConfirmButton: false });
+        location.href = `/instructor/courses/edit/{{course.id}}/sections`;
+      }
+      // inline onclick target
+      window.handleDeleteSection = async function(el){
+        try {
+          const sectionId = el?.getAttribute('data-id');
+          if (!sectionId) return;
+          await doDelete(sectionId);
+        } catch (err) {
+          console.error(err);
+          Swal.fire({ icon: 'error', title: 'Delete failed', text: err?.message || 'Please try again.' });
+        }
+      }
+      // dataset-driven handler (no inline)
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('[data-action="delete-section"]').forEach(btn => btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          const id = this.getAttribute('data-id');
+          if (id) doDelete(id).catch(err => {
+            console.error(err);
+            Swal.fire({ icon: 'error', title: 'Delete failed', text: err?.message || 'Please try again.' });
+          });
+        }));
+      });
+    })();
 </script>
 {{/fill_section}}
 <link href="/css/instructors.css" rel="stylesheet">
@@ -228,18 +392,18 @@
                   <label for="shortCourseDescription" class="form-label" style="font-weight: bold;">Short Course Description</label>
                   <textarea class="form-control" id="shortCourseDescription" name="short_desc" rows="4" required>{{course.short_desc}}</textarea>
                 </div>
+    <div class="mb-3">
+        <label class="form-label" style="font-weight: bold;" placeholder ="Draft Description">Full Description</label>
+      <div id="editor" style="height: 200px;"></div>
+      <textarea name="full_desc" id="txtFullDes" class="d-none">{{{course.full_desc}}}</textarea> 
+          </div>
                 <div class="mb-3">
-                                <label class="form-label" style="font-weight: bold;" placeholder ="Draft Description">Full Description</label>
-                        <div id="editor" style="height: 200px;"></div>
-            <input type="hidden" name ="full_desc" id="txtFullDes" value="{{{course.full_desc}}}"> 
-                            </div>
-                <div class="mb-3">
-                  <label for="coursePrice" class="form-label" style="font-weight: bold;">Course Price</label>
-                  <input type="number" class="form-control" id="coursePrice" name="price" value="{{course.price}}" required>
+                  <label for="coursePrice" class="form-label" style="font-weight: bold;">Course Price(VND)</label>
+                  <input type="text" class="form-control" id="coursePrice" name="price" value="{{course.price}}" required>
                 </div>
                 <div class="mb-3">
-                  <label for="courseSalePrice" class="form-label" style="font-weight: bold;">Course Sale Price</label>
-                  <input type="number" class="form-control" id="courseSalePrice" name="sale_price" value="{{course.sale_price}}">
+                  <label for="courseSalePrice" class="form-label" style="font-weight: bold;">Course Sale Price(VND)</label>
+                  <input type="text" class="form-control" id="courseSalePrice" name="sale_price" value="{{course.sale_price}}">
                 </div>
                 <div class="mb-3">
                   <label for="courseStatus" class="form-label" style="font-weight: bold;">Course Status</label>
@@ -274,12 +438,35 @@
             {{#each sections}}
             <div class="accordion" id="accordion-{{id}}">
                                           <div class="accordion-item">
+                                               {{!-- <div class="d-flex align-items-center justify-content-between"> --}}
                                             <h2 class="accordion-header" id="heading-{{id}}">
-                                              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                              {{!-- <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#collapse-{{id}}" aria-expanded="false" style="font-weight: bold;" aria-controls="collapse-{{id}}">
                                                 {{increment @index}}. {{this.title}}
                                               </button>
+                                              <button type="button" class="btn btn-sm btn-danger w-auto ms-auto" data-action="delete-lesson" data-id="{{this.id}}"><i class="bi bi-x-lg"></i></button> --}}
+                                              <button class="accordion-button collapsed text-start" type="button"
+                                                      data-bs-toggle="collapse"
+                                                      data-bs-target="#collapse-{{id}}"
+                                                      aria-expanded="false"
+                                                      aria-controls="collapse-{{id}}"
+                                                      style="font-weight: 600;">
+                                                      {{increment @index}}. {{this.title}}
+                                                    </button>
+                                              
+                                                    <!-- Nút X: nằm ngoài vùng click chính nhưng trên cùng nhờ z-index -->
+                                                    {{#unless (eq ../course.status "completed")}}
+                                                      <button type="button"
+                                                        class="btn btn-sm btn-danger btn-delete-section"
+                                                        data-action="delete-section"
+                                                        data-id="{{this.id}}"
+                                                        aria-label="Delete section"
+                                                        onclick="event.stopPropagation(); handleDeleteSection(this);">
+                                                        <i class="bi bi-x-lg"></i>
+                                                      </button>
+                                                    {{/unless}}
                                             </h2>
+                                              {{!-- </div> --}}
                                             <div id="collapse-{{id}}" class="accordion-collapse collapse" aria-labelledby="heading-{{id}}"
                                               data-bs-parent="#accordion-{{id}}">
                                               <div class="accordion-body p-0">
@@ -315,7 +502,7 @@
                                                     {{/each}}
                                                   </tbody>
                                                 </table>
-                                                <form class="row g-2 mt-2" action="/instructor/courses/edit/{{../course.id}}/sections/{{id}}/lessons" method="POST">
+                                                <form class="row g-2 mt-2 mb-2 mx-2" action="/instructor/courses/edit/{{../course.id}}/sections/{{id}}/lessons" method="POST">
                                                   <input type="hidden" name="_csrf" value="{{../csrfToken}}">
                                                   <div class="col-md-4">
                                                     <input type="text" class="form-control" name="title" placeholder="Lesson title" required>
@@ -329,16 +516,36 @@
                                                       <button type="button" class="btn btn-secondary" data-upload-for="{{id}}"><i class="bi bi-upload"></i> Upload video</button>
                                                     </div>
                                                   </div>
-                                                  <div class="col-md-2">
-                                                    <input type="number" class="form-control" name="duration_sec" placeholder="Duration (sec)" min="0" value="0">
+                                                  <div class="col-md-4 d-flex align-items-center">
+                                                    {{!-- <label for="duration-{{id}}" class="form-label "> </label> --}}
+                                                    {{!-- <input type="number" class="form-control w-auto" id="duration-{{id}}" name="duration_sec" placeholder="0" min="0" value="0" > --}}
+                                                    <div class="input-group">
+                                                       <span class="input-group-text" id="duration-label-{{id}}">Duration (sec):</span>
+                                                       <input 
+                                                         type="number" 
+                                                         class="form-control" 
+                                                         id="duration-{{id}}" 
+                                                         name="duration_sec" 
+                                                         placeholder="0" 
+                                                         min="0" 
+                                                         value="0" 
+                                                         aria-describedby="duration-label-{{id}}"
+                                                       >
+                                                     </div>
                                                   </div>
-                                                  <div class="col-md-1 d-flex align-items-center">
+                                                  <div class="col-md-2 d-flex align-items-center">
                                                     <div class="form-check">
                                                       <input class="form-check-input" type="checkbox" name="is_preview" value="1" id="preview-{{id}}">
                                                       <label class="form-check-label" for="preview-{{id}}">Preview</label>
                                                     </div>
                                                   </div>
-                                                  <div class="col-auto ms-5 mb-2">
+                                                  <div class="col-md-2 d-flex align-items-center">
+                                                    {{!-- <button type="submit" class="btn btn-outline-success" style="color:#4eb8dd;">Add Lesson</button> --}}
+                                                  </div>
+                                                  <div class="col-md-1 d-flex align-items-center">
+                                                    {{!-- <button type="submit" class="btn btn-outline-success" style="color:#4eb8dd;">Add Lesson</button> --}}
+                                                  </div>
+                                                  <div class="col-md-2 d-flex align-items-center">
                                                     <button type="submit" class="btn btn-outline-success" style="color:#4eb8dd;">Add Lesson</button>
                                                   </div>
                                                 </form>

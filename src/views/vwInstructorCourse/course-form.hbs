@@ -12,11 +12,15 @@
 <script>
     var cleavePrice = new Cleave('#txtPrice', {
         numeral: true,
-        numeralThousandsGroupStyle: 'thousand'
+        numeralThousandsGroupStyle: 'thousand',
+        numeralDecimalScale: 0,
+        numeralPositiveOnly: true
     });
     var cleaveSalePrice = new Cleave('#txtSalePrice', {
         numeral: true,
-        numeralThousandsGroupStyle: 'thousand'
+        numeralThousandsGroupStyle: 'thousand',
+        numeralDecimalScale: 0,
+        numeralPositiveOnly: true
     });
     const quill = new Quill('#editor', {
     theme: 'snow',
@@ -117,11 +121,11 @@
                 <input type="text" class="form-control" id="txtCourseName" placeholder="Draft Title" name="title" autofocus>
             </div>
             <div class="mb-3" style="font-weight: bold;">
-                <label for="txtPrice" class="form-label">Price</label>
+                <label for="txtPrice" class="form-label">Price(VND)</label>
                 <input type="text" class="form-control" id="txtPrice" placeholder="10000" name="price">
             </div>
             <div class="mb-3" style="font-weight: bold;">
-                <label for="txtSalePrice" class="form-label">Sale Price</label>
+                <label for="txtSalePrice" class="form-label">Sale Price(VND)</label>
                 <input type="text" class="form-control" id="txtSalePrice" placeholder="8000" name="sale_price">
             </div>
             <div class="mb-3" style="font-weight: bold;">

@@ -1,4 +1,9 @@
+
+{{#fill_section 'css'}} 
+<link href="/css/instructors.css" rel="stylesheet">
+{{/fill_section}}
 <script>
+
   function formatDate(dateStr) {
     const date = new Date(dateStr);
     if (isNaN(date)) return dateStr;
@@ -27,8 +32,19 @@
     </div>
 
     <div class="col-md-8">
+      
       <div class="card-body p-4">
+        <div class="row">
+          <div class="col-9 ">
         <h3 class="fw-bold mb-3 text-primary">{{course.title}}</h3>
+          </div>
+          <div class="col-2 w-auto ms-auto ">
+            <a href="/instructor/courses/edit/{{course.id}}" class="btn btn-primary ms-auto"><i class="bi bi-pen"></i></a>
+
+          </div>
+
+          
+        </div>
 
         <div class="d-flex align-items-center mb-3">
           <i class="bi bi-star-fill text-warning me-2"></i>
@@ -42,8 +58,8 @@
           <span class="ms-2 text-muted">{{course.rating_count}}</span>
         </div>
 
-        <h5 class="text-success fw-bold mb-2 " style="text-decoration: line-through;">Price: ${{course.price}}</h5>
-        <h5 class="text-danger fw-bold mb-3">Sale Price: ${{course.sale_price}}</h5>
+        <h5 class="text-success fw-bold mb-2 " style="text-decoration: line-through;">Price: {{ formatPrice course.price}}đ</h5>
+        <h5 class="text-danger fw-bold mb-3">Sale Price: {{formatPrice course.sale_price}}đ</h5>
 
         <div class="mb-3">
           <h6 class="fw-bold mb-1 text-dark">Description:</h6>
@@ -51,12 +67,15 @@
         </div>
 
         <div class="row">
-          <div class="col-sm-6 mb-2"><strong>Students:</strong> {{course.viewers}}</div>
+          <div class="col-sm-6 mb-2"><strong>Viewers:</strong> {{#if course.viewers}}{{course.viewers}}{{else}}0{{/if}}</div>
           <div class="col-sm-6 mb-2"><strong>Status:</strong> {{course.status}}</div>
+          <div class="col-sm-6 mb-2"><strong>Enrollments:</strong> {{course.enrollment_count}} students</div>
+
           <p><strong>Created:</strong> <span id="created">{{course.created_at}}</span></p>
           <p><strong>Updated:</strong> <span id="updated">{{course.updated_at}}</span></p>
         </div>
       </div>
+      
     </div>
   </div>
 
