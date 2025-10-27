@@ -43,8 +43,8 @@ export const validateRegister = [
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters'),
   body('role')
-    .isIn(['student', 'instructor'])
-    .withMessage('Role must be either student or instructor')
+    .equals('student')
+    .withMessage('Only student registration is allowed. Instructor accounts are created by administrators.')
 ];
 
 // register a new user
