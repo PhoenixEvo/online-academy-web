@@ -81,5 +81,57 @@ export async function home(req, res, next) {
 
 // about page
 export async function about(req, res, next) {
-  res.render("about", { title: "About" });
+  try {
+    // Get real statistics from database
+    const stats = await Promise.all([
+      // Count active students (users with role 'student')
+      db('users').count('* as count').where('role', 'student').first(),
+      
+      // Count published courses
+      db('courses').count('* as count').where('status', 'published').first(),
+      
+      // Count instructors (users with role 'instructor')
+      db('users').count('* as count').where('role', 'instructor').first(),
+      
+      // Calculate success rate (students who completed courses / total enrolled students)
+      // Since enrollments table doesn't have status column, we'll calculate based on progress completion
+      db('progress')
+        .countDistinct('user_id as completed_users')
+        .where('completed', true)
+        .first()
+        .then(async (completed) => {
+          const totalEnrolled = await db('enrollments').countDistinct('user_id as count').first();
+          const successRate = totalEnrolled.count > 0 ? 
+            Math.round((completed.completed_users / totalEnrolled.count) * 100) : 0;
+          return { count: successRate };
+        })
+    ]);
+
+    res.render("about", { 
+      title: "About",
+      stats: {
+        activeStudents: stats[0].count,
+        onlineCourses: stats[1].count,
+        expertInstructors: stats[2].count,
+        successRate: stats[3].count
+      }
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// contact page
+export async function contact(req, res, next) {
+  res.render("contact", { title: "Contact" });
+}
+
+// terms of service page
+export async function terms(req, res, next) {
+  res.render("terms", { title: "Terms of Service" });
+}
+
+// privacy policy page
+export async function privacy(req, res, next) {
+  res.render("privacy", { title: "Privacy Policy" });
 }

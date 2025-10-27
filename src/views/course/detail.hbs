@@ -114,37 +114,36 @@
 
                             <div class="course-actions">
                                 {{#if isAuthenticated}}
-                                {{#if isEnrolled}}
-                                <a href="/my-courses/{{id}}" class="btn btn-success w-100 mb-2 fw-bold">
-                                    <i class="bi bi-play-circle me-2"></i> Start Learning
-                                </a>
-                                {{else}}
-                                <!-- Thay đổi: Chuyển đến trang checkout thay vì enroll trực tiếp -->
-                                <a href="/students/checkout/{{course.id}}" class="btn btn-warning w-100 mb-2 fw-bold">
-                                    <i class="bi bi-cart-plus me-2"></i>Buy this course
-                                </a>
-                                {{/if}}
+                                    {{#if isEnrolled}}
+                                    <a href="/students/enrolled/learn/{{course.id}}" class="btn btn-success w-100 mb-2 fw-bold">
+                                        <i class="bi bi-play-circle me-2"></i> Start Learning
+                                    </a>
+                                    {{else}}
+                                    <a href="/students/checkout/{{course.id}}" class="btn btn-warning w-100 mb-2 fw-bold">
+                                        <i class="bi bi-cart-plus me-2"></i>Buy this course
+                                    </a>
+                                    {{/if}}
 
-                                {{#if isInWatchlist}}
-                                <form method="POST" action="/courses/{{course.id}}/watch?_method=DELETE"
-                                    class="d-inline w-100">
-                                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                                    <button type="submit" class="btn btn-outline-dark w-100">
-                                        <i class="bi bi-heart-fill me-2"></i>Remove from watchlist
-                                    </button>
-                                </form>
+                                    {{#if isInWatchlist}}
+                                    <form method="POST" action="/courses/{{course.id}}/watch?_method=DELETE"
+                                        class="d-inline w-100">
+                                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                        <button type="submit" class="btn btn-outline-dark w-100">
+                                            <i class="bi bi-heart-fill me-2"></i>Remove from watchlist
+                                        </button>
+                                    </form>
+                                    {{else}}
+                                    <form method="POST" action="/courses/{{course.id}}/watch" class="d-inline w-100">
+                                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                        <button type="submit" class="btn btn-outline-dark w-100">
+                                            <i class="bi bi-heart me-2"></i>Add to watchlist
+                                        </button>
+                                    </form>
+                                    {{/if}}
                                 {{else}}
-                                <form method="POST" action="/courses/{{course.id}}/watch" class="d-inline w-100">
-                                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                                    <button type="submit" class="btn btn-outline-dark w-100">
-                                        <i class="bi bi-heart me-2"></i>Add to watchlist
-                                    </button>
-                                </form>
-                                {{/if}}
-                                {{else}}
-                                <a href="/auth/login" class="btn btn-warning w-100 mb-2 fw-bold">
-                                    <i class="bi bi-box-arrow-in-right me-2"></i>Log in to enroll
-                                </a>
+                                    <a href="/auth/login" class="btn btn-warning w-100 mb-2 fw-bold">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>Log in to enroll
+                                    </a>
                                 {{/if}}
                             </div>
                         </div>
@@ -219,8 +218,10 @@
                                             <ul class="list-unstyled">
                                                 {{#each lessons}}
                                                 <li class="d-flex justify-content-between align-items-center py-2 border-bottom {{#if is_preview}}lesson-preview-item{{/if}}"
-                                                    {{#if is_preview}}style="cursor: pointer;"
-                                                    data-video-url="{{video_url}}" data-lesson-title="{{title}}"
+                                                    {{#if is_preview}}
+                                                        style="cursor: pointer;"
+                                                        data-video-url="{{video_url}}" 
+                                                        data-lesson-title="{{title}}"
                                                     {{/if}}>
                                                     <div class="d-flex align-items-center">
                                                         <i class="bi bi-play-circle me-2 text-primary"></i>
@@ -229,7 +230,7 @@
                                                         <span class="badge bg-info ms-2 small">Preview</span>
                                                         {{/if}}
                                                     </div>
-                                                    <small class="text-muted">{{duration_sec}} min</small>
+                                                    <small class="text-muted">{{formatDuration duration_sec}}</small>
                                                 </li>
                                                 {{/each}}
                                             </ul>
@@ -423,7 +424,7 @@
 
     </main>
 
-    <!-- Video Preview Modal -->
+    <!-- Video Preview Modal with Plyr -->
     <div class="modal fade" id="videoPreviewModal" tabindex="-1" aria-labelledby="videoPreviewModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -434,7 +435,12 @@
                 </div>
                 <div class="modal-body p-0">
                     <div id="videoPlayerContainer" style="background: #000;">
-                        <video id="videoPlayer" class="w-100" controls>
+                        <!-- YouTube player container -->
+                        <div id="youtubePlayer" style="display: none;">
+                            <div id="plyr-youtube"></div>
+                        </div>
+                        <!-- Regular video player -->
+                        <video id="videoPlayer" class="w-100" controls playsinline style="display: none;">
                             <source id="videoSource" src="" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
@@ -449,45 +455,25 @@
         <i class="bi bi-arrow-up-short"></i>
     </a>
 
-    <script>
-        // Preview video functionality
-        document.addEventListener('DOMContentLoaded', function () {
-            const previewItems = document.querySelectorAll('.lesson-preview-item');
-            const videoModal = new bootstrap.Modal(document.getElementById('videoPreviewModal'));
-            const videoPlayer = document.getElementById('videoPlayer');
-            const videoSource = document.getElementById('videoSource');
-            const modalTitle = document.getElementById('videoPreviewModalLabel');
-
-            previewItems.forEach(item => {
-                item.addEventListener('click', function () {
-                    const videoUrl = this.getAttribute('data-video-url');
-                    const lessonTitle = this.getAttribute('data-lesson-title');
-
-                    if (videoUrl) {
-                        videoSource.src = videoUrl;
-                        modalTitle.textContent = 'Preview: ' + lessonTitle;
-                        videoPlayer.load();
-                        videoModal.show();
-                    }
-                });
-            });
-
-            // Stop video when modal is closed
-            document.getElementById('videoPreviewModal').addEventListener('hidden.bs.modal', function () {
-                videoPlayer.pause();
-                videoPlayer.currentTime = 0;
-            });
-
-            // Hover effect for preview items
-            previewItems.forEach(item => {
-                item.addEventListener('mouseenter', function () {
-                    this.style.backgroundColor = '#f8f9fa';
-                });
-                item.addEventListener('mouseleave', function () {
-                    this.style.backgroundColor = 'transparent';
-                });
-            });
-        });
-    </script>
-
+    <!-- Plyr CSS -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    
+    <!-- Plyr JS -->
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    
+    <!-- Course Detail JS -->
+    <script src="/js/course-detail.js"></script>
+    
+    <!-- Toast thông báo lỗi video -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+        <div id="videoErrorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ⚠️ Failed to load video player. Please try again later.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    
 </body>

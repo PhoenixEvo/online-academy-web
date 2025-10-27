@@ -26,13 +26,13 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'", "'unsafe-inline'", "https://cdn.plyr.io", "https://www.youtube.com"],
+      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.plyr.io"],
       fontSrc: ["'self'", "data:", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "http:"], // Allow images from any HTTPS source
       mediaSrc: ["'self'", "https:", "http:"],
       frameSrc: ["'self'", "https://www.youtube.com", "https://drive.google.com"],
-      connectSrc: ["'self'"]
+      connectSrc: ["'self'", "https://cdn.plyr.io"]
     },
   })
 );
@@ -97,6 +97,7 @@ app.use('/lessons', lessonsRoutes);
 app.use('/categories', categoryRoute);
 app.use('/instructors', instructorRoute);
 
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('404.hbs');
@@ -105,6 +106,8 @@ app.use((req, res) => {
 
 // error handler
 app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).render('error.hbs', { message: 'An error occurred!' });
   console.error(err);
   res.status(500).render('error.hbs', { message: 'An error occurred!' });
 });

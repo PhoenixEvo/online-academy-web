@@ -44,17 +44,24 @@
                 <!-- Main video & feedback -->
                 <div class="col-lg-8 col-md-12">
 
-                    <!-- Video player -->
+                    <!-- Video player with Plyr -->
                     <div class="course-header mb-4">
                         {{#if lesson.video_url}}
-                            <div class="ratio ratio-16x9">
-                                <iframe 
-                                    id="lesson-video"
-                                    src="{{lesson.video_url}}" 
-                                    class="rounded shadow"
-                                    allowfullscreen
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-                                </iframe>
+                            <div class="video-container rounded shadow" style="background: #000;">
+                                <!-- Check if YouTube URL -->
+                                {{#if (isYouTubeUrl lesson.video_url)}}
+                                    <!-- YouTube Player with Plyr -->
+                                    <div id="plyr-youtube-player" 
+                                         data-plyr-provider="youtube" 
+                                         data-plyr-embed-id="{{getYouTubeVideoId lesson.video_url}}">
+                                    </div>
+                                {{else}}
+                                    <!-- Regular Video with Plyr -->
+                                    <video id="lesson-video-player" playsinline controls>
+                                        <source src="{{lesson.video_url}}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                {{/if}}
                             </div>
                         {{else}}
                             <div class="alert alert-warning">
@@ -122,7 +129,6 @@
                         <form action="/lessons/{{lesson.id}}/feedback" method="POST" id="feedback-form">
                             <input type="hidden" name="_csrf" value="{{csrfToken}}">
                             <div class="mb-3">
-                                {{!-- <input type="hidden" name="_csrf" value="{{csrfToken}}"> --}}
                                 <label class="form-label fw-bold">Your Feedback</label>
                                 <textarea name="comment" class="form-control" rows="4" 
                                           placeholder="Share your thoughts about this course..." 
@@ -200,4 +206,11 @@
 
 </main>
 
+<!-- Plyr CSS -->
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+
+<!-- Plyr JS -->
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+
+<!-- Learn JS -->
 <script src="/js/learn.js"></script>
