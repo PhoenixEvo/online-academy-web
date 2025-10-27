@@ -17,24 +17,24 @@ import courseRoute from './routes/course.route.js';
 import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
-
+import categoryRoute from './routes/category.route.js';
 
 const app = express();
 
 // helmet for website security
 app.use(
-    helmet.contentSecurityPolicy({
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'"],
-            styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:", "http:"], // Allow images from any HTTPS source
-            mediaSrc: ["'self'", "https:", "http:"],
-            frameSrc: ["'self'", "https://www.youtube.com","https://drive.google.com"],
-            connectSrc: ["'self'"]
-        },
-    })
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'","'unsafe-inline'"],
+      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "data:", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "http:"], // Allow images from any HTTPS source
+      mediaSrc: ["'self'", "https:", "http:"],
+      frameSrc: ["'self'", "https://www.youtube.com", "https://drive.google.com"],
+      connectSrc: ["'self'"]
+    },
+  })
 );
 
 // middleware for website
@@ -94,18 +94,19 @@ app.use('/courses', courseRoute);
 app.use('/students', studentsRoute);
 app.use('/learn', learnRoutes);
 app.use('/lessons', lessonsRoutes);
+app.use('/categories', categoryRoute);
 
 
 // 404 handler
 app.use((req, res) => {
-    res.status(404).render('404.hbs');
+  res.status(404).render('404.hbs');
 });
 
 
 // error handler
 app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).render('error.hbs', { message: 'An error occurred!' });
+  console.error(err);
+  res.status(500).render('error.hbs', { message: 'An error occurred!' });
 });
 
 // server
