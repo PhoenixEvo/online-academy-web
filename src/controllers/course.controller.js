@@ -126,7 +126,6 @@ export async function detail(req, res, next) {
       Course.getCourseStats(id),
       Course.getInstructorStats(course.instructor_id)
     ]);
-    console.log(courseContent);
 
     // Add badges to related courses
     const bestInCategoryWithBadges = await Promise.all(bestInCategory.map(async (c) => {
