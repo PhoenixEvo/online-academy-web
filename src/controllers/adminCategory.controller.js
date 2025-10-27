@@ -45,7 +45,7 @@ export const adminCategoryController = {
 
       res.redirect('/admins/categories');
     } catch (err) {
-      console.error('❌ Error adding category:', err);
+      console.error(' Error adding category:', err);
       res.status(500).send('Error adding category');
     }
   },
@@ -81,7 +81,7 @@ export const adminCategoryController = {
 
       res.redirect('/admins/categories');
     } catch (err) {
-      console.error('❌ Error updating category:', err);
+      console.error(' Error updating category:', err);
       res.status(500).send('Error updating category');
     }
   },
@@ -109,7 +109,7 @@ export const adminCategoryController = {
     req.flash('success', 'Category deleted successfully.');
     res.redirect('/admins/categories');
   } catch (err) {
-    console.error('❌ Error deleting category:', err);
+    console.error(' Error deleting category:', err);
     res.status(500).send('Error deleting category');
   }
 },

@@ -1,0 +1,139 @@
+<div class="admin-wrapper">
+  <div class="admin-header">
+    <h1 class="admin-title">
+      <i class="bi bi-exclamation-triangle me-2"></i>Delete Instructor
+    </h1>
+  </div>
+
+  <div class="form-container">
+    <div class="card delete-card">
+      <div class="card-header">
+        <h3><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h3>
+      </div>
+      <div class="card-body">
+        <p class="text-danger">Delete <strong>{{instructor.display_name}}</strong>?</p>
+
+        <ul class="list-group mb-4">
+          <li class="list-group-item"><strong>Email:</strong> {{instructor.email}}</li>
+          <li class="list-group-item"><strong>Job:</strong> {{instructor.job_title}}</li>
+        </ul>
+
+        <form action="/admins/instructors/{{instructor.id}}/delete" method="POST">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}">
+          <div class="form-actions">
+            <a href="/admins/instructors" class="btn-secondary">
+              <i class="bi bi-arrow-left me-2"></i>Back
+            </a>
+            <button type="submit" class="btn-danger">
+              <i class="bi bi-trash me-2"></i>Delete
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.admin-wrapper { padding: 20px 0; }
+.admin-header { 
+  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
+  color: var(--contrast-color); 
+  padding: 15px 20px; 
+  border-radius: 12px; 
+  margin-bottom: 20px; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+}
+.admin-title { 
+  margin: 0; 
+  font-size: 1.5rem; 
+  font-weight: 600; 
+  color: var(--contrast-color); 
+}
+.form-container { 
+  background: var(--surface-color); 
+  padding: 25px; 
+  border-radius: 12px; 
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+  max-width: 500px; 
+  margin: 0 auto; 
+}
+.delete-card { 
+  border: 2px solid #dc3545; 
+  background: var(--surface-color); 
+  border-radius: 12px; 
+  overflow: hidden; 
+}
+.card-header { 
+  background: #dc3545; 
+  color: var(--contrast-color); 
+  padding: 15px; 
+  font-weight: 600; 
+}
+.card-body { 
+  padding: 20px; 
+}
+.list-group-item { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+}
+.alert { 
+  margin-bottom: 20px; 
+}
+.form-actions { 
+  display: flex; 
+  gap: 12px; 
+  justify-content: flex-end; 
+}
+.btn-danger, .btn-secondary { 
+  padding: 12px 24px; 
+  border-radius: 20px; 
+  font-weight: 600; 
+  border: none; 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 6px; 
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-danger { 
+  background: #dc3545; 
+  color: var(--contrast-color); 
+}
+.btn-danger:hover { 
+  background: #c82333; 
+  transform: translateY(-1px); 
+}
+.btn-secondary { 
+  background: color-mix(in srgb, var(--default-color), transparent 20%); 
+  color: var(--heading-color); 
+}
+.btn-secondary:hover { 
+  background: color-mix(in srgb, var(--default-color), transparent 40%); 
+  transform: translateY(-1px); 
+}
+
+@media (max-width: 768px) {
+  .admin-header { 
+    flex-direction: column; 
+    gap: 10px; 
+    text-align: center; 
+    padding: 12px; 
+  }
+  .form-container { 
+    padding: 15px; 
+    margin: 0 10px; 
+  }
+  .form-actions { 
+    flex-direction: column; 
+  }
+  .btn-danger, .btn-secondary { 
+    justify-content: center; 
+    width: 100%; 
+  }
+}
+</style>

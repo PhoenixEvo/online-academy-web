@@ -1,58 +1,57 @@
 // src/controllers/admincourse.controller.js
 import { courseModel } from '../models/course.model.js';
-import { categoryModel } from '../models/category.model.js'; // nếu bạn có categories
+import { categoryModel } from '../models/category.model.js'; // if you have categories
 
-// ================== DANH SÁCH KHÓA HỌC ==================
+// ================== COURSE LIST ==================
 export const list = async (req, res) => {
   try {
     const courses = await courseModel.findAll({ raw: true });
     return res.render('admins/course/list', {
       layout: 'main',
       courses,
-      title: 'Quản lý Khóa Học',
+      title: 'Course Management',
       success: req.flash('success'),
       error: req.flash('error'),
       csrfToken: req.csrfToken()
     });
   } catch (error) {
-    console.error('Lỗi khi lấy danh sách khóa học:', error);
-    req.flash('error', 'Không thể tải danh sách khóa học');
+    console.error('Error fetching course list:', error);
+    req.flash('error', 'Unable to load course list');
     return res.status(500).render('error', {
       layout: 'main',
-      message: 'Lỗi hệ thống khi tải danh sách khóa học',
+      message: 'System error while loading course list',
       error: error.message
     });
   }
 };
 
-
-// ================== XÓA KHÓA HỌC ==================
+// ================== DELETE COURSE ==================
 export const renderDeleteCourse = async (req, res) => {
   const { id } = req.params;
   try {
     const course = await courseModel.getCourseById(id);
     if (!course) {
-      req.flash('error', 'Khóa học không tồn tại');
+      req.flash('error', 'Course does not exist');
       return res.status(404).render('error', {
         layout: 'main',
-        message: 'Khóa học không tồn tại',
-        error: 'Không tìm thấy khóa học'
+        message: 'Course not found',
+        error: 'Course does not exist'
       });
     }
 
     return res.render('admins/course/removeCourse', {
       layout: 'main',
       course,
-      title: 'Xóa Khóa Học',
+      title: 'Delete Course',
       success: req.flash('success'),
       error: req.flash('error'),
       csrfToken: req.csrfToken()
     });
   } catch (error) {
-    console.error('Lỗi khi render giao diện xóa khóa học:', error);
+    console.error('Error rendering delete course page:', error);
     return res.status(500).render('error', {
       layout: 'main',
-      message: 'Lỗi hệ thống khi tải giao diện xóa',
+      message: 'System error while loading delete page',
       error: error.message
     });
   }
@@ -63,27 +62,27 @@ export const deleteCourse = async (req, res) => {
   try {
     const course = await courseModel.getCourseById(id);
     if (!course) {
-      req.flash('error', 'Khóa học không tồn tại');
+      req.flash('error', 'Course does not exist');
       return res.redirect('/admins/courses');
     }
 
     const hasEnrollments = await courseModel.hasEnrollments(id);
     if (hasEnrollments) {
-      req.flash('error', 'Không thể xóa khóa học do có sinh viên đăng ký');
+      req.flash('error', 'Cannot delete course because students are enrolled');
       return res.redirect('/admins/courses');
     }
 
     const result = await courseModel.deleteCourse(id);
     if (!result) {
-      req.flash('error', 'Xóa khóa học thất bại');
+      req.flash('error', 'Failed to delete course');
       return res.redirect('/admins/courses');
     }
 
-    req.flash('success', 'Xóa khóa học thành công');
+    req.flash('success', 'Course deleted successfully');
     return res.redirect('/admins/courses');
   } catch (error) {
-    console.error('Lỗi khi xóa khóa học:', error);
-    req.flash('error', 'Lỗi hệ thống khi xóa khóa học');
+    console.error('Error deleting course:', error);
+    req.flash('error', 'System error while deleting course');
     return res.redirect('/admins/courses');
   }
 };

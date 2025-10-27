@@ -3,10 +3,9 @@ import bcrypt from 'bcryptjs';
 import { db } from './db.js';
 
 export const userModel = {
-  // 🟦 Lấy danh sách tất cả người dùng
-  async findAll() {
+  async findAll(options = {}) {
     try {
-      return await db('users')
+      let query = db('users')
         .select(
           'id',
           'name',
@@ -20,16 +19,20 @@ export const userModel = {
           'provider'
         )
         .orderBy('created_at', 'desc');
+
+      if (options.transaction) query = query.transacting(options.transaction);
+
+      const users = await query;
+      return users;
     } catch (error) {
-      console.error('Lỗi khi lấy danh sách user:', error);
-      throw new Error(`Lỗi khi lấy danh sách user: ${error.message}`);
+      console.error('[findAll] Error:', error);
+      throw new Error(`Error fetching user list: ${error.message}`);
     }
   },
 
-  // 🟦 Lấy chi tiết người dùng theo ID
-  async getUserById(id) {
+  async getUserById(id, options = {}) {
     try {
-      return await db('users')
+      let query = db('users')
         .where({ id })
         .select(
           'id',
@@ -44,188 +47,22 @@ export const userModel = {
           'provider'
         )
         .first();
+
+      if (options.transaction) query = query.transacting(options.transaction);
+
+      const user = await query;
+      return user;
     } catch (error) {
-      console.error('Lỗi khi lấy user:', error);
-      throw new Error(`Lỗi khi lấy user: ${error.message}`);
+      console.error('[getUserById] Error:', error);
+      throw new Error(`Error fetching user: ${error.message}`);
     }
   },
 
-  // ✅ Tạo giảng viên mới (do admin)
-  async createInstructor({ email, password, fullname, job_title, role = 'instructor' }) {
-    const trx = await db.transaction(); // Dùng transaction để rollback nếu lỗi
+  async createUser({ name, email, password, role, avatar_url }, options = {}) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // 1️⃣ Thêm vào bảng users
-      let user;
-      try {
-        [user] = await trx('users')
-          .insert({
-            name: fullname,
-            email,
-            password_hash: hashedPassword,
-            role,
-            is_verified: true,
-            provider: 'email',
-            created_at: new Date(),
-            updated_at: new Date()
-          })
-          .returning([
-            'id',
-            'name',
-            'email',
-            'role',
-            'avatar_url',
-            'created_at',
-            'updated_at',
-            'is_verified',
-            'provider'
-          ]);
-      } catch {
-        // MySQL fallback
-        const [insertId] = await trx('users').insert({
-          name: fullname,
-          email,
-          password_hash: hashedPassword,
-          role,
-          is_verified: true,
-          provider: 'email',
-          created_at: new Date(),
-          updated_at: new Date()
-        });
-        user = await trx('users')
-          .where({ id: insertId })
-          .select(
-            'id',
-            'name',
-            'email',
-            'role',
-            'avatar_url',
-            'created_at',
-            'updated_at',
-            'is_verified',
-            'provider'
-          )
-          .first();
-      }
-
-      // 2️⃣ Sinh chữ viết tắt từ tên
-      const initials = fullname
-        .split(' ')
-        .map(w => w[0])
-        .join('')
-        .toUpperCase();
-
-      // 3️⃣ Thêm vào bảng instructors
-      await trx('instructors').insert({
-        _class: 'default',
-        title: job_title || 'Instructor',
-        name: fullname,
-        display_name: fullname,
-        job_title: job_title || 'Instructor',
-        image_50x50: user.avatar_url || null,
-        image_100x100: user.avatar_url || null,
-        initials,
-        url: `/instructors/${user.id}`,
-        user_id: user.id,
-        created_at: new Date(),
-        updated_at: new Date()
-      });
-
-      await trx.commit();
-      return user;
-    } catch (error) {
-      await trx.rollback();
-      console.error('❌ Lỗi khi tạo giảng viên:', error);
-      throw new Error(`Lỗi khi tạo giảng viên: ${error.message}`);
-    }
-  },
-
-  // 🟦 Cập nhật thông tin người dùng
-  async updateUser(id, { name, role, avatar_url, is_verified, password }) {
-    try {
-      const updateData = { name, role, avatar_url, is_verified, updated_at: new Date() };
-      if (password) {
-        updateData.password_hash = await bcrypt.hash(password, 10);
-      }
-
-      const [user] = await db('users')
-        .where({ id })
-        .update(updateData)
-        .returning([
-          'id',
-          'name',
-          'email',
-          'role',
-          'avatar_url',
-          'created_at',
-          'updated_at',
-          'is_verified',
-          'google_id',
-          'provider'
-        ]);
-
-      return user;
-    } catch (error) {
-      console.error('Lỗi khi cập nhật user:', error);
-      throw new Error(`Lỗi khi cập nhật user: ${error.message}`);
-    }
-  },
-
-  // 🟦 Xóa người dùng
-  async deleteUser(id) {
-    const trx = await db.transaction();
-    try {
-      // Nếu là instructor → xóa cả trong bảng instructors
-      await trx('instructors').where({ user_id: id }).del();
-      const result = await trx('users').where({ id }).del();
-
-      await trx.commit();
-      return result > 0;
-    } catch (error) {
-      await trx.rollback();
-      console.error('Lỗi khi xóa user:', error);
-      throw new Error(`Lỗi khi xóa user: ${error.message}`);
-    }
-  },
-
-  // 🟦 Kiểm tra email đã tồn tại
-  async emailExists(email, excludeId = null) {
-    const query = db('users').where({ email });
-    if (excludeId) query.andWhereNot({ id: excludeId });
-    const user = await query.first();
-    return !!user;
-  },
-
-  // 🟦 Tìm user theo email
-  async findByEmail(email) {
-    try {
-      return await db('users')
-        .where({ email })
-        .select(
-          'id',
-          'name',
-          'email',
-          'role',
-          'avatar_url',
-          'created_at',
-          'updated_at',
-          'is_verified',
-          'google_id',
-          'provider'
-        )
-        .first();
-    } catch (error) {
-      console.error('Lỗi khi tìm user theo email:', error);
-      throw new Error(`Lỗi khi tìm user theo email: ${error.message}`);
-    }
-  },
-
-  // 🟦 Tạo user mới (student/admin/instructor)
-  async createUser({ name, email, password, role, avatar_url }) {
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const [user] = await db('users')
+      let query = db('users')
         .insert({
           name,
           email,
@@ -249,10 +86,100 @@ export const userModel = {
           'provider'
         ]);
 
+      if (options.transaction) query = query.transacting(options.transaction);
+
+      const [user] = await query;
+      console.log('[createUser] Created:', user.id);
       return user;
     } catch (error) {
-      console.error('Lỗi khi tạo user mới:', error);
-      throw new Error(`Lỗi khi tạo user mới: ${error.message}`);
+      console.error('[createUser] Error:', error);
+      throw new Error(`Error creating new user: ${error.message}`);
+    }
+  },
+
+  async updateUser(id, { name, email, password, role, avatar_url, is_verified }, options = {}) {
+    try {
+      const updateData = {
+        name,
+        email,
+        role,
+        avatar_url: avatar_url || null,
+        is_verified,
+        updated_at: new Date()
+      };
+
+      if (password && password.trim() !== '') {
+        updateData.password_hash = await bcrypt.hash(password, 10);
+      }
+
+      let query = db('users')
+        .where({ id })
+        .update(updateData)
+        .returning([
+          'id',
+          'name',
+          'email',
+          'role',
+          'avatar_url',
+          'created_at',
+          'updated_at',
+          'is_verified',
+          'provider'
+        ]);
+
+      if (options.transaction) query = query.transacting(options.transaction);
+
+      const [user] = await query;
+      console.log('[updateUser] Updated:', user.id);
+      return user;
+    } catch (error) {
+      console.error('[updateUser] Error:', error);
+      throw new Error(`Error updating user: ${error.message}`);
+    }
+  },
+
+  async deleteUser(id, options = {}) {
+    try {
+      let query = db('users')
+        .where({ id })
+        .del();
+
+      if (options.transaction) query = query.transacting(options.transaction);
+
+      const result = await query;
+      console.log('[deleteUser] Deleted:', id);
+      return result > 0;
+    } catch (error) {
+      console.error('[deleteUser] Error:', error);
+      throw new Error(`Error deleting user: ${error.message}`);
+    }
+  },
+
+  async findByEmail(email, options = {}) {
+    try {
+      let query = db('users')
+        .where({ email })
+        .select(
+          'id',
+          'name',
+          'email',
+          'role',
+          'avatar_url',
+          'created_at',
+          'updated_at',
+          'is_verified',
+          'provider'
+        )
+        .first();
+
+      if (options.transaction) query = query.transacting(options.transaction);
+
+      const user = await query;
+      console.log('[findByEmail] Result:', user ? user.id : 'No user found');
+      return user;
+    } catch (error) {
+      console.error('[findByEmail] Error:', error);
+      throw new Error(`Error finding user by email: ${error.message}`);
     }
   }
 };

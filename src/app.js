@@ -22,7 +22,7 @@ import courseRoute from './routes/course.route.js';
 import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
-
+import adminInstructorRouter from './routes/admininstructor.route.js';
 
 const app = express();
 
@@ -99,6 +99,7 @@ app.use('/profile', profileRoute);
 app.use('/admins/categories', requireAdmin, adminCategoryRoute);
 app.use('/admins/courses', adminCoursesRouter);
 app.use('/admins/users', requireAdmin, adminUserRouter);
+app.use('/admins/instructors', requireAdmin, adminInstructorRouter);
 app.use('/courses', courseRoute);
 app.use('/students', studentsRoute);
 app.use('/learn', learnRoutes);

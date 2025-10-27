@@ -1,0 +1,228 @@
+<div class="admin-wrapper">
+  <div class="admin-header">
+    <h1 class="admin-title">
+      <i class="bi bi-person-workspace me-2"></i>Instructor Management
+    </h1>
+    <a href="/admins/instructors/add" class="btn-add-category">
+      <i class="bi bi-plus-circle me-2"></i>Add Instructor
+    </a>
+  </div>
+
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i></th>
+            <th><i class="bi bi-person-circle"></i> Avatar</th>
+            <th><i class="bi bi-person"></i> Name</th>
+            <th><i class="bi bi-envelope"></i> Email</th>
+            <th><i class="bi bi-briefcase"></i> Job Title</th>
+            <th><i class="bi bi-check-circle"></i> Verified</th>
+            <th><i class="bi bi-gear"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each instructors}}
+          <tr class="table-row">
+            <td class="id">{{id}}</td>
+            <td class="avatar-col text-center">
+              {{#if image_50x50}}
+                <img src="{{image_50x50}}" class="avatar-img" alt="{{display_name}}"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="avatar-placeholder" style="display:none;">N/A</span>
+              {{else}}
+                <span class="avatar-placeholder">N/A</span>
+              {{/if}}
+            </td>
+            <td class="name">
+              <i class="bi bi-circle-fill text-primary me-2"></i>{{display_name}}
+            </td>
+            <td class="email">{{email}}</td>
+            <td class="job-title">{{job_title}}</td>
+            <td class="verified text-center">
+              {{#if is_verified}}
+                <i class="bi bi-check-circle text-success"></i>
+              {{else}}
+                <i class="bi bi-x-circle text-secondary"></i>
+              {{/if}}
+            </td>
+            <td class="actions text-center">
+              <a href="/admins/instructors/{{id}}/edit" class="btn-action edit" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="/admins/instructors/{{id}}/delete" class="btn-action delete" title="Delete"
+                 onclick="return confirm('Delete {{display_name}}?')">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="7" class="empty-state">
+              <i class="bi bi-person-x"></i>
+              <p>No instructors yet. <a href="/admins/instructors/add">Create one!</a></p>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+.admin-wrapper { padding: 20px 0; }
+.admin-header { 
+  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
+  color: var(--contrast-color); 
+  padding: 15px 20px; 
+  border-radius: 12px; 
+  margin-bottom: 20px; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+}
+.admin-title { 
+  margin: 0; 
+  font-size: 1.5rem; 
+  font-weight: 600; 
+  color: var(--contrast-color); 
+}
+.btn-add-category { 
+  background: rgba(255,255,255,0.2); 
+  border: 1px solid var(--contrast-color); 
+  color: var(--contrast-color); 
+  padding: 8px 16px; 
+  border-radius: 20px; 
+  text-decoration: none; 
+  font-size: 0.9rem;
+  transition: all 0.3s; 
+}
+.btn-add-category:hover { 
+  background: var(--contrast-color); 
+  color: var(--accent-color); 
+}
+
+.table-container { 
+  background: var(--surface-color); 
+  border-radius: 12px; 
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+  overflow: hidden; 
+}
+.admin-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  table-layout: fixed; 
+}
+.admin-table th { 
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); 
+  padding: 12px 10px; 
+  text-align: left; 
+  font-weight: 600; 
+  color: var(--heading-color); 
+  font-size: 0.9rem;
+}
+.admin-table td { 
+  padding: 12px 10px; 
+  border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%); 
+  font-size: 0.9rem;
+  vertical-align: middle; 
+}
+.table-row:hover { 
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); 
+}
+.id { 
+  font-weight: 600; 
+  color: color-mix(in srgb, var(--default-color), transparent 50%); 
+  width: 10%; 
+}
+.avatar-col { 
+  width: 10%; 
+}
+.name { 
+  width: 20%; 
+}
+.email { 
+  width: 25%; 
+}
+.job-title { 
+  width: 20%; 
+}
+.verified { 
+  width: 10%; 
+}
+.actions { 
+  width: 15%; 
+  text-align: center; 
+}
+.avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--default-color), transparent 60%);
+  color: var(--contrast-color);
+  display: inline-block;
+  text-align: center;
+  line-height: 36px;
+  font-size: 0.75rem;
+}
+.btn-action { 
+  width: 32px; 
+  height: 32px; 
+  border-radius: 50%; 
+  margin: 0 2px; 
+  font-size: 0.9rem; 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center;
+  text-decoration: none;
+}
+.btn-action.edit { 
+  background: var(--accent-color); 
+  color: var(--contrast-color); 
+}
+.btn-action.edit:hover { 
+  background: color-mix(in srgb, var(--accent-color), black 20%); 
+  transform: scale(1.1); 
+}
+.btn-action.delete { 
+  background: #dc3545; 
+  color: var(--contrast-color); 
+}
+.btn-action.delete:hover { 
+  background: #c82333; 
+  transform: scale(1.1); 
+}
+.empty-state { 
+  text-align: center; 
+  padding: 30px; 
+  color: var(--default-color); 
+}
+.empty-state i { 
+  font-size: 3rem; 
+  margin-bottom: 10px; 
+}
+
+@media (max-width: 768px) {
+  .admin-header { 
+    flex-direction: column; 
+    gap: 10px; 
+    text-align: center; 
+    padding: 12px; 
+  }
+  .admin-table th, .admin-table td { 
+    padding: 8px 6px; 
+    font-size: 0.85rem; 
+  }
+  .actions { 
+    text-align: center; 
+  }
+}
+</style>
