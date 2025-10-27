@@ -239,5 +239,4 @@ export function formatDuration(seconds) {
 Handlebars.registerHelper("formatDuration", function (seconds) {
     return formatDuration(seconds);
 });
-
 export default Handlebars;
