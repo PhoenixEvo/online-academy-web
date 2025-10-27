@@ -18,7 +18,6 @@ import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
 import categoryRoute from './routes/category.route.js';
-import categoryRoute from './routes/category.route.js';
 
 const app = express();
 
