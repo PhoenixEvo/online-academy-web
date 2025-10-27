@@ -18,6 +18,7 @@ import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
 import categoryRoute from './routes/category.route.js';
+import categoryRoute from './routes/category.route.js';
 
 const app = express();
 
@@ -95,16 +96,20 @@ app.use('/students', studentsRoute);
 app.use('/learn', learnRoutes);
 app.use('/lessons', lessonsRoutes);
 app.use('/categories', categoryRoute);
+app.use('/categories', categoryRoute);
 
 
 // 404 handler
 app.use((req, res) => {
+  res.status(404).render('404.hbs');
   res.status(404).render('404.hbs');
 });
 
 
 // error handler
 app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).render('error.hbs', { message: 'An error occurred!' });
   console.error(err);
   res.status(500).render('error.hbs', { message: 'An error occurred!' });
 });
