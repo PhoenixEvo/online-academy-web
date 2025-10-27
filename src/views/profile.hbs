@@ -242,7 +242,7 @@
                   
                                           <div class="d-flex justify-content-between align-items-center mb-2">
                                             <div class="d-flex align-items-center">
-                                              <i class="bi bi-people-fill text-primary me-2"></i>
+                                              <i class="bi bi-people-fill me-2" style="color: #4eb8dd;"></i>
                                               <span>Students</span>
                                             </div>
                                             <span class="fw-semibold">{{instructorStats.total_students}}</span>
@@ -250,7 +250,7 @@
                   
                                           <div class="d-flex justify-content-between align-items-center mb-2">
                                             <div class="d-flex align-items-center">
-                                              <i class="bi bi-eye-fill text-primary me-2"></i>
+                                              <i class="bi bi-eye-fill  me-2" style="color: #4eb8dd;"></i>
                                               <span>Total Views</span>
                                             </div>
                                             <span class="fw-semibold">{{#if instructorStats.total_viewers}}{{instructorStats.total_viewers}}{{else}}0{{/if}}</span>
@@ -274,7 +274,7 @@
                                             <div class="d-flex gap-2">
                                               <span class="badge bg-secondary">Draft {{#if instructorStats.courses_breakdown.draft}}{{instructorStats.courses_breakdown.draft}}{{else}}0{{/if}}</span>
                                               <span class="badge bg-success">Published {{#if instructorStats.courses_breakdown.published}}{{instructorStats.courses_breakdown.published}}{{else}}0{{/if}}</span>
-                                              <span class="badge bg-info text-dark">Completed {{#if instructorStats.courses_breakdown.completed}}{{instructorStats.courses_breakdown.completed}}{{else}}0{{/if}}</span>
+                                              <span class="badge bg-info" style="color-background: #4eb8dd;">Completed {{#if instructorStats.courses_breakdown.completed}}{{instructorStats.courses_breakdown.completed}}{{else}}0{{/if}}</span>
                                             </div>
                                           </div>
                                         </div>
