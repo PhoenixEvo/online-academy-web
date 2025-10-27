@@ -1,4 +1,5 @@
 import Handlebars from "handlebars";
+
 // Sort helpers
 function normalizeToken(token) {
     if (token === 'newest') return { field: 'date', dir: 'desc' };
@@ -6,10 +7,12 @@ function normalizeToken(token) {
     const [field, dir] = token.split('_');
     return { field, dir: (dir === 'asc' ? 'asc' : 'desc') };
 }
+
 export function parseSortList(sortStr) {
     if (!sortStr) return [];
     return String(sortStr).split(',').map(s => s.trim()).filter(Boolean).map(normalizeToken);
 }
+
 Handlebars.registerHelper('buildSetSortUrl', function (baseUrl, currentSort, field, dir) {
     if (!baseUrl) {
         console.error('buildSetSortUrl: baseUrl is undefined');
@@ -35,6 +38,7 @@ Handlebars.registerHelper('buildRemoveSortUrl', function (baseUrl, currentSort, 
 
     return url.pathname + url.search;
 });
+
 Handlebars.registerHelper("buildSortUrl", function (baseUrl, newSort) {
     // Remove existing sort parameter and add new one, keep other parameters
     const url = new URL(baseUrl, 'http://localhost:3000');
@@ -58,6 +62,7 @@ Handlebars.registerHelper("buildUrl", function (baseUrl, params) {
 
     return url.pathname + url.search;
 });
+
 Handlebars.registerHelper("buildSortUrlWithFilters", function (baseUrl, newSort, currentCategory, currentSearch) {
     const url = new URL(baseUrl, 'http://localhost:3000');
 
@@ -88,38 +93,32 @@ Handlebars.registerHelper("buildSortUrlWithFilters", function (baseUrl, newSort,
 
     return url.pathname + url.search;
 });
+
 Handlebars.registerHelper('hasSort', function (currentSort, field) {
     if (!currentSort) return false;
-    const list = parseSortList(currentSort);          // luôn parse CSV
+    const list = parseSortList(currentSort);
     return list.some(x => x.field === field);
 });
 
 Handlebars.registerHelper('sortDir', function (currentSort, field) {
     if (!currentSort) return null;
-    const list = parseSortList(currentSort);          // luôn parse CSV
+    const list = parseSortList(currentSort);
     const hit = list.find(x => x.field === field);
     return hit ? hit.dir : null;
 });
 
-// Toggle 3 trạng thái cho 1 nút: (không có) -> asc -> desc -> (bỏ ra)
-// Khi thêm/toggle, đưa tiêu chí đó lên ĐẦU danh sách (ưu tiên cao nhất)
 Handlebars.registerHelper('buildMultiSortUrl', function (baseUrl, currentSort, field) {
     const url = new URL(baseUrl, 'http://localhost:3000');
-
-    // đọc từ URL trước, nếu trống thì lấy currentSort render từ server
     const list = parseSortList(url.searchParams.get('sort') || currentSort || '');
 
     const idx = list.findIndex(x => x.field === field);
     if (idx === -1) {
-        // chưa có -> thêm asc lên đầu
         list.unshift({ field, dir: 'asc' });
     } else if (list[idx].dir === 'asc') {
-        // asc -> desc, rồi đưa lên đầu
         list[idx].dir = 'desc';
         const [it] = list.splice(idx, 1);
         list.unshift(it);
     } else {
-        // desc -> remove
         list.splice(idx, 1);
     }
 
@@ -137,22 +136,44 @@ Handlebars.registerHelper("increment", (v) => v + 1);
 Handlebars.registerHelper("decrement", (v) => v - 1);
 Handlebars.registerHelper("gt", (a, b) => a > b);
 Handlebars.registerHelper("lt", (a, b) => a < b);
-Handlebars.registerHelper("eq", (a, b) => a === b); // NEW: Equal comparison
+Handlebars.registerHelper("eq", (a, b) => a === b);
 
 // Format number with commas
 Handlebars.registerHelper("format_number", (value) => {
     return new Intl.NumberFormat('en-US').format(value);
 });
 
-// Format duration helper for Handlebars
-Handlebars.registerHelper("formatDuration", function (seconds) {
-    return formatDuration(seconds);
-});
+// ========== VIDEO HELPERS ==========
 
 // Check if URL is YouTube
 export function isYouTubeUrl(url) {
     if (!url) return false;
     return url.includes('youtube.com') || url.includes('youtu.be');
+}
+
+// Get YouTube video ID
+export function getYouTubeVideoId(url) {
+    if (!url) return null;
+    
+    // Already an embed URL
+    if (url.includes('/embed/')) {
+        const match = url.match(/embed\/([^?]+)/);
+        return match ? match[1] : null;
+    }
+    
+    // youtube.com/watch?v=VIDEO_ID
+    if (url.includes('youtube.com/watch')) {
+        const match = url.match(/[?&]v=([^&]+)/);
+        return match ? match[1] : null;
+    }
+    
+    // youtu.be/VIDEO_ID
+    if (url.includes('youtu.be/')) {
+        const match = url.match(/youtu\.be\/([^?]+)/);
+        return match ? match[1] : null;
+    }
+    
+    return null;
 }
 
 // Convert YouTube URL to embed URL
@@ -187,6 +208,19 @@ export function convertToYouTubeEmbed(url) {
     return url;
 }
 
+// Register Handlebars helpers for YouTube
+Handlebars.registerHelper('isYouTubeUrl', function(url) {
+    return isYouTubeUrl(url);
+});
+
+Handlebars.registerHelper('getYouTubeVideoId', function(url) {
+    return getYouTubeVideoId(url);
+});
+
+Handlebars.registerHelper('convertToYouTubeEmbed', function(url) {
+    return convertToYouTubeEmbed(url);
+});
+
 // Format duration from seconds to human readable
 export function formatDuration(seconds) {
     if (!seconds) return '0:00';
@@ -201,4 +235,8 @@ export function formatDuration(seconds) {
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
+// Register format duration helper
+Handlebars.registerHelper("formatDuration", function (seconds) {
+    return formatDuration(seconds);
+});
 export default Handlebars;

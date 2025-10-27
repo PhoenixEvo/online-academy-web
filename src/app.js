@@ -29,21 +29,68 @@ app.use(
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: [
-        "'self'",
-        "https://cdnjs.cloudflare.com",
-        "https://cdn.jsdelivr.net",
-        "https://releases.transloadit.com",
-        "https://www.youtube.com",
-        "https://s.ytimg.com",
-        "'unsafe-eval'",
-        "'unsafe-inline'"
-      ],
-      styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://releases.transloadit.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "data:", "https://fonts.googleapis.com", "https://fonts.gstatic.com"], 
-      imgSrc: ["'self'", 'data:', 'blob:', 'https:', "http:", 'https://i.ytimg.com'],
-      frameSrc: ["'self'", 'https://drive.google.com', 'https://www.youtube.com', 'https://youtube.com', 'https://www.youtube-nocookie.com'],
-      mediaSrc: ["'self'", 'https://drive.google.com', 'https://*.supabase.co', 'https://*.supabase.in'],
-      connectSrc: ["'self'", 'https://*.supabase.co', 'https://*.supabase.in', 'https://www.youtube.com', 'https://s.ytimg.com'],
+      "'self'",
+      "https://cdnjs.cloudflare.com",
+      "https://cdn.jsdelivr.net",
+      "https://releases.transloadit.com",
+      "https://www.youtube.com",
+      "https://s.ytimg.com",
+      "https://cdn.plyr.io",
+      "'unsafe-eval'",
+      "'unsafe-inline'"
+    ],
+
+    styleSrc: [
+      "'self'",
+      "https://cdnjs.cloudflare.com",
+      "https://cdn.jsdelivr.net",
+      "https://releases.transloadit.com",
+      "https://fonts.googleapis.com",
+      "https://cdn.plyr.io",
+      "'unsafe-inline'"
+    ],
+
+    fontSrc: [
+      "'self'",
+      "data:",
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com"
+    ],
+
+    imgSrc: [
+      "'self'",
+      "data:",
+      "blob:",
+      "https:",
+      "http:",
+      "https://i.ytimg.com"
+    ],
+
+    frameSrc: [
+      "'self'",
+      "https://drive.google.com",
+      "https://www.youtube.com",
+      "https://youtube.com",
+      "https://www.youtube-nocookie.com"
+    ],
+
+    mediaSrc: [
+      "'self'",
+      "https:",
+      "http:",
+      "https://drive.google.com",
+      "https://*.supabase.co",
+      "https://*.supabase.in"
+    ],
+
+    connectSrc: [
+      "'self'",
+      "https://*.supabase.co",
+      "https://*.supabase.in",
+      "https://www.youtube.com",
+      "https://s.ytimg.com",
+      "https://cdn.plyr.io"
+    ]
     },
   })
 );
@@ -128,16 +175,20 @@ app.use('/students', studentsRoute);
 app.use('/learn', learnRoutes);
 app.use('/lessons', lessonsRoutes);
 app.use('/categories', categoryRoute);
+app.use('/categories', categoryRoute);
 
 
 // 404 handler
 app.use((req, res) => {
+  res.status(404).render('404.hbs');
   res.status(404).render('404.hbs');
 });
 
 
 // error handler
 app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).render('error.hbs', { message: 'An error occurred!' });
   console.error(err);
   res.status(500).render('error.hbs', { message: 'An error occurred!' });
 });
