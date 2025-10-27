@@ -97,27 +97,17 @@
           name="role" 
           value="student" 
           required 
-          {{#if values}}
-            {{#if (eq values.role 'student')}}checked{{/if}}
-          {{else}}
-            checked
-          {{/if}}
+          checked
         />
         <span class="radioLabel">Student - Learn courses</span>
       </label>
-      <label for="roleInstructor" class="radioOption">
-        <input 
-          type="radio" 
-          id="roleInstructor" 
-          name="role" 
-          value="instructor" 
-          required
-          {{#if values}}
-            {{#if (eq values.role 'instructor')}}checked{{/if}}
-          {{/if}}
-        />
-        <span class="radioLabel">Instructor - Create courses</span>
-      </label>
+      <div class="instructor-notice" style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">
+        <p style="margin: 0; font-size: 14px; color: #6c757d;">
+          <i class="bi bi-info-circle"></i> 
+          <strong>Want to become an instructor?</strong> Instructor accounts are created by administrators. 
+          Please contact us at <a href="mailto:support@mentoracademy.com">support@mentoracademy.com</a> for more information.
+        </p>
+      </div>
     </div>
   </div>
 
