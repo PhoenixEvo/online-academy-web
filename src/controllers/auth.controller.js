@@ -215,24 +215,24 @@ export async function verifyOtp(req, res, next) {
       .first();
 
     if (!token) {
-      req.flash('error', 'Invalid or expired OTP code');
       return res.render('auth/verify-otp', { 
         layout: 'auth',
         page: 'verify-otp',
         title: 'Verify OTP',
-        email
+        email,
+        error: 'Invalid or expired OTP code'
       });
     }
 
     // verify OTP
     const isValidOtp = await bcrypt.compare(code, token.otp_hash);
     if (!isValidOtp) {
-      req.flash('error', 'Incorrect OTP code');
       return res.render('auth/verify-otp', { 
         layout: 'auth',
         page: 'verify-otp',
         title: 'Verify OTP',
-        email
+        email,
+        error: 'Incorrect OTP code'
       });
     }
 
