@@ -65,3 +65,31 @@ export async function getPopular(limit = 5) {
         .orderBy('enrollment_count', 'desc')
         .limit(limit);
 }
+export async function getPopularWeekly(limit = 6) {
+    return db('categories')
+        .select(
+            'categories.*',
+            db.raw('COUNT(e.id) AS weekly_enrollment_count')
+        )
+        .join('courses as c', 'categories.id', 'c.category_id')
+        .join('enrollments as e', 'c.id', 'e.course_id')
+        .where('c.status', 'published')
+        .andWhereRaw(`e.purchased_at >= NOW() - INTERVAL '7 days'`)
+        .groupBy('categories.id', 'categories.name', 'categories.parent_id')
+        .orderBy('weekly_enrollment_count', 'desc')
+        .limit(limit);
+}
+
+export async function getCoursesByCategory(categoryId) {
+    return db('courses')
+        .select(
+            'courses.*',
+            'users.name as instructor_name',
+            'categories.name as category_name'
+        )
+        .leftJoin('users', 'courses.instructor_id', 'users.id')
+        .leftJoin('categories', 'courses.category_id', 'categories.id')
+        .where('courses.category_id', categoryId)
+        .andWhere('courses.status', 'published')
+        .orderBy('courses.created_at', 'desc');
+}
