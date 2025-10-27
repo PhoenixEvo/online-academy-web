@@ -18,7 +18,7 @@ import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
 import categoryRoute from './routes/category.route.js';
-
+import instructorRoute from './routes/instructor.route.js';
 const app = express();
 
 // helmet for website security
@@ -26,7 +26,7 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'","'unsafe-inline'"],
+      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-eval'", "'unsafe-inline'"],
       styleSrc: ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "data:", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "http:"], // Allow images from any HTTPS source
@@ -95,7 +95,7 @@ app.use('/students', studentsRoute);
 app.use('/learn', learnRoutes);
 app.use('/lessons', lessonsRoutes);
 app.use('/categories', categoryRoute);
-
+app.use('/instructors', instructorRoute);
 
 // 404 handler
 app.use((req, res) => {

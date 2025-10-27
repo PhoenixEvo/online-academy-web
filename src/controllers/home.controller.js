@@ -1,6 +1,6 @@
 // Change if needed to fit the project
 import { db } from "../models/db.js";
-import { getPopular } from "../models/category.model.js";
+import { getPopularWeekly } from "../models/category.model.js";
 import * as Course from "../models/course.model.js";
 
 // home page
@@ -65,7 +65,7 @@ export async function home(req, res, next) {
     }));
 
     // Get popular categories
-    const popularCategories = await getPopular(6);
+    const popularCategories = await getPopularWeekly(6);
 
     res.render("home", {
       featuredThisWeek: transformedFeatured,

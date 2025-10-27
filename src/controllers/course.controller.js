@@ -117,14 +117,15 @@ export async function detail(req, res, next) {
     await Course.incrementViews(id);
 
     // Get related data
-    const [bestInCategory, reviews, reviewStats, courseContent, enrollmentCount, courseStats, instructorStats] = await Promise.all([
+    const [bestInCategory, reviews, reviewStats, courseContent, enrollmentCount, courseStats, instructorStats, instructorInfo] = await Promise.all([
       Course.bestInCategory(course.category_id, 5),
       Review.listByCourse(id),
       Review.getCourseStats(id),
       Course.getCourseContent(id),
       Enrollment.getCourseEnrollmentCount(id),
       Course.getCourseStats(id),
-      Course.getInstructorStats(course.instructor_id)
+      Course.getInstructorStats(course.instructor_id),
+      Course.getInstructorInfo(course.instructor_id)
     ]);
 
     // Add badges to related courses
@@ -155,12 +156,15 @@ export async function detail(req, res, next) {
       },
       courseStats,
       instructorStats,
+      instructorInfo,
       bestInCategory: bestInCategoryWithBadges,
       reviews,
       reviewStats,
       courseContent,
       isEnrolled,
       isInWatchlist,
+      isAuthenticated: !!req.user,
+      csrfToken: req.csrfToken()
     });
   } catch (e) {
     next(e);

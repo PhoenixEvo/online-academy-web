@@ -392,6 +392,7 @@ h6 {
     font-size: 15px;
     text-transform: none;
     color: var(--nav-dropdown-color);
+
   }
 
   .navmenu .dropdown ul a i {
@@ -414,6 +415,8 @@ h6 {
     top: 0;
     left: 100%;
     visibility: hidden;
+    overflow-y: auto;
+    max-height: 300px;
   }
 
   .navmenu .dropdown .dropdown:hover>ul {

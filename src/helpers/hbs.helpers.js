@@ -10,6 +10,11 @@ export function parseSortList(sortStr) {
     if (!sortStr) return [];
     return String(sortStr).split(',').map(s => s.trim()).filter(Boolean).map(normalizeToken);
 }
+
+// Helper to get value or default
+Handlebars.registerHelper('default', function (value, defaultValue) {
+    return value || defaultValue;
+});
 Handlebars.registerHelper('buildSetSortUrl', function (baseUrl, currentSort, field, dir) {
     if (!baseUrl) {
         console.error('buildSetSortUrl: baseUrl is undefined');
