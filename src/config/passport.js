@@ -91,8 +91,8 @@ passport.use(
           return done(null, { id: user.id, name: user.name, email: user.email, role: user.role });
         }
 
-        // 3) Create new user with selected role from session (default student)
-        const desiredRole = req.session?.oauthDesiredRole === "instructor" ? "instructor" : "student";
+        // 3) Create new user - only student role allowed for OAuth registration
+        const desiredRole = "student";
         const [created] = await db("users")
           .insert({
             name: displayName,

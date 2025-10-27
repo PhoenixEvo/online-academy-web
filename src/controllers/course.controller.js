@@ -4,7 +4,14 @@ import * as Review from "../models/review.model.js";
 import * as Watchlist from "../models/watchlist.model.js";
 import * as Enrollment from "../models/enrollment.model.js";
 import * as Category from "../models/category.model.js";
+import { parseSortList } from "../helpers/hbs.helpers.js";
 
+const ALLOWED_SORTS = new Set([
+  'rating_desc', 'rating_asc',
+  'price_desc', 'price_asc',
+  'date_desc', 'date_asc',
+  'newest', 'oldest'
+]);
 function buildBaseUrl(req) {
   const q = new URLSearchParams(req.query);
   q.delete("page");
@@ -17,15 +24,16 @@ function buildBaseUrl(req) {
 // GET /courses - List all courses with pagination and filters
 export const listValidators = [
   query("page").optional().isInt({ min: 1 }).toInt(),
-  query("sort").optional().isIn([
-    "rating_desc", "rating_asc",     // Rating: High to Low, Low to High
-    "price_desc", "price_asc",       // Price: High to Low, Low to High
-    "newest", "oldest"               // Date: Newest First, Oldest First
-  ]),
+  query("sort").optional().custom(validateSortCsv),
   query("category").optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
   query("q").optional({ nullable: true, checkFalsy: true }).trim().isLength({ max: 100 }),
 ];
 
+function validateSortCsv(val) {
+  if (!val) return true;
+  const items = String(val).split(',').map(s => s.trim()).filter(Boolean);
+  return items.every(x => ALLOWED_SORTS.has(x));
+}
 
 export async function list(req, res, next) {
   try {
@@ -35,15 +43,24 @@ export async function list(req, res, next) {
       return res.status(400).render("error", { message: "Bad query" });
 
     const page = req.query.page || 1;
+
     // Handle duplicate sort values (take first one if array)
     const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
     const sort = sortRaw || "rating_desc";
     const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
     const search = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
     const pageSize = 12;
-
+    const sortCsv = Array.isArray(req.query.sort)
+      ? req.query.sort[req.query.sort.length - 1]
+      : (req.query.sort || '');
+    const sortList = parseSortList(sortCsv).map(x => {
+      // map newest/oldest (nếu còn dùng)
+      if (x.field === 'newest') return { field: 'date', dir: 'desc' };
+      if (x.field === 'oldest') return { field: 'date', dir: 'asc' };
+      return x;
+    });
     const [courseResult, categories] = await Promise.all([
-      Course.findPaged({ page, pageSize, sort, categoryId, search }),
+      Course.findPaged({ page, pageSize, sortList, categoryId, search }),
       Category.getAll()
     ]);
 
@@ -56,7 +73,7 @@ export async function list(req, res, next) {
       return {
         ...course,
         is_new: Course.isNewCourse(course.created_at),
-        is_bestseller: enrollmentCount >= 100, // 100+ enrollments = bestseller
+        is_bestseller: course.weekly_enrollments >= 5, // 100+ enrollments = bestseller
         enrollment_count: enrollmentCount
       };
     }));
@@ -67,10 +84,11 @@ export async function list(req, res, next) {
       categories,
       page,
       totalPages,
-      currentSort: sort,
+      currentSort: sortCsv,
       currentCategory: categoryId,
       currentSearch: search,
-      baseUrl: buildBaseUrl(req),
+      baseUrl: buildUrl(req, { keepPage: false }),
+      sortBaseUrl: buildUrl(req, { keepPage: true }),
     });
   } catch (e) {
     console.error('Error in course list:', e);
@@ -80,7 +98,7 @@ export async function list(req, res, next) {
 
 
 // GET /courses/:id - Course detail page
-export const detailValidators = [param("id").isInt().toInt()];
+export const detailValidators = [query("id").isInt().toInt()];
 export async function detail(req, res, next) {
   try {
     await Promise.all(detailValidators.map((v) => v.run(req)));
@@ -88,7 +106,7 @@ export async function detail(req, res, next) {
     if (!errors.isEmpty())
       return res.status(404).render("error", { message: "Not found" });
 
-    const id = req.params.id;
+    const id = req.query.id;
     const course = await Course.findById(id);
     if (!course)
       return res
@@ -133,7 +151,7 @@ export async function detail(req, res, next) {
         ...course,
         enrollment_count: enrollmentCount,
         is_new: Course.isNewCourse(course.created_at),
-        is_bestseller: enrollmentCount >= 100
+        is_bestseller: course.weekly_enrollments >= 100
       },
       courseStats,
       instructorStats,
@@ -160,6 +178,71 @@ export const searchValidators = [
   ]),
   query("category").optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
 ];
+export const searchValidators_guest = [
+  query("q").optional({ nullable: true, checkFalsy: true }).trim().isLength({ max: 100 }),
+  query("page").optional().isInt({ min: 1 }).toInt(),
+  query("sort").optional().custom(validateSortCsv),
+  query("category").optional({ nullable: true, checkFalsy: true }).isInt().toInt(),
+];
+
+export async function search_guest(req, res, next) {
+  try {
+    await Promise.all(searchValidators_guest.map((v) => v.run(req)));
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(400).render("error", { message: "Bad query" });
+
+    const searchQuery = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
+    const page = req.query.page || 1;
+    const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
+    const pageSize = 12;
+    const sortCsv = Array.isArray(req.query.sort)
+      ? req.query.sort[req.query.sort.length - 1]
+      : (req.query.sort || '');
+    const sortList = parseSortList(sortCsv).map(x => {
+      if (x.field === 'newest') return { field: 'date', dir: 'desc' };
+      if (x.field === 'oldest') return { field: 'date', dir: 'asc' };
+      return x;
+    });
+    const { rows, total } = await Course.findPaged({
+      page,
+      pageSize,
+      sortList,
+      categoryId,
+      search: searchQuery
+    });
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    // Get categories for filter
+    const categories = await Category.getAll();
+
+    // Add badges to courses
+    const coursesWithBadges = await Promise.all(rows.map(async (course) => {
+      const enrollmentCount = await Course.getEnrollmentCount(course.id);
+      return {
+        ...course,
+        is_new: Course.isNewCourse(course.created_at),
+        is_bestseller: enrollmentCount >= 100,
+        enrollment_count: enrollmentCount
+      };
+    }));
+
+    res.render("course/search", {
+      title: `Search: ${searchQuery}`,
+      courses: coursesWithBadges,
+      categories,
+      page,
+      totalPages,
+      currentSort: sortCsv,
+      currentCategory: categoryId,
+      currentSearch: searchQuery,
+      baseUrl: buildUrl(req, { keepPage: false }),
+      sortBaseUrl: buildUrl(req, { keepPage: true }),
+    });
+  } catch (e) {
+    next(e);
+  }
+}
 export async function search(req, res, next) {
   try {
     await Promise.all(searchValidators.map((v) => v.run(req)));
@@ -169,12 +252,10 @@ export async function search(req, res, next) {
 
     const searchQuery = req.query.q && req.query.q.trim() !== '' ? req.query.q : null;
     const page = req.query.page || 1;
-    // Handle duplicate sort values (take first one if array)
     const sortRaw = Array.isArray(req.query.sort) ? req.query.sort[0] : req.query.sort;
     const sort = sortRaw || "rating_desc";
     const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
     const pageSize = 12;
-
     const { rows, total } = await Course.findPaged({
       page,
       pageSize,

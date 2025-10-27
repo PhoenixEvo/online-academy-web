@@ -19,7 +19,7 @@ export async function findById(id) {
 }
 
 // Find courses with pagination and sorting
-export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc', categoryId = null, search = null } = {}) {
+export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList = null, categoryId = null, search = null } = {}) {
     const offset = (page - 1) * pageSize;
 
     let query = db('courses')
@@ -33,12 +33,19 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
             'courses.rating_count',
             'courses.views',
             'courses.thumbnail_url',
+            'courses.created_at',
             'users.name as instructor_name',
-            'categories.name as category_name'
+            'categories.name as category_name',
+            db.raw('COUNT(enrollments.id) as weekly_enrollments')
         )
         .leftJoin('users', 'courses.instructor_id', 'users.id')
         .leftJoin('categories', 'courses.category_id', 'categories.id')
-        .where('courses.status', 'published');
+        .leftJoin('enrollments', function () {
+            this.on('courses.id', '=', 'enrollments.course_id')
+                .andOn(db.raw('enrollments.purchased_at >= NOW() - INTERVAL \'7 days\''));
+        })
+        .where('courses.status', 'published')
+        .groupBy('courses.id', 'users.name', 'categories.name');
 
     // Filter by category
     if (categoryId) {
@@ -47,44 +54,64 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
 
     // Full-text search functionality
     if (search) {
-        // Use PostgreSQL full-text search with tsvector
-        // Search in title, short_desc, and category name
-        // Fallback to ILIKE if full-text doesn't match
-        query = query.where(function() {
+        query = query.where(function () {
             this.whereRaw(`
                 to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
                 to_tsvector('english', COALESCE(categories.name, ''))
                 @@ plainto_tsquery('english', ?)
             `, [search])
-            .orWhere('courses.title', 'ilike', `%${search}%`)
-            .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-            .orWhere('categories.name', 'ilike', `%${search}%`);
+                .orWhere('courses.title', 'ilike', `%${search}%`)
+                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
+                .orWhere('categories.name', 'ilike', `%${search}%`);
         });
     }
 
-    // Apply sorting
-    switch (sort) {
-        case 'rating_desc':
-            query = query.orderBy('courses.rating_avg', 'desc');
-            break;
-        case 'rating_asc':
-            query = query.orderBy('courses.rating_avg', 'asc');
-            break;
-        case 'price_desc':
-            query = query.orderBy('courses.price', 'desc');
-            break;
-        case 'price_asc':
-            query = query.orderBy('courses.price', 'asc');
-            break;
-        case 'newest':
-            query = query.orderBy('courses.created_at', 'desc');
-            break;
-        case 'oldest':
-            query = query.orderBy('courses.created_at', 'asc');
-            break;
-        default:
-            query = query.orderBy('courses.rating_avg', 'desc');
+    const ORDER_MAP = {
+        price: 'COALESCE(courses.sale_price, courses.price)',
+        rating: 'courses.rating_avg',
+        date: 'courses.created_at'
+    };
+    let finalSortList = Array.isArray(sortList) && sortList.length ? sortList : null;
+    if (!finalSortList) {
+        if (!sort) {
+            finalSortList = [{ field: 'bestseller', dir: 'desc' }, { field: 'rating', dir: 'desc' }];
+        } else if (String(sort).includes(',')) {
+            finalSortList = String(sort)
+                .split(',')
+                .map(s => s.trim())
+                .filter(Boolean)
+                .map(s => {
+                    if (s === 'newest') return { field: 'date', dir: 'desc' };
+                    if (s === 'oldest') return { field: 'date', dir: 'asc' };
+                    const [field, dir] = s.split('_');
+                    return { field, dir: dir === 'asc' ? 'asc' : 'desc' };
+                });
+        } else {
+            switch (sort) {
+                case 'rating_desc': finalSortList = [{ field: 'rating', dir: 'desc' }]; break;
+                case 'rating_asc': finalSortList = [{ field: 'rating', dir: 'asc' }]; break;
+                case 'price_desc': finalSortList = [{ field: 'price', dir: 'desc' }]; break;
+                case 'price_asc': finalSortList = [{ field: 'price', dir: 'asc' }]; break;
+                case 'newest': finalSortList = [{ field: 'date', dir: 'desc' }]; break;
+                case 'oldest': finalSortList = [{ field: 'date', dir: 'asc' }]; break;
+                default:
+                    finalSortList = [{ field: 'bestseller', dir: 'desc' }, { field: 'rating', dir: 'desc' }];
+            }
+        }
     }
+    for (const { field, dir } of finalSortList) {
+        if (field === 'bestseller') {
+            query = query.orderBy('weekly_enrollments', dir);
+        } else if (field === 'price') {
+            query = query.orderByRaw(`${ORDER_MAP.price} ${dir.toUpperCase()}`);
+        } else {
+            const col = ORDER_MAP[field];
+            if (col) query = query.orderByRaw(`${col} ${dir.toUpperCase()}`);
+        }
+    }
+    query = query.orderBy('courses.id', 'asc');
+
+
     const countQuery = db('courses')
         .where('courses.status', 'published');
 
@@ -96,15 +123,15 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
         // Join categories for full-text search in count query
         countQuery
             .leftJoin('categories as cat_search', 'courses.category_id', 'cat_search.id')
-            .where(function() {
+            .where(function () {
                 this.whereRaw(`
                     to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
                     to_tsvector('english', COALESCE(cat_search.name, ''))
                     @@ plainto_tsquery('english', ?)
                 `, [search])
-                .orWhere('courses.title', 'ilike', `%${search}%`)
-                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-                .orWhere('cat_search.name', 'ilike', `%${search}%`);
+                    .orWhere('courses.title', 'ilike', `%${search}%`)
+                    .orWhere('courses.short_desc', 'ilike', `%${search}%`)
+                    .orWhere('cat_search.name', 'ilike', `%${search}%`);
             });
     }
 
@@ -215,7 +242,7 @@ export async function getFeaturedThisWeek(limit = 4) {
         )
         .leftJoin('users', 'courses.instructor_id', 'users.id')
         .leftJoin('categories', 'courses.category_id', 'categories.id')
-        .leftJoin('enrollments', function() {
+        .leftJoin('enrollments', function () {
             this.on('courses.id', '=', 'enrollments.course_id')
                 .andOn(db.raw('enrollments.purchased_at >= NOW() - INTERVAL \'7 days\''));
         })

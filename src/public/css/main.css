@@ -389,7 +389,7 @@ h6 {
 
   .navmenu .dropdown ul a {
     padding: 10px 20px;
-    font-size: 18px;
+    font-size: 15px;
     text-transform: none;
     color: var(--nav-dropdown-color);
   }
@@ -1185,6 +1185,16 @@ section,
 /*--------------------------------------------------------------
 # Courses Section
 --------------------------------------------------------------*/
+.course-card {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+}
+
 .courses .course-item {
   background-color: var(--surface-color);
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
@@ -2455,6 +2465,7 @@ body {
 .footer .footer-newsletter .sent-message.show {
   display: block !important;
 }
+
 /*--------------------------------------------------------------
 # Remove Course Watchlist Button Section
 --------------------------------------------------------------*/
@@ -2463,12 +2474,12 @@ body {
   top: 10px;
   right: 10px;
   z-index: 10;
-    opacity: 0;
+  opacity: 0;
   transition: opacity 0.25s ease;
 }
 
 .remove-btn {
-    background: transparent;
+  background: transparent;
   border: none;
   color: #dc3545;
   font-size: 1.4rem;
@@ -2483,6 +2494,7 @@ body {
 .course-item:hover .remove-btn-form {
   opacity: 1;
 }
+
 /*--------------------------------------------------------------
 # Payment Logo Section
 --------------------------------------------------------------*/
@@ -2501,10 +2513,12 @@ body {
 }
 
 .payment-logo.selected {
-  border-color: #0070f3; /* hoặc màu bạn thích */
+  border-color: #0070f3;
+  /* hoặc màu bạn thích */
   opacity: 1;
   box-shadow: 0 0 8px rgba(0, 112, 243, 0.4);
 }
+
 /*--------------------------------------------------------------
 # Star Rating Section
 --------------------------------------------------------------*/
@@ -2586,3 +2600,218 @@ body {
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
+#featuredCarousel .carousel-inner {
+  min-height: 500px;
+}
+
+#featuredCarousel .carousel-item {
+  min-height: 500px;
+}
+
+#featuredCarousel .carousel-item .row {
+  min-height: 500px;
+  align-items: center;
+}
+
+#featuredCarousel .carousel-item .col-md-6 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#featuredCarousel .carousel-item .col-md-6:last-child {
+  padding: 2rem;
+}
+
+#featuredCarousel .carousel-item img {
+  height: 400px !important;
+  object-fit: cover;
+  width: 100%;
+}
+
+#featuredCarousel .carousel-indicators {
+  position: static;
+  margin: 20px 0 0 0;
+  justify-content: center;
+}
+
+#featuredCarousel .carousel-indicators button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 0 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+#featuredCarousel .carousel-indicators button.active {
+  background-color: #fff;
+  border-color: #fff;
+  transform: scale(1.2);
+}
+
+#featuredCarousel .carousel-indicators button:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-color: #fff;
+}
+
+.course-card {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+}
+
+.pagination {
+  gap: 5px;
+}
+
+.pagination .page-link {
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin: 0 2px;
+  color: #0d6efd;
+  border: 1px solid #dee2e6;
+}
+
+/* Active state - trang hiện tại */
+.pagination .page-item.active .page-link {
+  z-index: 3;
+  color: #dc3545 !important;
+  /* Màu đỏ */
+  background-color: #fff;
+  /* Nền trắng */
+  border-color: #dc3545;
+  /* Viền đỏ */
+  font-weight: 700;
+  /* In đậm hơn */
+  box-shadow: none;
+  /* Bỏ bóng */
+}
+
+/* Hover effect */
+.pagination .page-link:hover:not(.active) {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+/* Disabled state */
+.pagination .page-item.disabled .page-link {
+  color: #6c757d;
+  background-color: #fff;
+  border-color: #dee2e6;
+  opacity: 0.7;
+}
+
+/* Badge Animations */
+@keyframes blink {
+
+  0%,
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  31%,
+  50% {
+    opacity: 0.2;
+    transform: scale(0.9);
+  }
+
+  51%,
+  70% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  71%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes discordBlink {
+
+  0%,
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  21%,
+  40% {
+    opacity: 0.1;
+    transform: scale(0.85);
+  }
+
+  41%,
+  60% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  61%,
+  80% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+
+  81%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Sale badge with Discord-style glow effect */
+.badge.bg-danger {
+  box-shadow: 0 0 15px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.4);
+  animation: discordBlink 0.8s infinite, glowPulse 2s infinite;
+}
+
+/* New badge with Discord-style glow effect */
+.badge.bg-success {
+  box-shadow: 0 0 15px rgba(25, 135, 84, 0.8), 0 0 30px rgba(25, 135, 84, 0.4);
+}
+
+/* Best Seller badge with Discord-style glow effect */
+.badge.bg-warning {
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.8), 0 0 30px rgba(255, 193, 7, 0.4);
+}
+
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(220, 53, 69, 1), 0 0 50px rgba(220, 53, 69, 0.6);
+  }
+}
