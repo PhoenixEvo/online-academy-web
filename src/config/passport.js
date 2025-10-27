@@ -116,29 +116,28 @@ if (
             });
           }
 
-          // 3) Create new user
-          const desiredRole =
-            req.session?.oauthDesiredRole === "instructor"
-              ? "instructor"
-              : "student";
-          const [created] = await db("users")
-            .insert({
-              name: displayName,
-              email,
-              password_hash: "",
-              role: desiredRole,
-              avatar_url: avatarUrl,
-              google_id: googleId,
-              provider: "google",
-              is_verified: true,
-            })
-            .returning(["id", "name", "email", "role"]);
-          if (req.session) req.session.oauthDesiredRole = undefined;
-          return done(null, created);
+        // 3) Create new user - only student role allowed for OAuth registration
+        const desiredRole = "student";
+        const [created] = await db("users")
+          .insert({
+            name: displayName,
+            email,
+            password_hash: "",
+            role: desiredRole,
+            avatar_url: avatarUrl,
+            google_id: googleId,
+            provider: "google",
+            is_verified: true,
+          })
+          .returning(["id", "name", "email", "role"]);
+        if (req.session) {
+          req.session.oauthDesiredRole = undefined;
+        }
+        return done(null, created);
         } catch (e) {
           return done(e);
-        }
       }
+    }
     )
   );
 } else {

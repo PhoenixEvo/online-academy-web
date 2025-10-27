@@ -41,10 +41,9 @@ const add = async (req, res) => {
 
   try {
     await db.transaction(async (trx) => {
-      // 1. Tìm user theo email
+    
       let user = await userModel.findByEmail(email, { transaction: trx });
-
-      // 2. User đã tồn tại
+    
       if (user) {
         const existingInstructor = await instructorModel.getInstructorByUserId(user.id, { transaction: trx });
         if (existingInstructor) {
@@ -55,7 +54,7 @@ const add = async (req, res) => {
           await userModel.updateUser(user.id, { role: 'instructor' }, { transaction: trx });
         }
       }
-      // 3. User chưa tồn tại → tạo mới
+    
       else {
         if (!password?.trim()) {
           throw new Error('Password is required for new user');
@@ -73,7 +72,7 @@ const add = async (req, res) => {
         );
       }
 
-      // 4. Tạo instructor
+      
       await instructorModel.createInstructor(
         {
           name: name || user.name,
@@ -85,7 +84,7 @@ const add = async (req, res) => {
         },
         { transaction: trx }
       );
-    }); // ← TỰ ĐỘNG COMMIT
+    });
 
     req.flash('success', 'Instructor added successfully');
     res.redirect('/admins/instructors');
@@ -101,7 +100,7 @@ const add = async (req, res) => {
   }
 };
 
-// === RENDER EDIT FORM ===
+
 const renderEdit = async (req, res) => {
   const { id } = req.params;
   try {
@@ -126,7 +125,7 @@ const renderEdit = async (req, res) => {
   }
 };
 
-// === UPDATE INSTRUCTOR (WITH TRANSACTION) ===
+
 const update = async (req, res) => {
   const { id } = req.params;
   const { name, email, password, job_title, avatar_url, is_verified } = req.body;
@@ -136,13 +135,13 @@ const update = async (req, res) => {
       const instructor = await instructorModel.getInstructorById(id, { transaction: trx });
       if (!instructor) throw new Error('Instructor not found');
 
-      // Kiểm tra email trùng (ngoại trừ chính nó)
+      
       const existingUser = await userModel.findByEmail(email, { transaction: trx });
       if (existingUser && existingUser.id !== instructor.user_id) {
         throw new Error('Email already in use by another user');
       }
 
-      // Cập nhật user
+
       const updateUserData = {
         name,
         email,
@@ -155,7 +154,7 @@ const update = async (req, res) => {
       }
       await userModel.updateUser(instructor.user_id, updateUserData, { transaction: trx });
 
-      // Cập nhật instructor
+      
       await instructorModel.updateInstructor(
         id,
         {
@@ -177,8 +176,7 @@ const update = async (req, res) => {
     res.redirect(`/admins/instructors/${id}/edit`);
   }
 };
-
-// === RENDER DELETE CONFIRM ===
+//RENDER DELETE CONFIRM 
 const renderDelete = async (req, res) => {
   const { id } = req.params;
   try {
@@ -203,7 +201,7 @@ const renderDelete = async (req, res) => {
   }
 };
 
-// === DELETE INSTRUCTOR (WITH TRANSACTION) ===
+// DELETE INSTRUCTOR (WITH TRANSACTION)
 const deleteInstructor = async (req, res) => {
   const { id } = req.params;
 
@@ -225,7 +223,7 @@ const deleteInstructor = async (req, res) => {
   }
 };
 
-// === EXPORT CONTROLLER ===
+//EXPORT CONTROLLER
 export const adminInstructorController = {
   list,
   renderAdd,

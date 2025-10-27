@@ -1,0 +1,54 @@
+<main class="main">
+    <!-- Page Header -->
+    <section class="page-header py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="h2 fw-bold mb-3 text-white">All Categories</h1>
+                    <p class="lead text-white-50">Explore courses by category and find what interests you most</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Grid -->
+    <section class="categories-section py-5">
+        <div class="container">
+            <div class="row g-4">
+                {{#each categories}}
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="category-card bg-white rounded shadow-sm border-0 h-100 p-4 text-center"
+                        style="transition: all 0.3s ease; cursor: pointer;"
+                        onclick="window.location.href='/categories?category={{id}}'">
+
+                        <!-- Category Icon -->
+                        <div class="category-icon mb-3">
+                            <i class="bi bi-{{#if (eq name 'Web Development')}}code-slash{{else if (eq name 'Data Science')}}bar-chart{{else if (eq name 'Mobile Development')}}phone{{else if (eq name 'Design')}}palette{{else if (eq name 'Marketing')}}megaphone{{else if (eq name 'Business')}}briefcase{{else if (eq name 'Programming')}}laptop{{else if (eq name 'Photography')}}camera{{else if (eq name 'Music')}}music-note{{else if (eq name 'Language')}}translate{{else}}book{{/if}} text-primary"
+                                style="font-size: 3rem;"></i>
+                        </div>
+
+                        <!-- Category Info -->
+                        <h5 class="category-title fw-bold mb-2">{{name}}</h5>
+                        <p class="text-muted small mb-3">{{course_count}} courses available</p>
+
+                        <!-- Action Button -->
+                        <div class="category-link">
+                            <a href="/categories?category={{id}}" class="text-primary fw-semibold">
+                                Explore Courses <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+
+            <!-- No categories message -->
+            {{#unless categories.length}}
+            <div class="text-center py-5">
+                <i class="bi bi-folder-x display-4 text-muted"></i>
+                <p class="mt-3 text-muted">No categories available at the moment</p>
+            </div>
+            {{/unless}}
+        </div>
+    </section>
+</main>
