@@ -14,7 +14,9 @@
           {{#if isAuthenticated}}
           <!-- Authenticated user navigation -->
           <!-- Home -->
+          {{#unless (eq user.role 'instructor')}}
           <li><a href="/" class="active">Home</a></li>
+          {{/unless}}
 
           {{#if (eq user.role 'student')}}
           <!-- Student navigation -->
@@ -75,49 +77,6 @@
           </li>
           {{else if (eq user.role 'instructor')}}
           <!-- Instructor navigation -->
-          <li class="dropdown">
-                      <a href="/courses"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-                      <ul>
-                        {{#each categories}}
-                        {{#if children.length}}
-                        <!-- Parent category with children -->
-                        <li class="dropdown">
-                          <a href="/courses?category={{id}}">
-                            <span>{{name}}</span>
-                            <i class="bi bi-chevron-right toggle-dropdown"></i>
-                          </a>
-                          <ul>
-                            {{#each children}}
-                            <li>
-                              <a href="/courses?category={{id}}">
-                                {{name}}
-                                <small class="text-muted">({{course_count}} courses)</small>
-                              </a>
-                            </li>
-                            {{/each}}
-                          </ul>
-                        </li>
-                        {{else}}
-                        <!-- Single category without children -->
-                        <li>
-                          <a href="/courses?category={{id}}">
-                            {{name}}
-                            <small class="text-muted">({{course_count}} courses)</small>
-                          </a>
-                        </li>
-                        {{/if}}
-                        {{/each}}
-                        <!-- View all categories link -->
-                        <li class="view-all">
-                          <a href="/courses" class="text-primary">
-                            <i class="bi bi-grid-3x3-gap-fill me-2"></i>
-                            Browse all categories
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                    <!-- All Courses -->
-                    <li><a href="/courses">All Courses</a></li>
           <li><a href="/instructor/courses">My Courses</a></li>
           <li><a href="/instructor/courses/add">Create Course</a></li>
           <!-- Browse all courses for reference -->
@@ -158,7 +117,9 @@
                     {{/if}}
                   {{/if}}
               {{/if}}
+              {{#unless (eq user.role 'instructor')}}
               <li><a href="/{{user.role}}s/dashboard">Dashboard</a></li>
+              {{/unless}}
               <li>
                 <hr class="dropdown-divider">
               </li>
@@ -168,7 +129,9 @@
           {{else}}
           <!-- Guest navigation -->
           <!-- Home -->
+          {{#unless (eq user.role 'instructor')}}
           <li><a href="/" class="active">Home</a></li>
+          {{/unless}}
           <!-- Categories -->
           <li class="dropdown">
             <a href="/categories"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
