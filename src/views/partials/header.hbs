@@ -79,17 +79,6 @@
           <!-- Instructor navigation -->
           <li><a href="/instructor/courses">My Courses</a></li>
           <li><a href="/instructor/courses/add">Create Course</a></li>
-          <!-- Browse all courses for reference -->
-          <!-- <li><a href="/courses">Browse Courses</a></li> -->
-          <!-- Search -->
-          <li>
-            <form class="d-flex" role="search" action="/courses/search" method="GET">
-              <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
-              <button class="btn btn-outline-success" type="submit">
-                <i class="bi bi-search"></i>
-              </button>
-            </form>
-          </li>
           {{else if (eq user.role 'admin')}}
           <!-- Admin navigation -->
           <li class="dropdown dropdown-menu-end">
