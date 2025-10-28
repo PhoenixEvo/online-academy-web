@@ -6,6 +6,10 @@ const r = Router();
 // homepage
 r.get("/", homeCtrl.home);
 
+// alias route for instructor My Courses
+// keeps URL short as requested
+r.get('/mycourses', (req, res) => res.redirect('/instructor/courses'));
+
 // about page
 r.get("/about", homeCtrl.about);
 

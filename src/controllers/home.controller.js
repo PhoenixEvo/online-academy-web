@@ -6,6 +6,11 @@ import * as Course from "../models/course.model.js";
 // home page
 export async function home(req, res, next) {
   try {
+    // If the user is an instructor, redirect to My Courses
+    if (req.isAuthenticated?.() && req.user?.role === 'instructor') {
+      return res.redirect('/mycourses');
+    }
+
     // Function to transform Unsplash URLs to use their optimization parameters
     const transformImageUrl = (url) => {
       if (!url) return '/img/course/course-1.webp';

@@ -12,10 +12,17 @@ const ALLOWED_SORTS = new Set([
   'date_desc', 'date_asc',
   'newest', 'oldest'
 ]);
+function buildUrl(req, { keepPage = false } = {}) {
+  const q = new URLSearchParams(req.query);
+  if (!keepPage) q.delete("page");
+  const base = req.baseUrl + req.path;
+  const qs = q.toString();
+  return base + (qs ? "?" + qs + "&" : "?");
+}
 function buildBaseUrl(req) {
   const q = new URLSearchParams(req.query);
   q.delete("page");
-  q.delete("sort");  // Remove sort so buttons can set their own sort
+  q.delete("sort");
   const base = req.baseUrl + req.path;
   const qs = q.toString();
   return base + (qs ? "?" + qs + "&" : "?");
@@ -308,7 +315,7 @@ export async function addToWatchlist(req, res, next) {
     const courseId = req.params.id;
     await Watchlist.add(userId, courseId);
     req.flash('success', 'Added to watchlist');
-    res.redirect("/courses/" + courseId);
+    res.redirect("/courses/detail?id=" + courseId);
   } catch (e) {
     next(e);
   }
@@ -322,7 +329,7 @@ export async function removeFromWatchlist(req, res, next) {
     const courseId = req.params.id;
     await Watchlist.remove(userId, courseId);
     req.flash('success', 'Removed from watchlist');
-    res.redirect("/courses/" + courseId);
+    res.redirect("/courses/detail?id=" + courseId);
   } catch (e) {
     next(e);
   }
@@ -384,23 +391,4 @@ export async function createReview(req, res, next) {
     next(e);
   }
 }
-function buildUrl(req, { keepPage = false } = {}) {
-  const q = new URLSearchParams(req.query);
-  if (!keepPage) q.delete("page");
-  const base = req.baseUrl + req.path;
-  const qs = q.toString();
-  return base + (qs ? "?" + qs + "&" : "?");
-}
 
-export function multiCompare(a, b, criteria) {
-  for (const { field, dir } of criteria) {
-    let av, bv;
-    if (field === 'price') { av = a.price; bv = b.price; }
-    if (field === 'rating') { av = a.rating_avg; bv = b.rating_avg; }
-    if (field === 'date') { av = new Date(a.created_at); bv = new Date(b.created_at); }
-
-    if (av < bv) return dir === 'asc' ? -1 : 1;
-    if (av > bv) return dir === 'asc' ? 1 : -1;
-  }
-  return 0;
-}

@@ -314,10 +314,34 @@ export async function getInstructorStats(instructorId) {
         .avg('rating_avg as avg')
         .first();
 
+    // Sum total views across all courses by this instructor (any status)
+    const totalViews = await db('courses')
+        .where('instructor_id', instructorId)
+        .sum({ sum: 'views' })
+        .first();
+
+    // Count courses by status for breakdown
+    const byStatusRows = await db('courses')
+        .where('instructor_id', instructorId)
+        .select('status')
+        .count('* as count')
+        .groupBy('status');
+
+    const breakdown = { draft: 0, published: 0, completed: 0 };
+    for (const r of byStatusRows) {
+        const key = String(r.status || '').toLowerCase();
+        if (key in breakdown) breakdown[key] = parseInt(r.count || 0);
+    }
+
+    const total_courses = breakdown.draft + breakdown.published + breakdown.completed;
+
     return {
-        course_count: parseInt(courseCount.count || 0),
+        course_count: parseInt(courseCount.count || 0), // published only (back-compat)
         total_students: parseInt(totalStudents.count || 0),
-        avg_rating: parseFloat(avgRating.avg || 0).toFixed(1)
+        avg_rating: parseFloat(avgRating.avg || 0).toFixed(1),
+        total_viewers: parseInt((totalViews && (totalViews.sum ?? totalViews.SUM)) || 0),
+        total_courses,
+        courses_breakdown: breakdown
     };
 }
 

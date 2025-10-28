@@ -1,11 +1,10 @@
 import bcrypt from 'bcrypt';
 import { body, validationResult } from 'express-validator';
 import { db } from '../models/db.js';
+import { uploadBuffer } from '../services/supabase.service.js';
 
-// Show profile page
-export function showProfile(req, res) {
+export async function showProfile(req, res, next) {
   try {
-    // Ensure user data is properly formatted
     const userData = {
       id: req.user?.id,
       name: req.user?.name || '',
@@ -14,20 +13,43 @@ export function showProfile(req, res) {
       created_at: req.user?.created_at || new Date()
     };
 
-    res.render('profile', {
+    const model = {
       layout: 'main',
       page: 'profile',
       title: 'Profile Settings',
       user: userData,
-      values: userData, // pre-fill form with current user data
+      values: userData,
+      activeTab: req.query.tab || (userData.role === 'instructor' ? 'account' : 'account'),
       csrfToken: req.csrfToken ? req.csrfToken() : ''
-    });
+    };
+
+    if (userData.role === 'instructor') {
+      // Load instructor info for unified profile view
+      const InstructorModel = (await import('../models/instructor.model.js')).default;
+      const information = await InstructorModel.findByUserId(userData.id);
+      model.instructor = information || { user_id: userData.id };
+
+      // Load instructor stats (courses, students, rating)
+      try {
+        const courseMod = await import('../models/instructor-course.model.js');
+        // We need instructor_id for stats (not user_id)
+        let instructorId = information?.id;
+        if (!instructorId) {
+          instructorId = await (courseMod.getInstructorId?.(userData.id));
+        }
+        if (instructorId) {
+          const stats = await courseMod.getInstructorStats?.(instructorId);
+          if (stats) model.instructorStats = stats;
+        }
+      } catch (e) {
+        console.warn('Failed to load instructor stats:', e?.message || e);
+      }
+    }
+
+    res.render('profile', model);
   } catch (error) {
     console.error('Profile page error:', error);
-    res.status(500).render('error', { 
-      message: 'Error loading profile page',
-      error: error.message 
-    });
+    next(error);
   }
 }
 
@@ -170,5 +192,110 @@ export async function changePassword(req, res, next) {
   } catch (e) {
     console.error('Password change error:', e);
     next(e);
+  }
+}
+// Show instructor profile
+import InstructorModel from '../models/instructor.model.js';
+export async function showInstructorProfile(req, res, next) {
+  try {
+    const rawId = req.params.id || req.user?.id;
+    const userIdNum = Number(rawId);
+    if (!rawId || Number.isNaN(userIdNum)) {
+      req.flash?.('error', 'Missing user');
+      if (req.user?.id) return res.redirect(`/profile?tab=${encodeURIComponent(req.query.tab||'account')}`);
+      return res.redirect('/auth/login');
+    }
+    const activeTab = req.query.tab || 'account';
+    // Unified: redirect to single profile page with tab
+    return res.redirect(`/profile?tab=${encodeURIComponent(activeTab)}`);
+  } catch (err) {
+    next(err);
+  }
+}
+
+//update instructor profile
+export async function updateInstructorProfile(req, res, next) {
+  try {
+    const userId = Number(req.params.id);
+    if (!req.user?.id || String(req.user.id) !== String(userId)) {
+      req.flash?.('error', 'Unauthorized');
+      return res.redirect('/auth/login');
+    }
+
+    const name = (req.body.name || '').trim();
+    const display_name = (req.body.display_name || '').trim();
+    const job_title = (req.body.job_title || '').trim();
+
+    const existing = await db('instructors').where({ user_id: userId }).first();
+    if (existing) {
+      await db('instructors')
+        .where({ user_id: userId })
+        .update({
+          name: name || existing.name || req.user.name,
+          display_name: display_name || null,
+          job_title: job_title || null,
+          updated_at: new Date(),
+        });
+    } else {
+      await db('instructors').insert({
+        user_id: userId,
+        name: name || req.user.name,
+        display_name: display_name || null,
+        job_title: job_title || null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    }
+
+    req.flash?.('success', 'Instructor information saved');
+    return res.redirect('/profile?tab=info');
+  } catch (err) {
+    next(err);
+  }
+}
+// update the instructor profile picture
+export async function updateInstructorProfilePicture(req, res, next) {
+  try {
+    const userId = req.params.id;
+    const { avatar_url } = req.body;
+    if (!avatar_url) {
+      req.flash?.('error', 'Missing avatar URL');
+      return res.redirect(`/profile?tab=photo`);
+    }
+    // update instructors.image_100x100 and users.avatar_url
+    await db('instructors').where({ user_id: userId }).update({ image_100x100: avatar_url, updated_at: new Date() });
+    await db('users').where({ id: userId }).update({ avatar_url, updated_at: new Date() });
+
+    // also generate and save image_50x50
+    try {
+      let fetchImpl = globalThis.fetch;
+      if (!fetchImpl) {
+        const mod = await import('node-fetch');
+        fetchImpl = mod.default;
+      }
+      const resp = await fetchImpl(avatar_url);
+      if (resp && resp.ok) {
+        const arr = await resp.arrayBuffer();
+        const buf = Buffer.from(arr);
+        let sharpMod;
+        try {
+          sharpMod = (await import('sharp')).default;
+        } catch (e) {
+          console.warn('sharp is not installed; skipping image_50x50 generation');
+        }
+        if (sharpMod) {
+          const small = await sharpMod(buf).resize(50, 50, { fit: 'cover' }).jpeg({ quality: 80 }).toBuffer();
+          const uploaded = await uploadBuffer({ buffer: small, filename: 'avatar-50x50.jpg', contentType: 'image/jpeg', folder: 'instructor-avatars' });
+          await db('instructors').where({ user_id: userId }).update({ image_50x50: uploaded.publicUrl, updated_at: new Date() });
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to create/store image_50x50:', e?.message || e);
+    }
+
+    req.flash?.('success', 'Profile image updated');
+    res.redirect(`/profile?tab=photo`);
+  } catch (err) {
+    next(err);
   }
 }
