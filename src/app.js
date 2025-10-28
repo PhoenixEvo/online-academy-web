@@ -20,7 +20,7 @@ import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
 import categoryRoute from './routes/category.route.js';
-
+import instructorRoute from './routes/instructor.route.js';
 const app = express();
 
 // helmet for website security
@@ -29,68 +29,68 @@ app.use(
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: [
-      "'self'",
-      "https://cdnjs.cloudflare.com",
-      "https://cdn.jsdelivr.net",
-      "https://releases.transloadit.com",
-      "https://www.youtube.com",
-      "https://s.ytimg.com",
-      "https://cdn.plyr.io",
-      "'unsafe-eval'",
-      "'unsafe-inline'"
-    ],
+        "'self'",
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.jsdelivr.net",
+        "https://releases.transloadit.com",
+        "https://www.youtube.com",
+        "https://s.ytimg.com",
+        "https://cdn.plyr.io",
+        "'unsafe-eval'",
+        "'unsafe-inline'"
+      ],
 
-    styleSrc: [
-      "'self'",
-      "https://cdnjs.cloudflare.com",
-      "https://cdn.jsdelivr.net",
-      "https://releases.transloadit.com",
-      "https://fonts.googleapis.com",
-      "https://cdn.plyr.io",
-      "'unsafe-inline'"
-    ],
+      styleSrc: [
+        "'self'",
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.jsdelivr.net",
+        "https://releases.transloadit.com",
+        "https://fonts.googleapis.com",
+        "https://cdn.plyr.io",
+        "'unsafe-inline'"
+      ],
 
-    fontSrc: [
-      "'self'",
-      "data:",
-      "https://fonts.googleapis.com",
-      "https://fonts.gstatic.com"
-    ],
+      fontSrc: [
+        "'self'",
+        "data:",
+        "https://fonts.googleapis.com",
+        "https://fonts.gstatic.com"
+      ],
 
-    imgSrc: [
-      "'self'",
-      "data:",
-      "blob:",
-      "https:",
-      "http:",
-      "https://i.ytimg.com"
-    ],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "blob:",
+        "https:",
+        "http:",
+        "https://i.ytimg.com"
+      ],
 
-    frameSrc: [
-      "'self'",
-      "https://drive.google.com",
-      "https://www.youtube.com",
-      "https://youtube.com",
-      "https://www.youtube-nocookie.com"
-    ],
+      frameSrc: [
+        "'self'",
+        "https://drive.google.com",
+        "https://www.youtube.com",
+        "https://youtube.com",
+        "https://www.youtube-nocookie.com"
+      ],
 
-    mediaSrc: [
-      "'self'",
-      "https:",
-      "http:",
-      "https://drive.google.com",
-      "https://*.supabase.co",
-      "https://*.supabase.in"
-    ],
+      mediaSrc: [
+        "'self'",
+        "https:",
+        "http:",
+        "https://drive.google.com",
+        "https://*.supabase.co",
+        "https://*.supabase.in"
+      ],
 
-    connectSrc: [
-      "'self'",
-      "https://*.supabase.co",
-      "https://*.supabase.in",
-      "https://www.youtube.com",
-      "https://s.ytimg.com",
-      "https://cdn.plyr.io"
-    ]
+      connectSrc: [
+        "'self'",
+        "https://*.supabase.co",
+        "https://*.supabase.in",
+        "https://www.youtube.com",
+        "https://s.ytimg.com",
+        "https://cdn.plyr.io"
+      ]
     },
   })
 );
@@ -164,7 +164,7 @@ app.use('/profile', profileRoute);
 app.use('/instructor', instructorsPublicRoute);
 // instructor course route
 import courseInstructorRouter from './routes/course-instructor.route.js';
-import { restrict,restrictInstructor } from './controllers/auth.controller.js';
+import { restrict, restrictInstructor } from './controllers/auth.controller.js';
 app.use('/instructor/courses', restrict, restrictInstructor, courseInstructorRouter);
 app.use('/instructor/profile', restrict, restrictInstructor, InstructorProfile);
 // Upload API (signed URLs to GCS)
@@ -175,7 +175,7 @@ app.use('/students', studentsRoute);
 app.use('/learn', learnRoutes);
 app.use('/lessons', lessonsRoutes);
 app.use('/categories', categoryRoute);
-app.use('/categories', categoryRoute);
+app.use('/instructors', instructorRoute);
 
 
 // 404 handler

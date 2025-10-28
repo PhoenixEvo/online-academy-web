@@ -293,6 +293,8 @@ export async function getCourseStats(courseId) {
 
 // Get instructor statistics
 export async function getInstructorStats(instructorId) {
+    if (!instructorId) return null;
+
     const courseCount = await db('courses')
         .where('instructor_id', instructorId)
         .where('status', 'published')
@@ -341,4 +343,13 @@ export async function getInstructorStats(instructorId) {
         total_courses,
         courses_breakdown: breakdown
     };
+}
+
+// Get instructor info from instructors table
+export async function getInstructorInfo(userId) {
+    if (!userId) return null;
+    return db('instructors')
+        .where('user_id', userId)
+        .select('id', 'name', 'display_name', 'job_title', 'image_50x50', 'image_100x100')
+        .first();
 }
