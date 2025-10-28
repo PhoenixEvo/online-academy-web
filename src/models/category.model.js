@@ -93,3 +93,37 @@ export async function getCoursesByCategory(categoryId) {
         .andWhere('courses.status', 'published')
         .orderBy('courses.created_at', 'desc');
 }
+
+// Get all courses for a category including its subcategories
+export async function getCoursesByCategoryRecursive(categoryId) {
+    // First, get all subcategory IDs recursively
+    const getAllSubcategoryIds = async (parentId) => {
+        const subcategories = await db('categories')
+            .select('id')
+            .where('parent_id', parentId);
+
+        let allIds = [parentId]; // Include the parent category itself
+
+        for (const sub of subcategories) {
+            const subIds = await getAllSubcategoryIds(sub.id);
+            allIds = allIds.concat(subIds);
+        }
+
+        return allIds;
+    };
+
+    const categoryIds = await getAllSubcategoryIds(categoryId);
+
+    // Get courses for all categories (parent + subcategories)
+    return db('courses')
+        .select(
+            'courses.*',
+            'users.name as instructor_name',
+            'categories.name as category_name'
+        )
+        .leftJoin('users', 'courses.instructor_id', 'users.id')
+        .leftJoin('categories', 'courses.category_id', 'categories.id')
+        .whereIn('courses.category_id', categoryIds)
+        .andWhere('courses.status', 'published')
+        .orderBy('courses.created_at', 'desc');
+}

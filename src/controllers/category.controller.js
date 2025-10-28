@@ -9,7 +9,10 @@ export async function list(req, res, next) {
             if (!category) {
                 return res.status(404).render('error', { message: 'Category not found' });
             }
-            const courses = await Category.getCoursesByCategory(categoryId);
+
+            // Use recursive function to get courses from parent + subcategories
+            const courses = await Category.getCoursesByCategoryRecursive(categoryId);
+
             res.render('category/detail', {
                 title: category.name,
                 category,
