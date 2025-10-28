@@ -101,14 +101,11 @@ app.use('/categories', categoryRoute);
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('404.hbs');
-  res.status(404).render('404.hbs');
 });
 
 
 // error handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).render('error.hbs', { message: 'An error occurred!' });
   console.error(err);
   res.status(500).render('error.hbs', { message: 'An error occurred!' });
 });

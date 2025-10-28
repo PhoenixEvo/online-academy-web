@@ -304,7 +304,7 @@ export async function addToWatchlist(req, res, next) {
     const courseId = req.params.id;
     await Watchlist.add(userId, courseId);
     req.flash('success', 'Added to watchlist');
-    res.redirect("/courses/" + courseId);
+    res.redirect("/courses/detail?id=" + courseId);
   } catch (e) {
     next(e);
   }
@@ -318,7 +318,7 @@ export async function removeFromWatchlist(req, res, next) {
     const courseId = req.params.id;
     await Watchlist.remove(userId, courseId);
     req.flash('success', 'Removed from watchlist');
-    res.redirect("/courses/" + courseId);
+    res.redirect("/courses/detail?id=" + courseId);
   } catch (e) {
     next(e);
   }
