@@ -219,78 +219,24 @@
 
             <!-- Instructor info tab -->
             <div class="tab-pane fade {{#if (eq activeTab 'info')}}show active{{/if}}" id="info-tab-pane" role="tabpanel" aria-labelledby="info-tab" tabindex="0">
-              <form class="settings-form" action="/instructor/profile/update/{{user.id}}" method="POST">
-                <input type="hidden" name="_csrf" value="{{csrfToken}}">
+              <form class="settings-form">
                 <div class="row mb-3">
                   <div class="col-md-6">
                     <label for="fullName" class="form-label" style="font-weight: bold;">Full Name</label>
-                    <input id="fullName" name="name" type="text" class="form-control" placeholder="" value ="{{instructor.name}}">
+                    <input id="fullName" type="text" class="form-control" placeholder="" value ="{{instructor.title}}">
                     <label for="displayName" class="form-label mt-4" style="font-weight: bold;">Display Name</label>
-                    <input id="displayName" name="display_name" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
+                    <input id="displayName" type="text" class="form-control" placeholder="" value ="{{instructor.display_name}}">
                   </div>
-                  <div class="col-md-4 me-auto me-4">
-                                        <div class="instructor-stats mt-2">
-                                          <h5 class="fw-bold mb-3">Instructor Statistics</h5>
-                  
-                                          <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <div class="d-flex align-items-center">
-                                              <i class="bi bi-star-fill text-warning me-2"></i>
-                                              <span>Instructor Rating</span>
-                                            </div>
-                                            <span class="fw-semibold">{{instructorStats.avg_rating}}</span>
-                                          </div>
-                  
-                                          <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <div class="d-flex align-items-center">
-                                              <i class="bi bi-people-fill me-2" style="color: #4eb8dd;"></i>
-                                              <span>Students</span>
-                                            </div>
-                                            <span class="fw-semibold">{{instructorStats.total_students}}</span>
-                                          </div>
-                  
-                                          <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <div class="d-flex align-items-center">
-                                              <i class="bi bi-eye-fill  me-2" style="color: #4eb8dd;"></i>
-                                              <span>Total Views</span>
-                                            </div>
-                                            <span class="fw-semibold">{{#if instructorStats.total_viewers}}{{instructorStats.total_viewers}}{{else}}0{{/if}}</span>
-                                          </div>
-                  
-                                          <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <div class="d-flex align-items-center">
-                                              <i class="bi bi-book-fill text-success me-2"></i>
-                                              <span>Courses</span>
-                                            </div>
-                                            <span class="fw-semibold">
-                                              {{#if instructorStats.total_courses}}{{instructorStats.total_courses}}{{else}}{{instructorStats.course_count}}{{/if}}
-                                            </span>
-                                          </div>
-                  
-                                          <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center">
-                                              <i class="bi bi-list-check text-secondary me-2"></i>
-                                              <span>By Status</span>
-                                            </div>
-                                            <div class="d-flex gap-2">
-                                              <span class="badge bg-secondary">Draft {{#if instructorStats.courses_breakdown.draft}}{{instructorStats.courses_breakdown.draft}}{{else}}0{{/if}}</span>
-                                              <span class="badge bg-success">Published {{#if instructorStats.courses_breakdown.published}}{{instructorStats.courses_breakdown.published}}{{else}}0{{/if}}</span>
-                                              <span class="badge bg-info" style="color-background: #4eb8dd;">Completed {{#if instructorStats.courses_breakdown.completed}}{{instructorStats.courses_breakdown.completed}}{{else}}0{{/if}}</span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        
-                                    </div>
-                  <div class="col-md-2">
+                  <div class="col-md-6">
                     <label class="form-label" style="font-weight: bold;">Display Image</label>
                     <div class="mb-2">
                       <img src="{{#if instructor.image_100x100}}{{instructor.image_100x100}}{{else}}{{instructor.avatar_url}}{{/if}}" alt="Instructor image" style="max-width: 160px; max-height: 160px; object-fit: cover; border-radius: 8px;" onerror="this.src='/img/person/default-avatar.jpg'">
                     </div>
                   </div>
-                  
                 </div>
                 <div class="mb-3">
                   <label for="biography" class="form-label" style="font-weight: bold;">Biography</label>
-                  <textarea id="biography" name="job_title" class="form-control" rows="4" placeholder="Write something about yourself...">{{instructor.job_title}}</textarea>
+                  <textarea id="biography" class="form-control" rows="4" placeholder="Write something about yourself..." value ="">{{instructor.job_title}}</textarea>
                   <div class="form-text"></div>
                 </div>
                 <button type="submit" class="btn btn-save border" style="background-color: #4eb8dd;">Save</button>

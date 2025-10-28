@@ -1,6 +1,6 @@
 // src/controllers/admininstructor.controller.js
 import { userModel } from '../models/user.model.js';
-import { instructorModel } from '../models/instructor.model.js';
+import { instructorModel } from '../models/admininstructor.model.js';
 import { db } from '../models/db.js';
 
 // === LIST INSTRUCTORS ===

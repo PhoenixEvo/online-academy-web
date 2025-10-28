@@ -1,5 +1,5 @@
 import { engine } from "express-handlebars";
-
+import hbs_sections from 'express-handlebars-sections'
 export function setupHandlebars(app) {
   app.engine(
     "hbs",
@@ -90,6 +90,7 @@ export function setupHandlebars(app) {
           selected(value, optionValue) {
     return value == optionValue ? 'selected' : '';
   },
+        fill_section: hbs_sections(),
         gt(a, b) {
           return a > b;
         },

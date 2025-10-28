@@ -3,3 +3,4 @@ import config from '../../knexfile.js';
 export const db = knex(config);
 
 
+export default db;
