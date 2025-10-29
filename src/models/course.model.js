@@ -2,7 +2,7 @@
 import { db } from './db.js';
 
 export const courseModel = {
-  // Lấy tất cả khóa học
+
    async findAll() {
     try {
       return await db('courses').select('*').orderBy('created_at', 'desc');
@@ -61,9 +61,33 @@ export const courseModel = {
       console.error('Error checking category:', error);
       throw new Error(`Error checking category: ${error.message}`);
     }
+  },
+// ADD NEW METHOD HERE: Get all courses with enrollment count
+  async getCoursesWithEnrollmentCount() {
+    try {
+      return await db('courses')
+        .select(
+          'courses.*',
+          'categories.name as category',
+          db.raw('COALESCE(enrollment_counts.student_count, 0) as student_count')
+        )
+        .leftJoin('categories', 'courses.category_id', 'categories.id')
+        .leftJoin(
+          db('enrollments')
+            .select('course_id')
+            .count('user_id as student_count')
+            .groupBy('course_id')
+            .as('enrollment_counts'),
+          'courses.id', 'enrollment_counts.course_id'
+        )
+        .orderBy('courses.created_at', 'desc');
+    } catch (error) {
+      console.error('Error fetching courses with enrollment count:', error);
+      throw new Error(`Error fetching courses: ${error.message}`);
+    }
   }
-};
 
+};
 
 // Find course by ID with instructor and category info
 export async function findById(id) {

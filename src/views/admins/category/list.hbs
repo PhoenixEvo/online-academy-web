@@ -1,16 +1,14 @@
 <div class="admin-wrapper">
-  <!-- Header với gradient -->
+  
   <div class="admin-header">
     <h1 class="admin-title">
-      <i class="bi bi-folder-fill me-2"></i>Category Management
+      
+      Category Management
     </h1>
     <a href="/admins/categories/add" class="btn-add-category">
       <i class="bi bi-plus-circle"></i> Add New
     </a>
   </div>
-
-  <!-- Flash Messages (đã có trong main.hbs) -->
-  
   <!-- Stats Cards -->
   <div class="row mb-4">
     <div class="col-md-3">
@@ -33,6 +31,7 @@
             <th><i class="bi bi-hash"></i></th>
             <th><i class="bi bi-tag"></i> Name</th>
             <th><i class="bi bi-folder2"></i> Parent</th>
+            <th><i class="bi bi-book"></i> Courses</th>
             <th><i class="bi bi-gear"></i></th>
           </tr>
         </thead>
@@ -50,6 +49,13 @@
               {{else}}
                 <span class="badge bg-secondary">Root</span>
               {{/if}}
+              </td>
+              <td class="courses">
+  {{#if course_count}}
+    <span class="badge bg-primary">{{course_count}}</span>
+  {{else}}
+    <span class="badge bg-light text-dark">0</span>
+  {{/if}}
             </td>
             <td class="actions">
               <a href="/admins/categories/edit/{{id}}" class="btn-action edit" title="Edit">
@@ -79,7 +85,7 @@
 </div>
 
 <style>
-.admin-wrapper { padding: 20px 0; }
+.admin-wrapper { padding: 20px 100px; }
 .admin-header { 
   background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
   color: var(--contrast-color); padding: 15px 20px; 

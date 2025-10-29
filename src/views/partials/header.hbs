@@ -92,15 +92,11 @@
           </li>
           {{else if (eq user.role 'admin')}}
           <!-- Admin navigation -->
-          <li class="dropdown dropdown-menu-end">
-            <a href="#"><span>Manage</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-              <li><a href="/admins/users">Users</a></li>
-              <li><a href="/admins/courses">Courses</a></li>
-              <li><a href="/admins/categories">Categories</a></li>
-              <li><a href="/admins/instructors">Instructors</a></li>
-            </ul>
-          </li>
+          <!-- ✅ Admin navigation: show links directly (no icons) -->
+<li><a href="/admins/users">Users</a></li>
+<li><a href="/admins/courses">Courses</a></li>
+<li><a href="/admins/categories">Categories</a></li>
+<li><a href="/admins/instructors">Instructors</a></li>
           {{/if}}
 
           <!-- Profile dropdown for all authenticated users -->

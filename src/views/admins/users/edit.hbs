@@ -16,7 +16,7 @@
         <label class="form-label">
           <i class="bi bi-person"></i> Name
         </label>
-        <input type="text" class="form-input" name="name" value="{{editUser.fullname}}" required placeholder="Enter name...">
+<input type="text" class="form-input" name="name" value="{{editUser.name}}" required>
       </div>
 
       <div class="form-group">
@@ -39,7 +39,7 @@
         </label>
         <select class="form-select" name="role" required>
           <option value="student" {{eq editUser.role 'student'}}>Student</option>
-          
+          <option value="instructor" {{eq editUser.role 'instructor'}}>Instructor</option>
           <option value="admin" {{eq editUser.role 'admin'}}>Admin</option>
         </select>
       </div>
@@ -69,7 +69,7 @@
 </div>
 
 <style>
-.admin-wrapper { padding: 20px 0; }
+.admin-wrapper { padding: 20px 100px; }
 .admin-header { 
   background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
   color: var(--contrast-color); padding: 15px 20px; 

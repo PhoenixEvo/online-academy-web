@@ -57,7 +57,7 @@ export function setupPassport(app) {
 }
 
 // Google OAuth 2.0 strategy
-// Google OAuth 2.0 strategy (chỉ kích hoạt khi có clientID & secret)
+// Google OAuth 2.0 strategy 
 if (
   process.env.GOOGLE_CLIENT_ID &&
   process.env.GOOGLE_CLIENT_SECRET &&
@@ -86,7 +86,6 @@ if (
             return done(null, false, { message: "Google account has no email" });
           }
 
-          // 1) Try to find by google_id
           let user = await db("users").where({ google_id: googleId }).first();
           if (user) {
             return done(null, {
@@ -97,7 +96,7 @@ if (
             });
           }
 
-          // 2) Try to link by email if exists
+         
           user = await db("users").where({ email }).first();
           if (user) {
             await db("users")

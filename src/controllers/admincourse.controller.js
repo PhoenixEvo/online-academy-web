@@ -1,14 +1,19 @@
 // src/controllers/admincourse.controller.js
 import { courseModel } from '../models/course.model.js';
-import { categoryModel } from '../models/category.model.js'; // if you have categories
+import { categoryModel } from '../models/category.model.js';
+import { db } from '../models/db.js';
 
-// ================== COURSE LIST ==================
 export const list = async (req, res) => {
   try {
-    const courses = await courseModel.findAll({ raw: true });
+    const courses = await courseModel.getCoursesWithEnrollmentCount();
+    const totalLessons = await db('lessons').count('* as count').first();
+    const totalEnrollments = await db('enrollments').count('* as count').first();
+
     return res.render('admins/course/list', {
       layout: 'main',
       courses,
+      totalLessons: parseInt(totalLessons.count),
+      totalEnrollments: parseInt(totalEnrollments.count),
       title: 'Course Management',
       success: req.flash('success'),
       error: req.flash('error'),
@@ -24,8 +29,6 @@ export const list = async (req, res) => {
     });
   }
 };
-
-// ================== DELETE COURSE ==================
 export const renderDeleteCourse = async (req, res) => {
   const { id } = req.params;
   try {

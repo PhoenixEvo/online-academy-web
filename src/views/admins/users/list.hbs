@@ -1,117 +1,141 @@
 <div class="admin-wrapper">
   <div class="admin-header">
     <h1 class="admin-title">
-      <i class="bi bi-people-fill me-2"></i>User Management
+      User Management
     </h1>
     <a href="/admins/users/add" class="btn-primary">
       <i class="bi bi-plus-circle"></i> Add New
     </a>
   </div>
-
-  <div class="row mb-4">
-    <div class="col-md-3">
-      <div class="stat-card">
-        <i class="bi bi-person-badge"></i>
-        <div>
-          <h3>{{admins.length}}</h3>
-          <p>Admins</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card">
-        <i class="bi bi-mortarboard"></i>
-        <div>
-          <h3>{{students.length}}</h3>
-          <p>Students</p>
-        </div>
-      </div>
-    </div>
+{{#if success}}
+  <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+    {{success}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
+{{/if}}
 
-  <div class="table-container">
-    <div class="table-responsive">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Avatar</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Verified</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each users}}
-          <tr class="table-row">
-            <td class="id">{{id}}</td>
-            <td class="avatar-col text-center">
-              {{#if avatar_url}}
-                <img src="{{avatar_url}}" alt="{{name}}" class="avatar-img"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
-                <span class="avatar-placeholder" style="display:none;">N/A</span>
-              {{else}}
-                <span class="avatar-placeholder">N/A</span>
-              {{/if}}
-            </td>
-            <td class="name">{{name}}</td>
-            <td class="email">{{email}}</td>
-            <td class="role">
-              {{#if (eq role 'admin')}}
-                <span class="badge bg-danger">Admin</span>
-              {{else if (eq role 'student')}}
-                <span class="badge bg-info text-dark">Student</span>
-              {{/if}}
-            </td>
-            <td class="verified text-center">
-              {{#if is_verified}}
-                <i class="bi bi-check-circle text-success"></i>
-              {{else}}
-                <i class="bi bi-x-circle text-secondary"></i>
-              {{/if}}
-            </td>
-            <td class="actions text-center">
-              <a href="/admins/users/{{id}}/edit" class="btn-action edit" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </a>
-              {{#unless (eq id '34')}}
-                <a href="/admins/users/{{id}}/delete" class="btn-action delete" title="Delete"
-                  onclick="return confirm('Bạn có chắc muốn xóa {{name}}?')">
-                  <i class="bi bi-trash"></i>
-                </a>
-              {{/unless}}
-            </td>
-          </tr>
+{{#if error}}
+  <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+    {{error}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{{/if}}
+  <div class="filter-tabs mb-4">
+    <a href="/admins/users?filter=all" 
+       class="filter-btn {{#if (eq filter 'all')}}active{{/if}}">
+      <i class="bi bi-people"></i>
+      <span>All ({{totalUsers}})</span>
+    </a>
+
+    <a href="/admins/users?filter=admin" 
+       class="filter-btn {{#if (eq filter 'admin')}}active{{/if}}">
+      <i class="bi bi-shield-lock text-danger"></i>
+      <span>Admins ({{admins.length}})</span>
+    </a>
+
+    <a href="/admins/users?filter=student" 
+       class="filter-btn {{#if (eq filter 'student')}}active{{/if}}">
+      <i class="bi bi-mortarboard text-info"></i>
+      <span>Students ({{students.length}})</span>
+    </a>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Avatar</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Verified</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each users}}
+      <tr class="table-row">
+        <td class="id">{{id}}</td>
+        <td class="avatar-col text-center">
+          {{#if avatar_url}}
+            <img src="{{avatar_url}}" alt="{{name}}" class="avatar-img"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span class="avatar-placeholder" style="display:none;">N/A</span>
           {{else}}
-          <tr>
-            <td colspan="7" class="empty-state">
-              <i class="bi bi-person-x"></i>
-              <p>No users yet. <a href="/admins/users/add">Create one!</a></p>
-            </td>
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
-    </div>
-  </div>
+            <span class="avatar-placeholder">N/A</span>
+          {{/if}}
+        </td>
+        <td class="name">{{name}}</td>
+        <td class="email">{{email}}</td>
+        <td class="role">
+          {{#if (eq role 'admin')}}
+            <span class="badge bg-danger">Admin</span>
+          {{else if (eq role 'student')}}
+            <span class="badge bg-info text-dark">Student</span>
+          
+          {{/if}}
+        </td>
+        <td class="verified text-center">
+          {{#if is_verified}}
+            <i class="bi bi-check-circle text-success"></i>
+          {{else}}
+            <i class="bi bi-x-circle text-secondary"></i>
+          {{/if}}
+        </td>
+        <td class="actions text-center">
+          {{#if (or (eq role 'admin') (eq role 'student'))}}
+            <a href="/admins/users/{{id}}/edit" class="btn-action edit" title="Edit">
+              <i class="bi bi-pencil"></i>
+            </a>
+            {{#unless (eq id '34')}}
+              <a href="/admins/users/{{id}}/delete" class="btn-action delete" title="Delete"
+                 onclick="return confirm('Are you sure you want to delete {{name}}?')">
+                <i class="bi bi-trash"></i>
+              </a>
+            {{/unless}}
+          {{else}}
+            <span class="text-muted" title="Managed elsewhere">—</span>
+          {{/if}}
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="7" class="empty-state">
+          <i class="bi bi-person-x"></i>
+          <p>No users found.</p>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
 </div>
 
 <style>
-
-<style>
-.admin-wrapper { padding: 20px; }
-.admin-header {
-  display: flex;
-  justify-content: space-between;
+.admin-wrapper { padding: 20px 100px; }
+.admin-header { 
+  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
+  color: var(--contrast-color); 
+  padding: 15px 20px; 
+  border-radius: 20px; 
+  margin-bottom: 20px; 
+  display: flex; 
+  justify-content: space-between; 
   align-items: center;
-  margin-bottom: 25px;
 }
-.admin-title {
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: var(--heading-color);
+.admin-title { 
+  margin: 0; 
+  font-size: 1.5rem; 
+  font-weight: 600; 
+  color: var(--contrast-color); 
+}
+.btn-add-category { 
+  background: rgba(255,255,255,0.2); 
+  border: 1px solid var(--contrast-color); 
+  color: var(--contrast-color); 
+  padding: 8px 16px; 
+  border-radius: 20px; 
+  text-decoration: none; 
+  font-size: 0.9rem;
+  transition: all 0.3s; 
 }
 .btn-primary {
   background-color: var(--accent-color);
@@ -122,24 +146,8 @@
   transition: all 0.3s;
 }
 .btn-primary:hover {
-  background-color: color-mix(in srgb, var(--accent-color), black 20%);
+  background-color: color-mix(in srgb, var(--accent-color), rgb(9, 9, 9) 20%);
 }
-
-.stat-card {
-  background: var(--surface-color);
-  padding: 15px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-}
-.stat-card i {
-  font-size: 1.8rem;
-  color: var(--accent-color);
-}
-.stat-card h3 { margin: 0; font-size: 1.4rem; }
-.stat-card p { margin: 0; font-size: 0.9rem; color: var(--default-color); }
 
 .table-container {
   background: var(--surface-color);
@@ -215,6 +223,52 @@
   color: var(--default-color);
 }
 
+.filter-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 50px;
+  background: var(--surface-color);
+  border: 1.5px solid transparent;
+  color: var(--default-color);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.filter-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.filter-btn.active {
+  background: var(--accent-color);
+  color: var(--contrast-color);
+  border-color: var(--accent-color);
+  font-weight: 600;
+}
+
+.filter-btn i {
+  font-size: 1rem;
+}
+
+.filter-btn span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .admin-header {
     flex-direction: column;
@@ -224,6 +278,16 @@
   .admin-table th, .admin-table td {
     font-size: 0.85rem;
     padding: 8px;
+  }
+  .filter-tabs {
+    gap: 8px;
+  }
+  .filter-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  .filter-btn i {
+    font-size: 0.9rem;
   }
 }
 </style>

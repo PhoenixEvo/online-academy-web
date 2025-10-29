@@ -1,5 +1,5 @@
 // src/models/user.model.js
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { db } from './db.js';
 
 export const userModel = {
@@ -44,7 +44,8 @@ export const userModel = {
           'updated_at',
           'is_verified',
           'google_id',
-          'provider'
+          'provider',
+          'password_hash'
         )
         .first();
 
@@ -59,43 +60,37 @@ export const userModel = {
   },
 
   async createUser({ name, email, password, role, avatar_url }, options = {}) {
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const isVerified = role === 'admin' ? true : false;  // ĐÚNG
 
-      let query = db('users')
-        .insert({
-          name,
-          email,
-          password_hash: hashedPassword,
-          role,
-          avatar_url: avatar_url || '',
-          is_verified: false,
-          provider: 'email',
-          created_at: new Date(),
-          updated_at: new Date()
-        })
-        .returning([
-          'id',
-          'name',
-          'email',
-          'role',
-          'avatar_url',
-          'created_at',
-          'updated_at',
-          'is_verified',
-          'provider'
-        ]);
+    let query = db('users')
+      .insert({
+        name,
+        email,
+        password_hash: hashedPassword,
+        role,
+        avatar_url: avatar_url || '',
+        is_verified: isVerified,  
+        provider: 'email',
+        created_at: new Date(),
+        updated_at: new Date()
+      })
+      .returning([
+        'id', 'name', 'email', 'role', 'avatar_url',
+        'created_at', 'updated_at', 'is_verified', 'provider'
+      ]);
 
-      if (options.transaction) query = query.transacting(options.transaction);
+    if (options.transaction) query = query.transacting(options.transaction);
 
-      const [user] = await query;
-      console.log('[createUser] Created:', user.id);
-      return user;
-    } catch (error) {
-      console.error('[createUser] Error:', error);
-      throw new Error(`Error creating new user: ${error.message}`);
-    }
-  },
+    const [user] = await query;
+    console.log('[createUser] Created:', user.id);
+    return user;
+  } catch (error) {
+    console.error('[createUser] Error:', error);
+    throw new Error(`Error creating new user: ${error.message}`);
+  }
+},
 
   async updateUser(id, { name, email, password, role, avatar_url, is_verified }, options = {}) {
     try {
@@ -168,7 +163,8 @@ export const userModel = {
           'created_at',
           'updated_at',
           'is_verified',
-          'provider'
+          'provider',
+          'password_hash'
         )
         .first();
 

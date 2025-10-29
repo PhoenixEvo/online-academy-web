@@ -3,7 +3,7 @@ import { userModel } from '../models/user.model.js';
 import { instructorModel } from '../models/admininstructor.model.js';
 import { db } from '../models/db.js';
 
-// === LIST INSTRUCTORS ===
+
 const list = async (req, res) => {
   try {
     const instructors = await instructorModel.findInstructors();
@@ -24,7 +24,7 @@ const list = async (req, res) => {
   }
 };
 
-// === RENDER ADD FORM ===
+
 const renderAdd = async (req, res) => {
   res.render('admins/instructors/add', {
     layout: 'main',
@@ -35,7 +35,7 @@ const renderAdd = async (req, res) => {
   });
 };
 
-// === ADD INSTRUCTOR (WITH TRANSACTION) ===
+
 const add = async (req, res) => {
   const { name, email, password, job_title, avatar_url } = req.body;
 
@@ -176,7 +176,7 @@ const update = async (req, res) => {
     res.redirect(`/admins/instructors/${id}/edit`);
   }
 };
-//RENDER DELETE CONFIRM 
+
 const renderDelete = async (req, res) => {
   const { id } = req.params;
   try {
@@ -201,7 +201,6 @@ const renderDelete = async (req, res) => {
   }
 };
 
-// DELETE INSTRUCTOR (WITH TRANSACTION)
 const deleteInstructor = async (req, res) => {
   const { id } = req.params;
 
@@ -223,7 +222,7 @@ const deleteInstructor = async (req, res) => {
   }
 };
 
-//EXPORT CONTROLLER
+
 export const adminInstructorController = {
   list,
   renderAdd,

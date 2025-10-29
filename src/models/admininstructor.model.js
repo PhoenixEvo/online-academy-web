@@ -81,7 +81,7 @@ export const instructorModel = {
         return existing;
       }
 
-      // ✅ Perform insert
+      // Perform insert
       let insertQuery = db('instructors')
         .insert({
           name: data.name,

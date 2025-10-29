@@ -9,7 +9,7 @@ router.get('/', requireAdmin, adminInstructorController.list);
 router.get('/add', requireAdmin, adminInstructorController.renderAdd);
 router.post('/add', requireAdmin, adminInstructorController.add);
 
-router.get('/:id/edit', requireAdmin, adminInstructorController.renderEdit);     // DÒNG 18
+router.get('/:id/edit', requireAdmin, adminInstructorController.renderEdit);
 router.post('/:id/update', requireAdmin, adminInstructorController.update);
 
 router.get('/:id/delete', requireAdmin, adminInstructorController.renderDelete);

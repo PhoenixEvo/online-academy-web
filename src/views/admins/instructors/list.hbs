@@ -1,7 +1,7 @@
 <div class="admin-wrapper">
   <div class="admin-header">
     <h1 class="admin-title">
-      <i class="bi bi-person-workspace me-2"></i>Instructor Management
+      Instructor Management
     </h1>
     <a href="/admins/instructors/add" class="btn-add-category">
       <i class="bi bi-plus-circle me-2"></i>Add Instructor
@@ -72,7 +72,7 @@
 </div>
 
 <style>
-.admin-wrapper { padding: 20px 0; }
+.admin-wrapper { padding: 20px 100px; }
 .admin-header { 
   background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
   color: var(--contrast-color); 
@@ -135,22 +135,26 @@
 .id { 
   font-weight: 600; 
   color: color-mix(in srgb, var(--default-color), transparent 50%); 
-  width: 10%; 
+  width: 5%; 
 }
 .avatar-col { 
-  width: 10%; 
+  width: 6%; 
 }
 .name { 
-  width: 20%; 
+  width: 18%; 
 }
 .email { 
+  width: 23%; 
+   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-title { 
   width: 25%; 
 }
-.job-title { 
-  width: 20%; 
-}
 .verified { 
-  width: 10%; 
+  width: 18%; 
 }
 .actions { 
   width: 15%; 
