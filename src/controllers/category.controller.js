@@ -1,17 +1,17 @@
-import * as Category from '../models/category.model.js';
+import { categoryModel, getWithCourseCounts, getCoursesByCategoryRecursive, getCoursesByCategory } from '../models/category.model.js';
 
 // GET /categories - List all categories or show courses by category
 export async function list(req, res, next) {
     try {
         const categoryId = req.query.category && req.query.category !== '' ? parseInt(req.query.category) : null;
         if (categoryId) {
-            const category = await Category.findById(categoryId);
+            const category = await categoryModel.findById(categoryId);
             if (!category) {
                 return res.status(404).render('error', { message: 'Category not found' });
             }
 
             // Use recursive function to get courses from parent + subcategories
-            const courses = await Category.getCoursesByCategoryRecursive(categoryId);
+            const courses = await getCoursesByCategoryRecursive(categoryId);
 
             res.render('category/detail', {
                 title: category.name,
@@ -19,7 +19,7 @@ export async function list(req, res, next) {
                 courses
             });
         } else {
-            const categories = await Category.getWithCourseCounts();
+            const categories = await getWithCourseCounts();
             res.render('category/list', {
                 title: 'All Categories',
                 categories
@@ -40,14 +40,14 @@ export async function detail(req, res, next) {
             return res.status(400).render('error', { message: 'Invalid category ID' });
         }
 
-        const category = await Category.findById(categoryId);
+        const category = await categoryModel.findById(categoryId);
 
         if (!category) {
             return res.status(404).render('error', { message: 'Category not found' });
         }
 
         // Get courses in this category
-        const courses = await Category.getCoursesByCategory(categoryId);
+        const courses = await getCoursesByCategory(categoryId);
 
         res.render('category/detail', {
             title: category.name,
