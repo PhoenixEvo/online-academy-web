@@ -1,7 +1,24 @@
 <header id="header" class="header d-flex align-items-center sticky-top">
   <div class="container-fluid position-relative d-flex align-items-center gap-3 justify-content-between">
 
-    <a href="/" class="logo d-flex align-items-center">
+    <!-- Mobile Search + Logo group: search left, logo at right edge -->
+    <div class="mobile-search-logo-group d-xl-none d-flex align-items-center">
+      <form class="d-flex mobile-search" role="search" action="/courses/search" method="GET">
+        <input class="form-control" type="search" name="q" placeholder="Search..." aria-label="Search" />
+        <button class="btn btn-outline-success" type="submit">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
+
+      <a href="/" class="logo d-flex align-items-center">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <img src="/img/logo.png" alt="">
+        <h1 class="sitename">Mentor</h1>
+      </a>
+    </div>
+
+    <!-- Desktop Logo -->
+    <a href="/" class="logo d-none d-xl-flex align-items-center">
       <!-- Uncomment the line below if you also wish to use an image logo -->
       <img src="/img/logo.png" alt="">
       <h1 class="sitename">Mentor</h1>
@@ -67,7 +84,7 @@
           <!-- All Courses -->
           <li><a href="/courses">All Courses</a></li>
           <!-- Search -->
-          <li>
+          <li class="desktop-search">
             <form class="d-flex" role="search" action="/courses/search" method="GET">
               <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
               <button class="btn btn-outline-success" type="submit">
@@ -93,15 +110,15 @@
             <a href="#"><span>Hi, {{user.name}}</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
               {{#if (eq user.role 'admin')}}
-                  <li><a href="/profile">My Profile</a></li>
+              <li><a href="/profile">My Profile</a></li>
               {{else}}
-                  {{#if (eq user.role 'instructor')}}
-                    <li><a href="/profile?tab=account">My Instructor Profile</a></li>
-                  {{else}}
-                    {{#if (eq user.role 'student')}}
-                    <li><a href="/profile">My Profile</a></li>
-                    {{/if}}
-                  {{/if}}
+              {{#if (eq user.role 'instructor')}}
+              <li><a href="/profile?tab=account">My Instructor Profile</a></li>
+              {{else}}
+              {{#if (eq user.role 'student')}}
+              <li><a href="/profile">My Profile</a></li>
+              {{/if}}
+              {{/if}}
               {{/if}}
               {{#unless (eq user.role 'instructor')}}
               <li><a href="/{{user.role}}s/dashboard">Dashboard</a></li>
@@ -165,7 +182,7 @@
           <!-- Contact -->
           <li><a href="/contact">Contact</a></li>
           <!-- Search -->
-          <li>
+          <li class="desktop-search">
             <form class="d-flex" role="search" action="/courses/search" method="GET">
               <input class="form-control" type="search" name="q" placeholder="Search courses..." aria-label="Search" />
               <button class="btn btn-outline-success" type="submit">
@@ -188,4 +205,3 @@
     </div>
   </div>
 </header>
-`

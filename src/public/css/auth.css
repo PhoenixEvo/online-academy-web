@@ -32,6 +32,84 @@ body>form {
 	font-family: "Source Sans Pro", sans-serif;
 }
 
+/* --------------------------------------------------------------
+ * Mobile tweaks - make auth forms slightly smaller on small screens
+ * -------------------------------------------------------------- */
+@media (max-width: 576px) {
+	body>form {
+		max-width: 92%;
+		margin: 1.25em auto;
+		padding: 1.25em 1em;
+	}
+
+	body>form .svgContainer {
+		width: 140px;
+		height: 140px;
+		margin-bottom: 0.75em;
+	}
+
+	body>form label {
+		font-size: 1.05em;
+		margin-bottom: 8px;
+	}
+
+	body>form input[type=email],
+	body>form input[type=text],
+	body>form input[type=number],
+	body>form input[type=url],
+	body>form input[type=password] {
+		height: 52px;
+		font-size: 1.1em;
+		padding: 0.65em 0.85em 0;
+	}
+
+	body>form button {
+		height: 52px;
+		font-size: 1.15em;
+		padding: 0.5em 0.85em 0.85em;
+	}
+
+	/* OTP specific controls */
+	#otpCode {
+		height: 52px !important;
+		font-size: 1.1em !important;
+		padding: 0.65em 0.85em 0 !important;
+	}
+
+	#verifyOtp {
+		height: 52px !important;
+		font-size: 1.15em !important;
+		padding: 0.5em 0.85em 0.85em !important;
+	}
+}
+
+@media (max-width: 360px) {
+	body>form {
+		max-width: 95%;
+		margin: 1em auto;
+		padding: 0.9em 0.8em;
+	}
+
+	body>form .svgContainer {
+		width: 120px;
+		height: 120px;
+	}
+
+	body>form input[type=email],
+	body>form input[type=text],
+	body>form input[type=number],
+	body>form input[type=url],
+	body>form input[type=password] {
+		height: 48px;
+		font-size: 1em;
+	}
+
+	body>form button {
+		height: 48px;
+		font-size: 1.05em;
+	}
+}
+
 body>form .svgContainer {
 	position: relative;
 	width: 200px;

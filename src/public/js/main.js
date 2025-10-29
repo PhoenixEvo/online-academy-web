@@ -28,6 +28,8 @@
 
   document.addEventListener("scroll", toggleScrolled);
   window.addEventListener("load", toggleScrolled);
+  // Ensure correct initial layout without waiting for user interaction
+
 
   /**
    * Mobile nav toggle
@@ -144,7 +146,7 @@
   }
 
   window.addEventListener("load", initSwiper);
-  
+
   /**
    * Password visibility toggle (delegated)
    * Works across pages without inline scripts (CSP friendly)
@@ -199,6 +201,7 @@
     }
   });
 
+
   /**
    * Newsletter subscription form handler (CSP friendly)
    */
@@ -206,7 +209,7 @@
     const form = e.target;
     if (!(form instanceof HTMLFormElement)) return;
     if (form.id !== 'newsletter-form') return;
-    
+
     e.preventDefault();
     handleNewsletterSubmission(form);
   });
@@ -221,12 +224,12 @@
     const loadingDiv = form.querySelector('.loading');
     const errorDiv = form.querySelector('.error-message');
     const sentDiv = form.querySelector('.sent-message');
-    
+
     // Hide previous messages
     errorDiv.classList.remove('show');
     sentDiv.classList.remove('show');
     loadingDiv.classList.add('show');
-    
+
     try {
       const response = await fetch('/newsletter', {
         method: 'POST',
@@ -236,11 +239,11 @@
         },
         body: JSON.stringify({ email: email })
       });
-      
+
       const result = await response.json();
-      
+
       loadingDiv.classList.remove('show');
-      
+
       if (result.success) {
         sentDiv.classList.add('show');
         emailInput.value = '';
