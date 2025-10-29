@@ -1,6 +1,24 @@
 <form action="/auth/register" method="POST" novalidate>
   <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
+  <!-- Display validation errors or general error -->
+  {{#if errors}}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <ul style="margin: 0; padding-left: 20px;">
+        {{#each errors}}
+          <li>{{this.msg}}</li>
+        {{/each}}
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {{/if}}
+  {{#if error}}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{error}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {{/if}}
+
   <!-- Full name -->
   <div class="inputGroup inputGroup1">
     <label for="registerName" id="registerNameLabel">Full name</label>
@@ -12,6 +30,7 @@
       required
       autocomplete="name"
       aria-labelledby="registerNameLabel"
+      value="{{#if values}}{{values.name}}{{/if}}"
     />
     <p class="helper helper1">e.g. John Doe</p>
   </div>
@@ -27,6 +46,7 @@
       required
       autocomplete="email"
       aria-labelledby="registerEmailLabel"
+      value="{{#if values}}{{values.email}}{{/if}}"
     />
     <p class="helper helper1">email@domain.com</p>
   </div>
@@ -77,20 +97,21 @@
           name="role" 
           value="student" 
           required 
-          checked
+          {{#if values}}
+            {{#if (eq values.role 'student')}}checked{{/if}}
+          {{else}}
+            checked
+          {{/if}}
         />
         <span class="radioLabel">Student - Learn courses</span>
       </label>
-      <label for="roleInstructor" class="radioOption">
-        <input 
-          type="radio" 
-          id="roleInstructor" 
-          name="role" 
-          value="instructor" 
-          required
-        />
-        <span class="radioLabel">Instructor - Create courses</span>
-      </label>
+      <div class="instructor-notice" style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">
+        <p style="margin: 0; font-size: 14px; color: #6c757d;">
+          <i class="bi bi-info-circle"></i> 
+          <strong>Want to become an instructor?</strong> Instructor accounts are created by administrators. 
+          Please contact us at <a href="mailto:support@mentoracademy.com">support@mentoracademy.com</a> for more information.
+        </p>
+      </div>
     </div>
   </div>
 
@@ -109,7 +130,7 @@
   </div>
 
   <!-- Link to login -->
-  <div class="inputGroup inputGroup6">
+  <div class="inputGroup inputGroup6" style="text-align: center;">
     <p class="helper helperAlt" style="font-size:1em; margin-top:0.75em;">
       Already have an account? <a href="/auth/login">Log in</a>
     </p>

@@ -1,4 +1,93 @@
+// src/models/course.model.js
 import { db } from './db.js';
+
+export const courseModel = {
+
+   async findAll() {
+    try {
+      return await db('courses').select('*').orderBy('created_at', 'desc');
+    } catch (error) {
+      console.error('Error fetching course list:', error);
+      throw new Error(`Error fetching course list: ${error.message}`);
+    }
+  },
+
+  // Get course by ID
+  async getCourseById(id) {
+    try {
+      return await db('courses')
+        .where({ id })
+        .first();
+    } catch (error) {
+      console.error('Error fetching course:', error);
+      throw new Error(`Error fetching course: ${error.message}`);
+    }
+  },
+
+  // Delete course
+  async deleteCourse(id) {
+    try {
+      const result = await db('courses').where({ id }).del();
+      return result > 0;
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      throw new Error(`Error deleting course: ${error.message}`);
+    }
+  },
+
+  // Check if course has any enrollments
+  async hasEnrollments(courseId) {
+    try {
+      const count = await db('enrollments')
+        .where({ course_id: courseId })
+        .count('id as count')
+        .first();
+      return count.count > 0;
+    } catch (error) {
+      console.error('Error checking enrollments:', error);
+      throw new Error(`Error checking enrollments: ${error.message}`);
+    }
+  },
+
+  // Check if any course belongs to a category
+  async hasCategory(categoryId) {
+    try {
+      const count = await db('courses')
+        .where({ category_id: categoryId })
+        .count('id as count')
+        .first();
+      return count.count > 0;
+    } catch (error) {
+      console.error('Error checking category:', error);
+      throw new Error(`Error checking category: ${error.message}`);
+    }
+  },
+// ADD NEW METHOD HERE: Get all courses with enrollment count
+  async getCoursesWithEnrollmentCount() {
+    try {
+      return await db('courses')
+        .select(
+          'courses.*',
+          'categories.name as category',
+          db.raw('COALESCE(enrollment_counts.student_count, 0) as student_count')
+        )
+        .leftJoin('categories', 'courses.category_id', 'categories.id')
+        .leftJoin(
+          db('enrollments')
+            .select('course_id')
+            .count('user_id as student_count')
+            .groupBy('course_id')
+            .as('enrollment_counts'),
+          'courses.id', 'enrollment_counts.course_id'
+        )
+        .orderBy('courses.created_at', 'desc');
+    } catch (error) {
+      console.error('Error fetching courses with enrollment count:', error);
+      throw new Error(`Error fetching courses: ${error.message}`);
+    }
+  }
+
+};
 
 // Find course by ID with instructor and category info
 export async function findById(id) {
@@ -19,7 +108,7 @@ export async function findById(id) {
 }
 
 // Find courses with pagination and sorting
-export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc', categoryId = null, search = null } = {}) {
+export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList = null, categoryId = null, search = null, includeSubcategories = false } = {}) {
     const offset = (page - 1) * pageSize;
 
     let query = db('courses')
@@ -33,58 +122,106 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
             'courses.rating_count',
             'courses.views',
             'courses.thumbnail_url',
+            'courses.created_at',
             'users.name as instructor_name',
-            'categories.name as category_name'
+            'categories.name as category_name',
+            db.raw('COUNT(enrollments.id) as weekly_enrollments')
         )
         .leftJoin('users', 'courses.instructor_id', 'users.id')
         .leftJoin('categories', 'courses.category_id', 'categories.id')
-        .where('courses.status', 'published');
+        .leftJoin('enrollments', function () {
+            this.on('courses.id', '=', 'enrollments.course_id')
+                .andOn(db.raw('enrollments.purchased_at >= NOW() - INTERVAL \'7 days\''));
+        })
+        .where('courses.status', 'published')
+        .groupBy('courses.id', 'users.name', 'categories.name');
 
     // Filter by category
     if (categoryId) {
-        query = query.where('courses.category_id', categoryId);
+        if (includeSubcategories) {
+            // Get all subcategory IDs recursively
+            const getAllSubcategoryIds = async (parentId) => {
+                const subcategories = await db('categories')
+                    .select('id')
+                    .where('parent_id', parentId);
+
+                let allIds = [parentId]; // Include the parent category itself
+
+                for (const sub of subcategories) {
+                    const subIds = await getAllSubcategoryIds(sub.id);
+                    allIds = allIds.concat(subIds);
+                }
+
+                return allIds;
+            };
+
+            const categoryIds = await getAllSubcategoryIds(categoryId);
+            query = query.whereIn('courses.category_id', categoryIds);
+        } else {
+            query = query.where('courses.category_id', categoryId);
+        }
     }
 
     // Full-text search functionality
     if (search) {
-        // Use PostgreSQL full-text search with tsvector
-        // Search in title, short_desc, and category name
-        // Fallback to ILIKE if full-text doesn't match
-        query = query.where(function() {
+        query = query.where(function () {
             this.whereRaw(`
                 to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
                 to_tsvector('english', COALESCE(categories.name, ''))
                 @@ plainto_tsquery('english', ?)
             `, [search])
-            .orWhere('courses.title', 'ilike', `%${search}%`)
-            .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-            .orWhere('categories.name', 'ilike', `%${search}%`);
+                .orWhere('courses.title', 'ilike', `%${search}%`)
+                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
+                .orWhere('categories.name', 'ilike', `%${search}%`);
         });
     }
 
-    // Apply sorting
-    switch (sort) {
-        case 'rating_desc':
-            query = query.orderBy('courses.rating_avg', 'desc');
-            break;
-        case 'rating_asc':
-            query = query.orderBy('courses.rating_avg', 'asc');
-            break;
-        case 'price_desc':
-            query = query.orderBy('courses.price', 'desc');
-            break;
-        case 'price_asc':
-            query = query.orderBy('courses.price', 'asc');
-            break;
-        case 'newest':
-            query = query.orderBy('courses.created_at', 'desc');
-            break;
-        case 'oldest':
-            query = query.orderBy('courses.created_at', 'asc');
-            break;
-        default:
-            query = query.orderBy('courses.rating_avg', 'desc');
+    const ORDER_MAP = {
+        price: 'COALESCE(courses.sale_price, courses.price)',
+        rating: 'courses.rating_avg',
+        date: 'courses.created_at'
+    };
+    let finalSortList = Array.isArray(sortList) && sortList.length ? sortList : null;
+    if (!finalSortList) {
+        if (!sort) {
+            finalSortList = [{ field: 'bestseller', dir: 'desc' }, { field: 'rating', dir: 'desc' }];
+        } else if (String(sort).includes(',')) {
+            finalSortList = String(sort)
+                .split(',')
+                .map(s => s.trim())
+                .filter(Boolean)
+                .map(s => {
+                    if (s === 'newest') return { field: 'date', dir: 'desc' };
+                    if (s === 'oldest') return { field: 'date', dir: 'asc' };
+                    const [field, dir] = s.split('_');
+                    return { field, dir: dir === 'asc' ? 'asc' : 'desc' };
+                });
+        } else {
+            switch (sort) {
+                case 'rating_desc': finalSortList = [{ field: 'rating', dir: 'desc' }]; break;
+                case 'rating_asc': finalSortList = [{ field: 'rating', dir: 'asc' }]; break;
+                case 'price_desc': finalSortList = [{ field: 'price', dir: 'desc' }]; break;
+                case 'price_asc': finalSortList = [{ field: 'price', dir: 'asc' }]; break;
+                case 'newest': finalSortList = [{ field: 'date', dir: 'desc' }]; break;
+                case 'oldest': finalSortList = [{ field: 'date', dir: 'asc' }]; break;
+                default:
+                    finalSortList = [{ field: 'bestseller', dir: 'desc' }, { field: 'rating', dir: 'desc' }];
+            }
+        }
     }
+    for (const { field, dir } of finalSortList) {
+        if (field === 'bestseller') {
+            query = query.orderBy('weekly_enrollments', dir);
+        } else if (field === 'price') {
+            query = query.orderByRaw(`${ORDER_MAP.price} ${dir.toUpperCase()}`);
+        } else {
+            const col = ORDER_MAP[field];
+            if (col) query = query.orderByRaw(`${col} ${dir.toUpperCase()}`);
+        }
+    }
+    query = query.orderBy('courses.id', 'asc');
+
+
     const countQuery = db('courses')
         .where('courses.status', 'published');
 
@@ -96,15 +233,15 @@ export async function findPaged({ page = 1, pageSize = 12, sort = 'rating_desc',
         // Join categories for full-text search in count query
         countQuery
             .leftJoin('categories as cat_search', 'courses.category_id', 'cat_search.id')
-            .where(function() {
+            .where(function () {
                 this.whereRaw(`
                     to_tsvector('english', COALESCE(courses.title, '') || ' ' || COALESCE(courses.short_desc, '')) ||
                     to_tsvector('english', COALESCE(cat_search.name, ''))
                     @@ plainto_tsquery('english', ?)
                 `, [search])
-                .orWhere('courses.title', 'ilike', `%${search}%`)
-                .orWhere('courses.short_desc', 'ilike', `%${search}%`)
-                .orWhere('cat_search.name', 'ilike', `%${search}%`);
+                    .orWhere('courses.title', 'ilike', `%${search}%`)
+                    .orWhere('courses.short_desc', 'ilike', `%${search}%`)
+                    .orWhere('cat_search.name', 'ilike', `%${search}%`);
             });
     }
 
@@ -215,7 +352,7 @@ export async function getFeaturedThisWeek(limit = 4) {
         )
         .leftJoin('users', 'courses.instructor_id', 'users.id')
         .leftJoin('categories', 'courses.category_id', 'categories.id')
-        .leftJoin('enrollments', function() {
+        .leftJoin('enrollments', function () {
             this.on('courses.id', '=', 'enrollments.course_id')
                 .andOn(db.raw('enrollments.purchased_at >= NOW() - INTERVAL \'7 days\''));
         })
@@ -266,6 +403,8 @@ export async function getCourseStats(courseId) {
 
 // Get instructor statistics
 export async function getInstructorStats(instructorId) {
+    if (!instructorId) return null;
+
     const courseCount = await db('courses')
         .where('instructor_id', instructorId)
         .where('status', 'published')
@@ -285,9 +424,42 @@ export async function getInstructorStats(instructorId) {
         .avg('rating_avg as avg')
         .first();
 
+    // Sum total views across all courses by this instructor (any status)
+    const totalViews = await db('courses')
+        .where('instructor_id', instructorId)
+        .sum({ sum: 'views' })
+        .first();
+
+    // Count courses by status for breakdown
+    const byStatusRows = await db('courses')
+        .where('instructor_id', instructorId)
+        .select('status')
+        .count('* as count')
+        .groupBy('status');
+
+    const breakdown = { draft: 0, published: 0, completed: 0 };
+    for (const r of byStatusRows) {
+        const key = String(r.status || '').toLowerCase();
+        if (key in breakdown) breakdown[key] = parseInt(r.count || 0);
+    }
+
+    const total_courses = breakdown.draft + breakdown.published + breakdown.completed;
+
     return {
-        course_count: parseInt(courseCount.count || 0),
+        course_count: parseInt(courseCount.count || 0), // published only (back-compat)
         total_students: parseInt(totalStudents.count || 0),
-        avg_rating: parseFloat(avgRating.avg || 0).toFixed(1)
+        avg_rating: parseFloat(avgRating.avg || 0).toFixed(1),
+        total_viewers: parseInt((totalViews && (totalViews.sum ?? totalViews.SUM)) || 0),
+        total_courses,
+        courses_breakdown: breakdown
     };
+}
+
+// Get instructor info from instructors table
+export async function getInstructorInfo(userId) {
+    if (!userId) return null;
+    return db('instructors')
+        .where('user_id', userId)
+        .select('id', 'name', 'display_name', 'job_title', 'image_50x50', 'image_100x100')
+        .first();
 }
