@@ -1,0 +1,132 @@
+<link href="/css/instructors.css" rel="stylesheet">
+<div class="card me-5 ms-5 mt-4 mb-4">
+    <div class="card-body no-border">
+        <h4 class="card-title" style="font-weight: bold;font-size: 1.5rem;">My courses</h4>
+        <div class="tab-wrapper">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button  style="font-weight: bold;"
+            class="nav-link active" 
+            id="home-tab" 
+            data-bs-toggle="tab" 
+            data-bs-target="#home-tab-pane" 
+            type="button" role="tab" 
+            aria-controls="home-tab-pane" 
+            aria-selected="true">
+              My Courses
+            </button>
+          </li>
+          {{!-- <li class="nav-item" role="presentation">
+            <button  style="font-weight: bold;"
+            class="nav-link" 
+            id="profile-tab" 
+            data-bs-toggle="tab" 
+            data-bs-target="#profile-tab-pane" 
+            type="button" 
+            role="tab" 
+            aria-controls="profile-tab-pane" 
+            aria-selected="false">
+                Course Bundles
+            </button>
+          </li> --}}
+        </ul>
+        </div>
+        
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+                <form class="input-group" method="get" role="search">
+                  <input type="search" class="form-control" aria-label="Search" placeholder="Search your courses" name="q" value="{{q}}">
+                  <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i>
+                  </button>
+                </form>
+              </div>
+              <div class="col-12 col-sm-4 col-md-6 col-lg-8 d-flex justify-content-sm-end">
+                <a class="btn btn-primary ms-auto" href="/instructor/courses/add">New Courses</a>
+              </div>
+            </div>
+            
+            <div class="course-list mt-3">
+              {{#if empty}}
+                <div class="row">
+                  <div class="col">
+                    <p>There is no product fit for requirements</p>
+                  </div>
+                </div>
+              {{else}}
+                {{#if q}}
+                  {{!-- <p>Search results for "{{q}}":</p> --}}
+                {{/if}}
+                {{#each courses}}
+              <div class="row align-items-start gy-2">
+                          <div class="col-12 col-lg-9">
+              <div class="card mb-3 w-100">
+                <div class="row g-0">
+                  <div class="col-md-4">
+                    <div class="image-container ">
+                    <img src="{{this.thumbnail_url}}" class="img-fluid rounded-start" alt="{{this.title}}" onerror="this.onerror=null;this.src='https://placehold.co/600x400'">
+                    <div class="course-overlay">
+                       <a href="/instructor/courses/edit/{{this.id}}" class="course-link">Edit course</a>
+                     </div>
+                     </div>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      <h5 class="card-title fw-bold" style="font-size: 1.1rem;"><a href="/instructor/courses/details/{{this.id}}">{{this.title}}</a></h5>
+                      <small class="card-text">{{this.short_desc}}</small>
+                      <div class="row">
+                      <div class="col-4">
+                      <p class="card-text"><small class="text-body-secondary fw-bold">
+                        <i class="bi bi-star-fill" style="color: #4eb8dd;"></i> {{this.rating_avg}}
+                      </small></p>
+                      </div>
+                      <div class="col-4">
+                      <p class="card-text"><small class="text-body-secondary fw-bold">
+                        <i class="bi bi-book-fill me-2 mb-2" style="color: #4eb8dd;"></i>Status: {{this.status}}
+                      </small></p>
+                      </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+          </div>
+          </div>
+          
+                      <div class="col-12 col-lg-3 d-flex justify-content-start justify-content-lg-end">
+                        <a href="/instructor/courses/details/{{this.id}}" class="btn btn-primary"><i class="bi bi-info-circle-fill"></i></a>
+                      </div>
+                      </div>
+              {{/each}}
+              {{/if}}
+        </div>
+        <nav aria-label="courses-pagination">
+          <ul class="pagination justify-content-center" style="color: #4eb8dd;">
+            <li class="page-item {{#if isFirstPage}}disabled{{/if}}">
+              <a class="page-link" href="?page={{prevPage}}{{#if q}}&q={{q}}{{/if}}" tabindex="-1" aria-disabled="{{#if isFirstPage}}true{{else}}false{{/if}}">Previous</a>
+            </li>
+            {{#each page_numbers}}
+              {{#if isCurrent}}
+                <li class="page-item active" aria-current="page">
+                  <a class="page-link" href="javascript:void(0);">{{value}}</a>
+                </li>
+              {{else}}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{value}}{{#if ../q}}&q={{../q}}{{/if}}">{{value}}</a>
+                </li>
+              {{/if}}
+            {{/each}}
+            <li class="page-item {{#if isLastPage}}disabled{{/if}}">
+              <a class="page-link" href="?page={{nextPage}}{{#if q}}&q={{q}}{{/if}}">Next</a>
+            </li>
+          </ul>
+        </nav>
+        {{!-- <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                    course bundle
+        </div> --}}
+    </div>
+    
+</div>

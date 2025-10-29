@@ -1,0 +1,147 @@
+
+{{#fill_section 'css'}} 
+<link href="/css/instructors.css" rel="stylesheet">
+{{/fill_section}}
+<script>
+
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    if (isNaN(date)) return dateStr;
+    return date.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const created = document.getElementById('created');
+    const updated = document.getElementById('updated');
+
+    if (created) created.textContent = formatDate(created.textContent.trim());
+    if (updated) updated.textContent = formatDate(updated.textContent.trim());
+  });
+</script>
+
+<div class="card shadow-lg border-0 rounded-4 overflow-hidden my-4 me-3 ms-3">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <img src="{{course.thumbnail_url}}" alt="{{course.title}}" class="img-fluid h-100 object-fit-cover">
+    </div>
+
+    <div class="col-md-8">
+      
+      <div class="card-body p-4">
+        <div class="row">
+          <div class="col-9 ">
+        <h3 class="fw-bold mb-3 text-primary">{{course.title}}</h3>
+          </div>
+          <div class="col-2 w-auto ms-auto ">
+            <a href="/instructor/courses/edit/{{course.id}}" class="btn btn-primary ms-auto"><i class="bi bi-pen"></i></a>
+
+          </div>
+
+          
+        </div>
+
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-star-fill text-warning me-2"></i>
+          <h6 class="mb-0 fw-bold text-dark">Average Rating:</h6>
+          <span class="ms-2 text-muted">{{course.rating_avg}}</span>
+        </div>
+
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-people-fill text-danger me-2"></i>
+          <h6 class="mb-0 fw-bold text-dark">Rating Count:</h6>
+          <span class="ms-2 text-muted">{{course.rating_count}}</span>
+        </div>
+
+        <h5 class="text-success fw-bold mb-2 " style="text-decoration: line-through;">
+          <i class="bi bi-tag-fill me-2"></i>
+          Price: {{ formatPrice course.price}}đ
+        </h5>
+        <h5 class="text-danger fw-bold mb-3">
+          <i class="bi bi-cash-coin me-2"></i>
+          Sale Price: {{formatPrice course.sale_price}}đ
+        </h5>
+
+        <div class="mb-3">
+          <h6 class="fw-bold mb-1 text-dark">Description:</h6>
+          <div class="text-muted small">{{{course.full_desc}}}</div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-eye me-2 text-primary"></i>
+            <strong class="me-1">Viewers:</strong>
+            <span>{{#if course.viewers}}{{course.viewers}}{{else}}0{{/if}}</span>
+          </div>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-flag-fill me-2 text-secondary"></i>
+            <strong class="me-1">Status:</strong>
+            <span>{{course.status}}</span>
+          </div>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-people-fill me-2 text-success"></i>
+            <strong class="me-1">Enrollments:</strong>
+            <span>{{course.enrollment_count}} students</span>
+          </div>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-calendar-plus me-2 text-muted"></i>
+            <strong class="me-1">Created:</strong>
+            <span id="created">{{course.created_at}}</span>
+          </div>
+          <div class="col-sm-6 mb-2 d-flex align-items-center">
+            <i class="bi bi-arrow-clockwise me-2 text-muted"></i>
+            <strong class="me-1">Updated:</strong>
+            <span id="updated">{{course.updated_at}}</span>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="card-footer bg-light px-4 py-3">
+    <h5 class="fw-bold mb-3 text-secondary">Student Reviews</h5>
+
+    {{#if reviews}}
+      {{#each reviews}}
+        <div class="card mb-3 border-0 shadow-sm rounded-3">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-2">
+              <img src="{{#if this.user_avatar_url}}{{this.user_avatar_url}}{{else}}https://placehold.co/50x50{{/if}}" class="rounded-circle border me-3" alt="User avatar" width="50" height="50">
+              <div>
+                <h6 class="mb-1 fw-bold text-primary">{{this.user_name}}</h6>
+                <div class="text-warning small">
+                  {{#if this.rating}}
+                    {{#if (eq this.rating 5)}}
+                      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    {{else if (eq this.rating 4)}}
+                      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                    {{else if (eq this.rating 3)}}
+                      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                    {{else if (eq this.rating 2)}}
+                      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                    {{else if (eq this.rating 1)}}
+                      <i class="bi bi-star-fill"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                    {{else}}
+                      <i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                    {{/if}}
+                  {{/if}}
+                </div>
+              </div>
+            </div>
+            <p class="card-text text-muted small mb-0">{{{this.comment}}}</p>
+          </div>
+        </div>
+      {{/each}}
+    {{else}}
+      <p class="text-muted fst-italic">No reviews yet.</p>
+    {{/if}}
+    <a href="/instructor/courses" class="btn btn-secondary"style="background-color: #4eb8dd;"><i class="bi bi-skip-backward-fill"></i> Back</a>  
+    
+  </div>
+</div>

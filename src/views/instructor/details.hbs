@@ -1,0 +1,132 @@
+<body class="instructor-detail-page">
+    <main class="main">
+        <!-- Instructor Hero Section -->
+        <section class="instructor-hero section"
+            style="background: linear-gradient(135deg, #142989 10%, #0da4c3 100%); padding: 3rem 0;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="instructor-hero-content" data-aos="fade-up" data-aos-delay="100">
+                            <nav aria-label="breadcrumb" class="mb-3">
+                                <ol class="breadcrumb"
+                                    style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 5px; padding: 0.75rem;">
+                                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none"
+                                            style="color: #ffffff;">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="/instructors" class="text-decoration-none"
+                                            style="color: #ffffff;">Instructors</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page" style="color: #f8f9fa;">
+                                        Profile</li>
+                                </ol>
+                            </nav>
+
+                            <div class="d-flex align-items-center mb-4">
+                                <img src="{{instructor.image_100x100}}" class="rounded-circle me-3"
+                                    alt="{{instructor.name}}"
+                                    style="width: 80px; height: 80px; border: 3px solid #ffffff;">
+                                <div>
+                                    <h1 class="h2 fw-bold mb-1" style="color: #ffffff;">{{instructor.name}}</h1>
+                                    <p class="text-white-50 mb-0">{{instructor.job_title}}</p>
+                                </div>
+                            </div>
+
+                            <p class="lead text-white mb-4" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                                {{instructor.bio}}
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="stat-card"
+                                    style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 15px;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-star-fill text-warning me-2" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <h5 class="mb-0 text-white fw-bold">{{instructorStats.avg_rating}}</h5>
+                                            <small class="text-white-50">Average Rating</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stat-card"
+                                    style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 15px;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-people-fill text-info me-2" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <h5 class="mb-0 text-white fw-bold">{{instructorStats.total_students}}</h5>
+                                            <small class="text-white-50">Total Students</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stat-card"
+                                    style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 15px;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-book-fill text-success me-2" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <h5 class="mb-0 text-white fw-bold">{{instructorStats.course_count}}</h5>
+                                            <small class="text-white-50">Total Courses</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Instructor Content -->
+        <section class="instructor-content section py-5">
+            <div class="container">
+                <div class="row">
+                    <!-- About Section -->
+                    <div class="col-lg">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body p-4">
+                                <h3 class="h4 fw-bold mb-3">About the Instructor</h3>
+                                <p>{{instructor.bio}}</p>
+
+                                <h5 class="fw-bold mt-4 mb-3">Achievements</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Expert in
+                                        multiple programming languages</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>10+ years
+                                        of teaching experience</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Published
+                                        author and industry speaker</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Instructor's Courses -->
+                        <div class="courses-section">
+                            <h4 class="h3 fw-bold mb-3">Courses</h4>
+                            <div class="row g-4">
+                                {{#each instructorCourses}}
+                                <div class="col-md-4">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <img src="{{thumbnail_url}}" class="card-img-top" alt="{{title}}"
+                                            style="height: 180px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h6 class="card-title fw-bold mb-2">{{title}}</h6>
+                                            <p class="card-text small text-muted">{{short_desc}}</p>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="rating me-2">
+                                                    {{#each (range 1 5)}}
+                                                    <i
+                                                        class="bi bi-star{{#if (gt ../rating_avg this)}}-fill{{/if}} text-warning small"></i>
+                                                    {{/each}}
+                                                </div>
+                                                <span class="small text-muted">{{rating_avg}} ({{rating_count}})</span>
+                                            </div>
+                                            <a href="/courses/detail?id={{id}}"
+                                                class="btn btn-sm btn-primary w-100">View
+                                                Course</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>

@@ -1,0 +1,145 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.categories (
+  id integer NOT NULL DEFAULT nextval('categories_id_seq'::regclass),
+  name character varying NOT NULL,
+  parent_id integer,
+  CONSTRAINT categories_pkey PRIMARY KEY (id),
+  CONSTRAINT categories_parent_id_foreign FOREIGN KEY (parent_id) REFERENCES public.categories(id)
+);
+CREATE TABLE public.courses (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  title character varying NOT NULL,
+  short_desc text,
+  full_desc text,
+  price numeric DEFAULT '0'::numeric,
+  sale_price numeric,
+  rating_avg numeric DEFAULT '0'::numeric,
+  rating_count integer DEFAULT 0,
+  views integer DEFAULT 0,
+  category_id integer,
+  instructor_id integer,
+  status text DEFAULT 'draft'::text CHECK (status = ANY (ARRAY['draft'::text, 'published'::text, 'completed'::text])),
+  thumbnail_url character varying,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT courses_pkey PRIMARY KEY (id),
+  CONSTRAINT courses_instructor_id_foreign FOREIGN KEY (instructor_id) REFERENCES public.users(id),
+  CONSTRAINT courses_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id)
+);
+CREATE TABLE public.enrollments (
+  id integer NOT NULL DEFAULT nextval('enrollments_id_seq'::regclass),
+  user_id integer,
+  course_id integer,
+  purchased_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  active boolean DEFAULT true,
+  CONSTRAINT enrollments_pkey PRIMARY KEY (id),
+  CONSTRAINT enrollments_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT enrollments_course_id_foreign FOREIGN KEY (course_id) REFERENCES public.courses(id)
+);
+CREATE TABLE public.instructors (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  name character varying NOT NULL,
+  display_name character varying,
+  job_title character varying,
+  image_50x50 character varying,
+  image_100x100 character varying,
+  user_id integer UNIQUE,
+  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT instructors_pkey PRIMARY KEY (id),
+  CONSTRAINT instructors_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.knex_migrations (
+  id integer NOT NULL DEFAULT nextval('knex_migrations_id_seq'::regclass),
+  name character varying,
+  batch integer,
+  migration_time timestamp with time zone,
+  CONSTRAINT knex_migrations_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.knex_migrations_lock (
+  index integer NOT NULL DEFAULT nextval('knex_migrations_lock_index_seq'::regclass),
+  is_locked integer,
+  CONSTRAINT knex_migrations_lock_pkey PRIMARY KEY (index)
+);
+CREATE TABLE public.lessons (
+  id integer NOT NULL DEFAULT nextval('lessons_id_seq'::regclass),
+  section_id integer,
+  title character varying NOT NULL,
+  video_url character varying,
+  is_preview boolean DEFAULT false,
+  duration_sec integer DEFAULT 0,
+  order_index integer DEFAULT 0,
+  CONSTRAINT lessons_pkey PRIMARY KEY (id),
+  CONSTRAINT lessons_section_id_foreign FOREIGN KEY (section_id) REFERENCES public.sections(id)
+);
+CREATE TABLE public.otp_tokens (
+  id integer NOT NULL DEFAULT nextval('otp_tokens_id_seq'::regclass),
+  user_id integer,
+  email character varying NOT NULL,
+  otp_hash character varying NOT NULL,
+  expires_at timestamp with time zone NOT NULL,
+  consumed boolean DEFAULT false,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT otp_tokens_pkey PRIMARY KEY (id),
+  CONSTRAINT otp_tokens_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.progress (
+  id integer NOT NULL DEFAULT nextval('progress_id_seq'::regclass),
+  user_id integer,
+  lesson_id integer,
+  watched_sec integer DEFAULT 0,
+  completed boolean DEFAULT false,
+  CONSTRAINT progress_pkey PRIMARY KEY (id),
+  CONSTRAINT progress_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT progress_lesson_id_foreign FOREIGN KEY (lesson_id) REFERENCES public.lessons(id)
+);
+CREATE TABLE public.reviews (
+  id integer NOT NULL DEFAULT nextval('reviews_id_seq'::regclass),
+  user_id integer,
+  course_id integer,
+  rating integer NOT NULL,
+  comment text,
+  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT reviews_pkey PRIMARY KEY (id),
+  CONSTRAINT reviews_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT reviews_course_id_foreign FOREIGN KEY (course_id) REFERENCES public.courses(id)
+);
+CREATE TABLE public.sections (
+  id integer NOT NULL DEFAULT nextval('sections_id_seq'::regclass),
+  course_id integer,
+  title character varying NOT NULL,
+  order_index integer DEFAULT 0,
+  CONSTRAINT sections_pkey PRIMARY KEY (id),
+  CONSTRAINT sections_course_id_foreign FOREIGN KEY (course_id) REFERENCES public.courses(id)
+);
+CREATE TABLE public.user_sessions (
+  sid character varying NOT NULL,
+  sess json NOT NULL,
+  expire timestamp without time zone NOT NULL,
+  CONSTRAINT user_sessions_pkey PRIMARY KEY (sid)
+);
+CREATE TABLE public.users (
+  id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+  name character varying NOT NULL,
+  email character varying NOT NULL UNIQUE,
+  password_hash character varying NOT NULL,
+  role text NOT NULL DEFAULT 'student'::text CHECK (role = ANY (ARRAY['student'::text, 'instructor'::text, 'admin'::text])),
+  avatar_url character varying,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  is_verified boolean NOT NULL DEFAULT false,
+  google_id character varying UNIQUE,
+  provider character varying,
+  CONSTRAINT users_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.watchlist (
+  user_id integer NOT NULL,
+  course_id integer NOT NULL,
+  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT watchlist_pkey PRIMARY KEY (user_id, course_id),
+  CONSTRAINT watchlist_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT watchlist_course_id_foreign FOREIGN KEY (course_id) REFERENCES public.courses(id)
+);

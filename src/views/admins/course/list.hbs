@@ -1,0 +1,271 @@
+<div class="admin-wrapper">
+  <div class="admin-header">
+    <h1 class="admin-title">
+      Course Management
+    </h1>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="stat-card">
+        <i class="bi bi-journal-text"></i>
+        <div>
+          <h3>{{courses.length}}</h3>
+          <p>Total Courses</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <i class="bi bi-clock-history"></i>
+        <div>
+          <h3>{{totalLessons}}</h3>
+          <p>Total Lessons</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <i class="bi bi-people"></i>
+        <div>
+          <h3>{{totalEnrollments}}</h3>
+          <p>Total Enrollments</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <i class="bi bi-graph-up"></i>
+        <div>
+          <h3>{{totalStudents}}</h3>
+          <p>Total Students</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i></th>
+            <th><i class="bi bi-book"></i> Title</th>
+            <th><i class="bi bi-tags"></i> Category</th>
+            <th><i class="bi bi-people"></i> Students</th>
+            <th><i class="bi bi-card-text"></i> Description</th>
+            <th><i class="bi bi-calendar3"></i> Created</th>
+            <th><i class="bi bi-gear"></i></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each courses}}
+          <tr class="table-row">
+            <td class="id">{{id}}</td>
+            <td class="title">
+                 <div class="course-title">{{title}}</div>
+              </td>
+                <td class="category">
+                   {{#if category}}
+                      <span class="badge bg-secondary">{{category}}</span>
+                 {{else}}
+           <span class="text-muted">—</span>
+                 {{/if}}
+                  </td>
+                <td class="students">
+              <i class="bi bi-people"></i>
+              <span class="student-count">{{student_count}}</span>
+            </td>
+            <td class="desc text-truncate" title="{{short_desc}}">
+              {{short_desc}}
+            </td>
+            <td class="created">
+              <span>{{formatCreatedUpdated this.created_at this.updated_at}}</span>
+            </td>
+            <td class="actions">
+              <a 
+                href="/admins/courses/{{id}}/delete" 
+                class="btn-action delete" 
+                title="Delete"
+                onclick="return confirm('Are you sure you want to delete {{title}}?')"
+              >
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="6" class="empty-state">
+              <i class="bi bi-journal-x"></i>
+              <p>No courses found.</p>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+.admin-wrapper { padding: 20px 100px; }
+.admin-header { 
+  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%); 
+  color: var(--contrast-color); 
+  padding: 15px 20px; 
+  border-radius: 12px; 
+  margin-bottom: 20px; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+}
+.admin-title { 
+  margin: 0; 
+  font-size: 1.5rem; 
+  font-weight: 600; 
+  color: var(--contrast-color); 
+}
+
+/* === Stats Card === */
+.stat-card { 
+  background: var(--surface-color); 
+  padding: 15px; 
+  border-radius: 10px; 
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08); 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+}
+.stat-card i { font-size: 1.5rem; color: var(--accent-color); }
+.stat-card h3 { margin: 0; font-size: 1.5rem; color: var(--heading-color); }
+.stat-card p { margin: 0; color: var(--default-color); font-size: 0.9rem; }
+
+/* === Category === */
+.category {
+  width: 15%;
+  vertical-align: middle;
+}
+
+.category-item {
+  margin-bottom: 4px;
+}
+
+
+.category .badge {
+  background: #81d4c0;   
+  color: #ffffff;          
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.category .badge:hover {
+  background: #6cc7b3;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* === Table === */
+.table-container { 
+  background: var(--surface-color); 
+  border-radius: 12px; 
+  overflow: hidden; 
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+}
+.admin-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  table-layout: fixed; 
+}
+.admin-table th { 
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); 
+  padding: 12px 10px; 
+  text-align: left; 
+  font-weight: 600; 
+  color: var(--heading-color); 
+  font-size: 0.9rem;
+}
+.admin-table td { 
+  padding: 12px 10px; 
+  border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%); 
+  font-size: 0.9rem; 
+  vertical-align: middle; 
+}
+.table-row:hover { 
+  background: color-mix(in srgb, var(--background-color), var(--accent-color) 5%); 
+}
+
+/* === Columns === */
+.id { width: 5%; font-weight: 600; color: color-mix(in srgb, var(--default-color), transparent 50%); }
+.title { width: 25%; }
+.students { 
+  width: 10%; 
+  text-align: center; 
+  font-weight: 600; 
+  color: #43b1e8;
+}
+.student-count {
+  background: #36b8e4;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+.desc { width: 30%; }
+.created { width: 15%; }
+.actions { width: 15%; text-align: center; }
+
+/* === Delete Button === */
+.btn-action.delete { 
+  width: 32px; 
+  height: 32px; 
+  border-radius: 50%; 
+  margin: 0; 
+  font-size: 0.9rem; 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center;
+  background: #dc3545; 
+  color: var(--contrast-color); 
+  border: none;
+  transition: all 0.2s ease;
+}
+.btn-action.delete:hover { 
+  background: #c82333; 
+  transform: scale(1.1); 
+}
+
+/* === Empty State === */
+.empty-state { 
+  text-align: center; 
+  padding: 30px; 
+  color: var(--default-color); 
+}
+.empty-state i { 
+  font-size: 3rem; 
+  margin-bottom: 10px; 
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .admin-header { 
+    flex-direction: column; 
+    gap: 10px; 
+    text-align: center; 
+    padding: 12px; 
+  }
+  .admin-table th, 
+  .admin-table td { 
+    padding: 8px 6px; 
+    font-size: 0.85rem; 
+  }
+  .course-title + small { display: none; }
+  .students { display: none; }
+}
+</style>

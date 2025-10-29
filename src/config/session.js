@@ -1,4 +1,5 @@
 // ESM
+import 'dotenv/config';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import pg from 'pg';

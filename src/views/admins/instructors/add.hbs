@@ -1,0 +1,134 @@
+<div class="admin-wrapper">
+  <div class="admin-header">
+    <h1 class="admin-title">Add New Instructor</h1>
+    <a href="/admins/instructors" class="btn-back">Back</a>
+  </div>
+
+  <div class="form-container">
+    <form action="/admins/instructors/add" method="POST">
+      <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" name="name" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label>Job Title</label>
+        <input type="text" name="job_title" class="form-input" placeholder="e.g. Senior Developer">
+      </div>
+
+      <div class="form-group">
+        <label>Avatar URL</label>
+        <input type="url" name="avatar_url" class="form-input" placeholder="https://...">
+      </div>
+
+      <div class="form-actions">
+        <a href="/admins/instructors" class="btn-secondary">Cancel</a>
+        <button type="submit" class="btn-primary">Create Instructor</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<style>
+  .admin-wrapper { padding: 20px 100px; }
+  .admin-header {
+    background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%);
+    color: var(--contrast-color);
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .admin-title { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--contrast-color); }
+  .btn-back {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--contrast-color);
+    color: var(--contrast-color);
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  .btn-back:hover { background: var(--contrast-color); color: var(--accent-color); }
+
+  .form-container {
+    background: var(--surface-color);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .form-group { margin-bottom: 20px; }
+  .form-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--heading-color);
+    font-size: 1rem;
+  }
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid color-mix(in srgb, var(--default-color), transparent 70%);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s;
+  }
+  .form-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color), transparent 75%);
+  }
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  .btn-primary, .btn-secondary {
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-weight: 600;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+  }
+  .btn-primary {
+    background: var(--accent-color);
+    color: var(--contrast-color);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--accent-color), black 10%);
+  }
+  .btn-secondary {
+    background: color-mix(in srgb, var(--default-color), transparent 20%);
+    color: var(--heading-color);
+  }
+  .btn-secondary:hover {
+    background: color-mix(in srgb, var(--default-color), transparent 40%);
+  }
+
+  @media (max-width: 768px) {
+    .admin-header { flex-direction: column; gap: 10px; text-align: center; padding: 12px; }
+    .form-container { padding: 20px; margin: 0 15px; }
+    .form-actions { flex-direction: column; }
+    .btn-primary, .btn-secondary { justify-content: center; width: 100%; }
+  }
+</style>

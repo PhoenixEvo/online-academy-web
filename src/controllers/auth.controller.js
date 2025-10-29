@@ -43,8 +43,8 @@ export const validateRegister = [
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters'),
   body('role')
-    .isIn(['student', 'instructor'])
-    .withMessage('Role must be either student or instructor')
+    .equals('student')
+    .withMessage('Only student registration is allowed. Instructor accounts are created by administrators.')
 ];
 
 // register a new user
@@ -215,24 +215,24 @@ export async function verifyOtp(req, res, next) {
       .first();
 
     if (!token) {
-      req.flash('error', 'Invalid or expired OTP code');
       return res.render('auth/verify-otp', { 
         layout: 'auth',
         page: 'verify-otp',
         title: 'Verify OTP',
-        email
+        email,
+        error: 'Invalid or expired OTP code'
       });
     }
 
     // verify OTP
     const isValidOtp = await bcrypt.compare(code, token.otp_hash);
     if (!isValidOtp) {
-      req.flash('error', 'Incorrect OTP code');
       return res.render('auth/verify-otp', { 
         layout: 'auth',
         page: 'verify-otp',
         title: 'Verify OTP',
-        email
+        email,
+        error: 'Incorrect OTP code'
       });
     }
 
@@ -354,4 +354,19 @@ export async function doResetPassword(req, res, next) {
     console.error('Reset password error:', e);
     next(e); 
   }
+}
+
+export function restrict(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  req.flash('error', 'You must be logged in to access that page');
+  res.redirect('/auth/login');
+}
+export function restrictInstructor(req, res, next) {
+  if (req.isAuthenticated() && req.user.role === 'instructor') {
+    return next();
+  }
+  req.flash('error', 'You must be logged in as an instructor to access that page');
+  res.redirect('/auth/login');
 }
