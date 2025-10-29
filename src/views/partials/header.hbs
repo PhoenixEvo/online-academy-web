@@ -15,7 +15,9 @@
           <!-- Authenticated user navigation -->
           <!-- Home -->
           {{#unless (eq user.role 'instructor')}}
+          {{#unless (eq user.role 'instructor')}}
           <li><a href="/" class="active">Home</a></li>
+          {{/unless}}
           {{/unless}}
 
           {{#if (eq user.role 'student')}}
@@ -79,8 +81,15 @@
           <!-- Instructor navigation -->
           <li><a href="/instructor/courses">My Courses</a></li>
           <li><a href="/instructor/courses/add">Create Course</a></li>
+          <li><a href="/instructor/courses">My Courses</a></li>
+          <li><a href="/instructor/courses/add">Create Course</a></li>
           {{else if (eq user.role 'admin')}}
           <!-- Admin navigation -->
+          <!-- ✅ Admin navigation: show links directly (no icons) -->
+<li><a href="/admins/users">Users</a></li>
+<li><a href="/admins/courses">Courses</a></li>
+<li><a href="/admins/categories">Categories</a></li>
+<li><a href="/admins/instructors">Instructors</a></li>
           <!-- ✅ Admin navigation: show links directly (no icons) -->
 <li><a href="/admins/users">Users</a></li>
 <li><a href="/admins/courses">Courses</a></li>
@@ -116,10 +125,13 @@
           <!-- Guest navigation -->
           <!-- Home -->
           {{#unless (eq user.role 'instructor')}}
+          {{#unless (eq user.role 'instructor')}}
           <li><a href="/" class="active">Home</a></li>
+          {{/unless}}
           {{/unless}}
           <!-- Categories -->
           <li class="dropdown">
+            <a href="/categories"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <a href="/categories"><span>Categories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
               {{#each categories}}
@@ -127,12 +139,14 @@
               <!-- Parent category with children -->
               <li class="dropdown">
                 <a href="/categories?category={{id}}">
+                <a href="/categories?category={{id}}">
                   <span>{{name}}</span>
                   <i class="bi bi-chevron-right toggle-dropdown"></i>
                 </a>
                 <ul>
                   {{#each children}}
                   <li>
+                    <a href="/categories?category={{id}}">
                     <a href="/categories?category={{id}}">
                       {{name}}
                     </a>
@@ -144,6 +158,7 @@
               <!-- Single category without children -->
               <li>
                 <a href="/categories?category={{id}}">
+                <a href="/categories?category={{id}}">
                   {{name}}
                 </a>
               </li>
@@ -151,6 +166,7 @@
               {{/each}}
               <!-- View all categories link -->
               <li class="view-all">
+                <a href="/categories" class="text-primary">
                 <a href="/categories" class="text-primary">
                   <i class="bi bi-grid-3x3-gap-fill me-2"></i>
                   Browse all categories
@@ -188,4 +204,5 @@
     </div>
   </div>
 </header>
+`
 `
