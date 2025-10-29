@@ -1,3 +1,4 @@
+
 import { db } from './db.js';
 
 // Get instructor by ID (from instructors table)

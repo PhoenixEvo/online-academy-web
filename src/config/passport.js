@@ -57,39 +57,63 @@ export function setupPassport(app) {
 }
 
 // Google OAuth 2.0 strategy
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/auth/google/callback",
-      passReqToCallback: true,
-    },
-    async (req, accessToken, refreshToken, profile, done) => {
-      try {
-        const email = profile.emails && profile.emails[0]?.value;
-        const displayName = profile.displayName || profile.name?.givenName || "User";
-        const avatarUrl = profile.photos && profile.photos[0]?.value;
-        const googleId = profile.id;
+// Google OAuth 2.0 strategy 
+if (
+  process.env.GOOGLE_CLIENT_ID &&
+  process.env.GOOGLE_CLIENT_SECRET &&
+  process.env.GOOGLE_CLIENT_ID !== "placeholder" &&
+  process.env.GOOGLE_CLIENT_SECRET !== "placeholder"
+) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL:
+          process.env.GOOGLE_CALLBACK_URL ||
+          "http://localhost:3000/auth/google/callback",
+        passReqToCallback: true,
+      },
+      async (req, accessToken, refreshToken, profile, done) => {
+        try {
+          const email = profile.emails && profile.emails[0]?.value;
+          const displayName =
+            profile.displayName || profile.name?.givenName || "User";
+          const avatarUrl = profile.photos && profile.photos[0]?.value;
+          const googleId = profile.id;
 
-        if (!email) {
-          return done(null, false, { message: "Google account has no email" });
-        }
+          if (!email) {
+            return done(null, false, { message: "Google account has no email" });
+          }
 
-        // 1) Try to find by google_id
-        let user = await db("users").where({ google_id: googleId }).first();
-        if (user) {
-          return done(null, { id: user.id, name: user.name, email: user.email, role: user.role });
-        }
+          let user = await db("users").where({ google_id: googleId }).first();
+          if (user) {
+            return done(null, {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            });
+          }
 
-        // 2) Try to link by email if exists
-        user = await db("users").where({ email }).first();
-        if (user) {
-          await db("users")
-            .where({ id: user.id })
-            .update({ google_id: googleId, provider: "google", is_verified: true, avatar_url: user.avatar_url || avatarUrl });
-          return done(null, { id: user.id, name: user.name, email: user.email, role: user.role });
-        }
+         
+          user = await db("users").where({ email }).first();
+          if (user) {
+            await db("users")
+              .where({ id: user.id })
+              .update({
+                google_id: googleId,
+                provider: "google",
+                is_verified: true,
+                avatar_url: user.avatar_url || avatarUrl,
+              });
+            return done(null, {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            });
+          }
 
         // 3) Create new user - only student role allowed for OAuth registration
         const desiredRole = "student";
@@ -108,10 +132,15 @@ passport.use(
         if (req.session) {
           req.session.oauthDesiredRole = undefined;
         }
-        return done(null, { id: created.id, name: created.name, email: created.email, role: created.role });
-      } catch (e) {
-        return done(e);
+        return done(null, created);
+        } catch (e) {
+          return done(e);
       }
     }
-  )
-);
+    )
+  );
+} else {
+  console.warn(
+    "⚠️  Google OAuth not configured — skipping GoogleStrategy setup."
+  );
+}

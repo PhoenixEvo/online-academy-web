@@ -1,0 +1,91 @@
+// src/controllers/admincourse.controller.js
+import { courseModel } from '../models/course.model.js';
+import { categoryModel } from '../models/category.model.js';
+import { db } from '../models/db.js';
+
+export const list = async (req, res) => {
+  try {
+    const courses = await courseModel.getCoursesWithEnrollmentCount();
+    const totalLessons = await db('lessons').count('* as count').first();
+    const totalEnrollments = await db('enrollments').count('* as count').first();
+
+    return res.render('admins/course/list', {
+      layout: 'main',
+      courses,
+      totalLessons: parseInt(totalLessons.count),
+      totalEnrollments: parseInt(totalEnrollments.count),
+      title: 'Course Management',
+      success: req.flash('success'),
+      error: req.flash('error'),
+      csrfToken: req.csrfToken()
+    });
+  } catch (error) {
+    console.error('Error fetching course list:', error);
+    req.flash('error', 'Unable to load course list');
+    return res.status(500).render('error', {
+      layout: 'main',
+      message: 'System error while loading course list',
+      error: error.message
+    });
+  }
+};
+export const renderDeleteCourse = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const course = await courseModel.getCourseById(id);
+    if (!course) {
+      req.flash('error', 'Course does not exist');
+      return res.status(404).render('error', {
+        layout: 'main',
+        message: 'Course not found',
+        error: 'Course does not exist'
+      });
+    }
+
+    return res.render('admins/course/removeCourse', {
+      layout: 'main',
+      course,
+      title: 'Delete Course',
+      success: req.flash('success'),
+      error: req.flash('error'),
+      csrfToken: req.csrfToken()
+    });
+  } catch (error) {
+    console.error('Error rendering delete course page:', error);
+    return res.status(500).render('error', {
+      layout: 'main',
+      message: 'System error while loading delete page',
+      error: error.message
+    });
+  }
+};
+
+export const deleteCourse = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const course = await courseModel.getCourseById(id);
+    if (!course) {
+      req.flash('error', 'Course does not exist');
+      return res.redirect('/admins/courses');
+    }
+
+    const hasEnrollments = await courseModel.hasEnrollments(id);
+    if (hasEnrollments) {
+      req.flash('error', 'Cannot delete course because students are enrolled');
+      return res.redirect('/admins/courses');
+    }
+
+    const result = await courseModel.deleteCourse(id);
+    if (!result) {
+      req.flash('error', 'Failed to delete course');
+      return res.redirect('/admins/courses');
+    }
+
+    req.flash('success', 'Course deleted successfully');
+    return res.redirect('/admins/courses');
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    req.flash('error', 'System error while deleting course');
+    return res.redirect('/admins/courses');
+  }
+};

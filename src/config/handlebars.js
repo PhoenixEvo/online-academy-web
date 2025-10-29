@@ -9,6 +9,9 @@ export function setupHandlebars(app) {
         eq(a, b) {
           return a === b;
         },
+        ifCond(v1, v2, options) {
+    return v1 == v2 ? options.fn(this) : options.inverse(this);
+        },
         formatPrice(v) {
           try {
             return Number(v || 0).toLocaleString("vi-VN");
@@ -44,6 +47,49 @@ export function setupHandlebars(app) {
             return 'N/A';
           }
         },
+         formatDateTime(date) {
+    if (!date) return 'N/A';
+    try {
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return 'N/A';
+      return dateObj.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('formatDateTime error:', error);
+      return 'N/A';
+    }
+  },
+  formatCreatedUpdated(createdAt, updatedAt) {
+          if (!createdAt) return 'N/A';
+          try {
+            const created = new Date(createdAt);
+            const updated = new Date(updatedAt);
+            const datePart = created.toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            });
+            const timePart = updated.toLocaleTimeString('en-GB', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            return `${datePart} (${timePart})`;
+          } catch (err) {
+            console.error('formatCreatedUpdated error:', err);
+            return 'N/A';
+          }
+        },
+        checked(value, test) {
+          return value === test ? 'checked' : '';
+        },
+          selected(value, optionValue) {
+    return value == optionValue ? 'selected' : '';
+  },
         fill_section: hbs_sections(),
         gt(a, b) {
           return a > b;
@@ -95,6 +141,7 @@ export function setupHandlebars(app) {
 
     })
   );
+  
   app.set("view engine", "hbs");
   app.set("views", "src/views");
 }
