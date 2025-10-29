@@ -1,4 +1,93 @@
+// src/models/course.model.js
 import { db } from './db.js';
+
+export const courseModel = {
+
+   async findAll() {
+    try {
+      return await db('courses').select('*').orderBy('created_at', 'desc');
+    } catch (error) {
+      console.error('Error fetching course list:', error);
+      throw new Error(`Error fetching course list: ${error.message}`);
+    }
+  },
+
+  // Get course by ID
+  async getCourseById(id) {
+    try {
+      return await db('courses')
+        .where({ id })
+        .first();
+    } catch (error) {
+      console.error('Error fetching course:', error);
+      throw new Error(`Error fetching course: ${error.message}`);
+    }
+  },
+
+  // Delete course
+  async deleteCourse(id) {
+    try {
+      const result = await db('courses').where({ id }).del();
+      return result > 0;
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      throw new Error(`Error deleting course: ${error.message}`);
+    }
+  },
+
+  // Check if course has any enrollments
+  async hasEnrollments(courseId) {
+    try {
+      const count = await db('enrollments')
+        .where({ course_id: courseId })
+        .count('id as count')
+        .first();
+      return count.count > 0;
+    } catch (error) {
+      console.error('Error checking enrollments:', error);
+      throw new Error(`Error checking enrollments: ${error.message}`);
+    }
+  },
+
+  // Check if any course belongs to a category
+  async hasCategory(categoryId) {
+    try {
+      const count = await db('courses')
+        .where({ category_id: categoryId })
+        .count('id as count')
+        .first();
+      return count.count > 0;
+    } catch (error) {
+      console.error('Error checking category:', error);
+      throw new Error(`Error checking category: ${error.message}`);
+    }
+  },
+// ADD NEW METHOD HERE: Get all courses with enrollment count
+  async getCoursesWithEnrollmentCount() {
+    try {
+      return await db('courses')
+        .select(
+          'courses.*',
+          'categories.name as category',
+          db.raw('COALESCE(enrollment_counts.student_count, 0) as student_count')
+        )
+        .leftJoin('categories', 'courses.category_id', 'categories.id')
+        .leftJoin(
+          db('enrollments')
+            .select('course_id')
+            .count('user_id as student_count')
+            .groupBy('course_id')
+            .as('enrollment_counts'),
+          'courses.id', 'enrollment_counts.course_id'
+        )
+        .orderBy('courses.created_at', 'desc');
+    } catch (error) {
+      console.error('Error fetching courses with enrollment count:', error);
+      throw new Error(`Error fetching courses: ${error.message}`);
+    }
+  }
+
+};
 
 // Find course by ID with instructor and category info
 export async function findById(id) {

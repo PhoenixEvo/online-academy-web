@@ -13,12 +13,18 @@ import { addCategoriesToLocals } from './middlewares/categories.js';
 import indexRoute from './routes/index.route.js';
 import authRoute from './routes/auth.route.js';
 import profileRoute from './routes/profile.route.js';
+//import courseRoute from './routes/course.route.js';
+import adminCategoryRoute from './routes/adminCategory.route.js';
+import { requireAdmin } from './middlewares/authGuard.js';
+import adminCoursesRouter from './routes/admincourse.route.js';
+import adminUserRouter from './routes/adminuser.route.js'; 
 import InstructorProfile, { instructorsRouter as instructorsPublicRoute } from './routes/instructor.route.js';
 //import courseRoute from './routes/course.route.js';
 import courseRoute from './routes/course.route.js';
 import studentsRoute from './routes/student.route.js';
 import learnRoutes from './routes/learn.route.js';
 import lessonsRoutes from './routes/lessons.route.js';
+import adminInstructorRouter from './routes/admininstructor.route.js';
 import categoryRoute from './routes/category.route.js';
 import instructorRoute from './routes/instructor.route.js';
 const app = express();
@@ -161,6 +167,10 @@ app.use('/', indexRoute);
 app.use('/auth', authRoute);
 app.use('/profile', profileRoute);
 //app.use('/courses', courseRoute);
+app.use('/admins/categories', requireAdmin, adminCategoryRoute);
+app.use('/admins/courses', adminCoursesRouter);
+app.use('/admins/users', requireAdmin, adminUserRouter);
+app.use('/admins/instructors', requireAdmin, adminInstructorRouter);
 app.use('/instructor', instructorsPublicRoute);
 // instructor course route
 import courseInstructorRouter from './routes/course-instructor.route.js';
@@ -182,7 +192,6 @@ app.use('/instructors', instructorRoute);
 app.use((req, res) => {
   res.status(404).render('404.hbs');
 });
-
 
 // error handler
 app.use((err, req, res, next) => {
