@@ -4,7 +4,7 @@
 
         <!-- Course Hero Section -->
         <section class="course-hero section"
-            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem 0;">
+            style="background: linear-gradient(135deg, #0c4a6e 0%, #075985 100%); padding: 2rem 0;">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6">
@@ -52,8 +52,12 @@
                                             class="bi bi-star{{#if (gt ../course.rating_avg this)}}-fill{{/if}} text-warning me-1"></i>
                                         {{/each}}
                                         <span class="ms-2 fw-bold" style="color: #ffffff;">{{course.rating_avg}}</span>
-                                        <span class="ms-1"
-                                            style="color: #f8f9fa;">({{course.rating_count}} ratings)</span>
+                                        {{#if (eq course.rating_count 0)}}
+                                        <span class="ms-1" style="color: #f8f9fa;">No ratings yet</span>
+                                        {{else}}
+                                        <span class="ms-1" style="color: #f8f9fa;">({{course.rating_count}}
+                                            ratings)</span>
+                                        {{/if}}
                                     </div>
                                     <div class="d-flex align-items-center"
                                         style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 0.5rem 1rem; border-radius: 25px;">
@@ -320,12 +324,42 @@
                             data-aos-delay="100">
                             <h4 class="h5 fw-bold mb-3">Instructor</h4>
                             <div class="d-flex align-items-start mb-3">
+                                {{#if instructorInfo}}
+                                {{#if instructorInfo.image_50x50}}
+                                <img src="{{instructorInfo.image_50x50}}" class="rounded-circle me-3"
+                                    alt="{{#if instructorInfo.display_name}}{{instructorInfo.display_name}}{{else}}{{instructorInfo.name}}{{/if}}"
+                                    style="width: 60px; height: 60px;">
+                                {{else}}
+                                <img src="/img/person/person-m-7.webp" class="rounded-circle me-3"
+                                    alt="{{#if instructorInfo.display_name}}{{instructorInfo.display_name}}{{else}}{{instructorInfo.name}}{{/if}}"
+                                    style="width: 60px; height: 60px;">
+                                {{/if}}
+                                <div>
+                                    <h6 class="mb-1 fw-bold">
+                                        {{#if instructorInfo.id}}
+                                        <a href="/instructors/profile?id={{instructorInfo.id}}"
+                                            class="text-decoration-none text-dark">
+                                            {{#if
+                                            instructorInfo.display_name}}{{instructorInfo.display_name}}{{else}}{{instructorInfo.name}}{{/if}}
+                                        </a>
+                                        {{else}}
+                                        {{#if
+                                        instructorInfo.display_name}}{{instructorInfo.display_name}}{{else}}{{instructorInfo.name}}{{/if}}
+                                        {{/if}}
+                                    </h6>
+                                    <p class="text-muted mb-0 small">
+                                        {{#if instructorInfo.job_title}}{{instructorInfo.job_title}}{{else}}Professional
+                                        Instructor{{/if}}
+                                    </p>
+                                </div>
+                                {{else}}
                                 <img src="/img/person/person-m-7.webp" class="rounded-circle me-3"
                                     alt="{{course.instructor_name}}" style="width: 60px; height: 60px;">
                                 <div>
                                     <h6 class="mb-1 fw-bold">{{course.instructor_name}}</h6>
                                     <p class="text-muted mb-0 small">Professional Instructor</p>
                                 </div>
+                                {{/if}}
                             </div>
 
                             {{#if instructorStats}}

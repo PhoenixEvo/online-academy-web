@@ -1,9 +1,13 @@
+import express from 'express';
+import * as instructorCtrl from '../controllers/instructor.controller.js';
 import { Router } from "express";
 import { requireLogin } from "../middlewares/authGuard.js";
 import * as profileCtrl from "../controllers/profile.controller.js";
 import { getAllInstructors, getInstructorProfile } from "../controllers/instructor.controller.js";
 
 const r = Router();
+// GET /instructors/profile?id= - Instructor detail page
+r.get('/profile', instructorCtrl.detail);
 
 r.use(requireLogin);
 

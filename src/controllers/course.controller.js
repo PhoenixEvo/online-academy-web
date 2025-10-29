@@ -12,10 +12,17 @@ const ALLOWED_SORTS = new Set([
   'date_desc', 'date_asc',
   'newest', 'oldest'
 ]);
+function buildUrl(req, { keepPage = false } = {}) {
+  const q = new URLSearchParams(req.query);
+  if (!keepPage) q.delete("page");
+  const base = req.baseUrl + req.path;
+  const qs = q.toString();
+  return base + (qs ? "?" + qs + "&" : "?");
+}
 function buildBaseUrl(req) {
   const q = new URLSearchParams(req.query);
   q.delete("page");
-  q.delete("sort");  // Remove sort so buttons can set their own sort
+  q.delete("sort");
   const base = req.baseUrl + req.path;
   const qs = q.toString();
   return base + (qs ? "?" + qs + "&" : "?");
@@ -117,14 +124,15 @@ export async function detail(req, res, next) {
     await Course.incrementViews(id);
 
     // Get related data
-    const [bestInCategory, reviews, reviewStats, courseContent, enrollmentCount, courseStats, instructorStats] = await Promise.all([
+    const [bestInCategory, reviews, reviewStats, courseContent, enrollmentCount, courseStats, instructorStats, instructorInfo] = await Promise.all([
       Course.bestInCategory(course.category_id, 5),
       Review.listByCourse(id),
       Review.getCourseStats(id),
       Course.getCourseContent(id),
       Enrollment.getCourseEnrollmentCount(id),
       Course.getCourseStats(id),
-      Course.getInstructorStats(course.instructor_id)
+      Course.getInstructorStats(course.instructor_id),
+      Course.getInstructorInfo(course.instructor_id)
     ]);
 
     // Add badges to related courses
@@ -155,12 +163,15 @@ export async function detail(req, res, next) {
       },
       courseStats,
       instructorStats,
+      instructorInfo,
       bestInCategory: bestInCategoryWithBadges,
       reviews,
       reviewStats,
       courseContent,
       isEnrolled,
       isInWatchlist,
+      isAuthenticated: !!req.user,
+      csrfToken: req.csrfToken()
     });
   } catch (e) {
     next(e);
