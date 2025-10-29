@@ -5,7 +5,6 @@ import connectPgSimple from 'connect-pg-simple';
 import pg from 'pg';
 
 export function setupSession(app) {
-  console.log('>>> SESSION_SECRET:', process.env.SESSION_SECRET);
   const PgSession = connectPgSimple(session);
 
   // Supabase requires SSL
