@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 
-// import db from './db.js';
-=======
->>>>>>> main
 import { db } from './db.js';
 
 // Get instructor by ID (from instructors table)
