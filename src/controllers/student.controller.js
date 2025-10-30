@@ -43,7 +43,9 @@ export async function getEnrolledCourses(req, res) {
             price: course.price,
             thumbnailUrl: course.thumbnail_url,
             categoryName: course.category_name,
-            purchasedAt: course.purchased_at
+            purchasedAt: course.purchased_at,
+            isCompleted: course.is_completed,
+            completionPercentage: course.completion_percentage
         }));
         const totalCourses = allCourses.length;
         const totalPages = Math.ceil(totalCourses / itemsPerPage);

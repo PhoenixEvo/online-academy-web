@@ -1,4 +1,3 @@
-
 <main class="main">
 
     <!-- Page Title -->
@@ -28,9 +27,8 @@
         </div>
     </div><!-- End Page Title -->
 
-
     <!-- Courses Section -->
-    <section id="courses" class="courses section">
+    <section id="courses" class="courses section"  style="padding-top: 30px; padding-bottom: 30px;">
 
         <div class="container">
 
@@ -40,19 +38,39 @@
                 {{#each courses}}
                 <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0 mb-4" data-aos="zoom-in"
                     data-aos-delay="300">
-                    <div class="course-item">
-                        <form method="POST" action="/students/watchlist/remove/{{this.id}}">
-                        <input type="hidden" name="_csrf" value="{{../csrfToken}}">
-                        <button type="submit" class="remove-btn"><i class="bi bi-x-circle"></i></button>
+                    <div class="course-item" 
+                        style="width: 100%; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; 
+                         box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        
+
+                        <form method="POST" action="/students/watchlist/remove/{{this.id}}" 
+                            style="position: absolute; top: 10px; left: 10px; z-index: 10;">
+                            <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                            <button type="submit" class="remove-btn" 
+                                style="background: none; border: none; color: #dc3545; font-size: 22px; cursor: pointer;">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
                         </form>
-                        <img src="{{thumbnailUrl}}" class="img-fluid" alt="">
-                        <div class="course-content">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <p class="category">{{ categoryName}}</p>
-                                <p class="price">${{format_number price}}</p>
+
+                        <img src="{{thumbnailUrl}}" alt="" 
+                            style="width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid #ddd;">
+
+
+                        <div class="course-content"  style="padding: 15px; flex: 1;">
+                            <div 
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <p class="category" 
+                                    style="margin: 0; background: #0c85c6; padding: 3px 10px; border-radius: 5px; font-size: 13px;">
+                                    {{categoryName}}
+                                </p>
+                                <p class="price"  style="margin: 0; font-weight: bold;">${{format_number price}}</p>
                             </div>
-                            <h3><a href="/courses/detail?id={{this.id}}">{{title}}</a></h3>
-                            <p class="description">{{shortDesc}}</p>
+                            <h3  style="font-size: 18px; margin-bottom: 8px;">
+                                <a href="/courses/detail?id={{this.id}}" style="color: #333; text-decoration: none;">
+                                    {{title}}
+                                </a>
+                            </h3>
+                            <p class="description"  style="font-size: 14px; color: #666; margin: 0;">{{shortDesc}}</p>
                         </div>
                     </div>
                 </div>
@@ -62,12 +80,10 @@
                     <p>You haven't saved any courses yet.</p>
                 </div>
                 {{/if}}
-
             </div>
-
         </div>
+    </section>
 
-    </section><!-- /Courses Section -->
 
 </main>
 
