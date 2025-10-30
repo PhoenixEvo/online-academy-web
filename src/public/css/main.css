@@ -294,8 +294,9 @@ h6 {
 
 
 @media (max-width: 1200px) {
-  .header .logo {
+  .header .mobile-search-logo-group {
     order: 1;
+    margin-left: auto;
   }
 
   .header .btn-getstarted {
@@ -307,6 +308,33 @@ h6 {
 
   .header .navmenu {
     order: 3;
+  }
+
+  /* Ensure proper spacing for mobile search */
+  .header .d-flex.align-items-center.gap-3 {
+    gap: 5px !important;
+  }
+
+  /* Mobile search and logo group styling */
+  .mobile-search-logo-group {
+    gap: 10px;
+    align-items: center;
+  }
+
+  /* Stabilize initial size to avoid layout shift on first paint */
+  .mobile-search .form-control {
+    height: 36px;
+    line-height: 36px;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 6px 0 0 6px;
+  }
+
+  .mobile-search .btn {
+    height: 36px;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
   }
 }
 
@@ -321,6 +349,11 @@ h6 {
 @media (min-width: 1200px) {
   .navmenu {
     padding: 0;
+  }
+
+  /* Hide mobile search on desktop */
+  .mobile-search {
+    display: none !important;
   }
 
   .navmenu ul {
@@ -436,6 +469,74 @@ h6 {
     margin-right: 10px;
     cursor: pointer;
     transition: color 0.3s;
+  }
+
+  /* Mobile Search Box - Left of Logo */
+  .mobile-search-logo-group .mobile-search {
+    max-width: 180px;
+    flex-shrink: 0;
+  }
+
+  .mobile-search .form-control {
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 6px 0 0 6px;
+    min-width: 120px;
+  }
+
+  .mobile-search .btn {
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+  }
+
+  /* Responsive adjustments for smaller screens */
+  @media (max-width: 576px) {
+    .mobile-search-logo-group .mobile-search {
+      max-width: 120px;
+    }
+
+    .mobile-search-logo-group {
+      gap: 8px;
+    }
+
+    .mobile-search .form-control {
+      font-size: 12px;
+      padding: 6px 8px;
+      min-width: 70px;
+    }
+
+    .mobile-search .btn {
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+  }
+
+  /* Extra small screens */
+  @media (max-width: 480px) {
+    .mobile-search-logo-group .mobile-search {
+      max-width: 100px;
+    }
+
+    .mobile-search-logo-group {
+      gap: 5px;
+    }
+
+    .mobile-search .form-control {
+      font-size: 11px;
+      padding: 5px 6px;
+      min-width: 60px;
+    }
+
+    .mobile-search .btn {
+      padding: 5px 6px;
+      font-size: 11px;
+    }
+  }
+
+  /* Hide desktop search on mobile */
+  .desktop-search {
+    display: none !important;
   }
 
   .navmenu {
@@ -2470,6 +2571,81 @@ body {
 }
 
 /*--------------------------------------------------------------
+# Header - Mobile Overflow Fixes
+--------------------------------------------------------------*/
+@media (max-width: 1199px) {
+
+  /* Keep the slide-out menu within the viewport */
+  .navmenu ul {
+    inset: 60px 12px 12px 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .header {
+    overflow-x: clip;
+  }
+
+  .header .container-fluid {
+    max-width: 100%;
+    overflow-x: clip;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Hide long site name to avoid horizontal overflow, keep logo image */
+  .header .logo h1.sitename {
+    display: none;
+  }
+
+  .header .logo img {
+    max-height: 28px;
+  }
+
+  /* Tighter gaps for header controls */
+  .header .d-flex.align-items-center.gap-3 {
+    gap: 8px;
+  }
+
+  /* Ensure nav area can't exceed viewport width */
+  .navmenu {
+    max-width: 100%;
+  }
+}
+
+/* Make header auth buttons smaller on tablet/mobile */
+@media (max-width: 768px) {
+  .header .btn-getstarted {
+    font-size: 13px;
+    border-radius: 6px;
+    margin-left: 0;
+  }
+
+  /* bring LOGIN and REGISTER closer on tablet */
+  .header .d-flex.gap-2 {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 576px) {
+  .header .btn-getstarted {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    margin-left: 0;
+  }
+
+  /* Tighten spacing between LOGIN and REGISTER */
+  .header .d-flex.gap-2 {
+    gap: 2px;
+  }
+
+  .header .d-flex.gap-2>.btn-getstarted:first-child {
+    margin-left: 0;
+  }
+}
+
+/*--------------------------------------------------------------
 # Remove Course Watchlist Button Section
 --------------------------------------------------------------*/
 .remove-btn-form {
@@ -2659,6 +2835,147 @@ body {
   border-color: #fff;
 }
 
+/*--------------------------------------------------------------
+# Featured This Week - Mobile Responsive
+--------------------------------------------------------------*/
+@media (max-width: 768px) {
+
+  /* Adjust section title */
+  #featured-this-week h2 {
+    font-size: 2rem !important;
+  }
+
+  #featured-this-week p {
+    font-size: 1rem !important;
+  }
+
+  /* Stack content vertically on mobile */
+  #featuredCarousel .carousel-item .row {
+    flex-direction: column;
+  }
+
+  #featuredCarousel .carousel-item .col-md-6:first-child {
+    order: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  #featuredCarousel .carousel-item .col-md-6:last-child {
+    order: 2;
+    padding: 1rem !important;
+  }
+
+  /* Adjust image height for mobile */
+  #featuredCarousel .carousel-item img {
+    height: 250px !important;
+    border-radius: 8px;
+  }
+
+  /* Adjust text sizes */
+  #featuredCarousel .carousel-item h3 {
+    font-size: 1.5rem !important;
+  }
+
+  #featuredCarousel .carousel-item .lead {
+    font-size: 1rem !important;
+  }
+
+  /* Adjust button size */
+  #featuredCarousel .carousel-item .btn-lg {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Adjust price display */
+  #featuredCarousel .carousel-item .price .h3 {
+    font-size: 1.5rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+
+  /* Further reduce sizes for small mobile */
+  #featured-this-week h2 {
+    font-size: 1.75rem !important;
+  }
+
+  #featuredCarousel .carousel-item img {
+    height: 200px !important;
+  }
+
+  #featuredCarousel .carousel-item h3 {
+    font-size: 1.25rem !important;
+  }
+
+  #featuredCarousel .carousel-item .lead {
+    font-size: 0.9rem !important;
+  }
+
+  #featuredCarousel .carousel-item .btn-lg {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  #featuredCarousel .carousel-item .price .h3 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Adjust course meta spacing */
+  #featuredCarousel .carousel-item .course-meta {
+    margin-bottom: 1rem !important;
+  }
+
+  #featuredCarousel .carousel-item .course-meta .d-flex {
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Adjust badges */
+  #featuredCarousel .carousel-item .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/*--------------------------------------------------------------
+# Header Search - Mobile Responsive
+--------------------------------------------------------------*/
+@media (max-width: 768px) {
+
+
+
+  .navmenu form input[type="search"] {
+    font-size: 2rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .navmenu form button {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+
+  /* Further reduce search bar on small mobile */
+  .navmenu form.d-flex {
+    max-width: 90%;
+    align-items: center;
+  }
+
+  .navmenu form input[type="search"] {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .navmenu form button {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* Hide search placeholder text on very small screens */
+  .navmenu form input[type="search"]::placeholder {
+    font-size: 0.7rem;
+  }
+}
+
 .course-card {
   will-change: transform;
   backface-visibility: hidden;
@@ -2816,5 +3133,363 @@ body {
 
   50% {
     box-shadow: 0 0 25px rgba(220, 53, 69, 1), 0 0 50px rgba(220, 53, 69, 0.6);
+  }
+}
+
+/*--------------------------------------------------------------
+# Header Base Styles (Desktop First)
+--------------------------------------------------------------*/
+.header {
+  color: var(--default-color);
+  background-color: var(--background-color);
+  padding: 15px 0;
+  transition: all 0.5s;
+  z-index: 997;
+  overflow-x: clip;
+}
+
+.header .logo {
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.header .logo img {
+  max-height: 36px;
+  margin-right: 8px;
+}
+
+.header .logo h1.sitename {
+  font-weight: 700;
+  font-size: 30px;
+  margin: 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent-color);
+}
+
+/*--------------------------------------------------------------
+# Header Buttons (Login / Register)
+--------------------------------------------------------------*/
+.header .btn-getstarted,
+.header .btn-getstarted:focus {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 8px 18px;
+  margin-left: 12px;
+  color: #fff;
+  background: var(--accent-color);
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.header .btn-getstarted:hover,
+.header .btn-getstarted:focus:hover {
+  background: color-mix(in srgb, var(--accent-color), transparent 20%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/*--------------------------------------------------------------
+# Header Navigation (Desktop)
+--------------------------------------------------------------*/
+@media (min-width: 1200px) {
+  .navmenu {
+    padding: 0;
+  }
+
+  .navmenu ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    list-style: none;
+    align-items: center;
+  }
+
+  .navmenu li {
+    position: relative;
+  }
+
+  .navmenu a,
+  .navmenu a:focus {
+    color: var(--nav-color);
+    padding: 18px 15px;
+    font-size: 19px;
+    font-family: var(--nav-font);
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
+    transition: 0.3s;
+  }
+
+  .navmenu li:hover>a,
+  .navmenu .active,
+  .navmenu .active:focus {
+    color: var(--nav-hover-color);
+  }
+
+  /* Dropdown menu */
+  .navmenu .dropdown ul {
+    margin: 0;
+    padding: 10px 0;
+    background: var(--nav-dropdown-background-color);
+    display: block;
+    position: absolute;
+    visibility: hidden;
+    left: 14px;
+    top: 130%;
+    opacity: 0;
+    transition: 0.3s;
+    border-radius: 4px;
+    z-index: 99;
+    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .navmenu .dropdown:hover>ul {
+    opacity: 1;
+    top: 100%;
+    visibility: visible;
+  }
+}
+
+/*--------------------------------------------------------------
+# Header Search Bar for Desktop
+--------------------------------------------------------------*/
+.header .search-form {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 20px;
+  position: relative;
+}
+
+.header .search-form input[type="search"] {
+  width: 100%;
+  padding: 8px 40px 8px 15px;
+  border-radius: 25px;
+  border: 1px solid #dee2e6;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background-color: #fff;
+}
+
+.header .search-form input[type="search"]:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 75%);
+  outline: none;
+}
+
+.header .search-form button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: var(--accent-color);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.header .search-form button:hover {
+  color: color-mix(in srgb, var(--accent-color), black 20%);
+}
+
+/*--------------------------------------------------------------
+# Header Scroll State
+--------------------------------------------------------------*/
+.scrolled .header {
+  box-shadow: 0px 0 18px rgba(0, 0, 0, 0.1);
+}
+
+/*--------------------------------------------------------------
+# Responsive Section (Tablet & Mobile)
+--------------------------------------------------------------*/
+/*--------------------------------------------------------------
+# Header Search Form (Unified & Optimized)
+--------------------------------------------------------------*/
+
+/* Default (Desktop) */
+.header .search-form {
+  flex: 1;
+  max-width: 350px;
+  margin: 0 10px;
+  position: relative;
+}
+
+.header .search-form input[type="search"] {
+  width: 100%;
+  padding: 6px 35px 6px 12px;
+  border-radius: 25px;
+  border: 1px solid #dee2e6;
+  font-size: 0.9rem;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.header .search-form input[type="search"]:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 75%);
+  outline: none;
+}
+
+.header .search-form button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: var(--accent-color);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.header .search-form button:hover {
+  color: color-mix(in srgb, var(--accent-color), black 20%);
+}
+
+/*--------------------------------------------------------------
+# Tablet (≤ 992px)
+--------------------------------------------------------------*/
+@media (max-width: 992px) {
+  .header .logo img {
+    max-height: 32px;
+  }
+
+  .header .logo h1.sitename {
+    font-size: 24px;
+  }
+
+  .header .btn-getstarted {
+    padding: 6px 14px;
+    font-size: 14px;
+    margin: auto;
+  }
+
+  .header .search-form {
+    max-width: 280px;
+  }
+
+  .header .search-form input[type="search"] {
+    font-size: 0.85rem;
+    padding: 5px 32px 5px 10px;
+  }
+
+  .header .search-form button {
+    font-size: 0.9rem;
+  }
+}
+
+/*--------------------------------------------------------------
+# Mobile (≤ 768px)
+--------------------------------------------------------------*/
+@media (max-width: 768px) {
+  .header {
+    padding: 10px 0;
+  }
+
+  .header .container-fluid {
+    flex-wrap: wrap;
+  }
+
+  .header .logo img {
+    max-height: 30px;
+  }
+
+  .header .logo h1.sitename {
+    font-size: 20px;
+  }
+
+  .header .btn-getstarted {
+    font-size: 13px;
+    border-radius: 6px;
+    margin-left: 0;
+  }
+
+  .header .d-flex.gap-2 {
+    gap: 6px;
+  }
+
+  /* Search form full width, center aligned */
+  .header .search-form {
+    order: 3;
+    width: 90%;
+    max-width: 80%;
+    margin: 8px auto;
+    display: flex;
+    justify-content: center;
+  }
+
+  .header .search-form input[type="search"] {
+    font-size: 0.8rem;
+    padding: 5px 30px 5px 10px;
+  }
+
+  .header .search-form button {
+    font-size: 0.9rem;
+  }
+}
+
+/*--------------------------------------------------------------
+# Small Mobile (≤ 576px)
+--------------------------------------------------------------*/
+@media (max-width: 576px) {
+  .header .logo img {
+    max-height: 28px;
+  }
+
+  .header .logo h1.sitename {
+    display: none;
+    /* Hide text to prevent overflow */
+  }
+
+  .header .btn-getstarted {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+
+  .header .d-flex.gap-2 {
+    gap: 2px;
+  }
+
+  .header .search-form {
+    max-width: 95%;
+  }
+
+  .header .search-form input[type="search"] {
+    font-size: 0.8rem;
+    padding: 4px 28px 4px 10px;
+  }
+
+  .header .search-form input[type="search"]::placeholder {
+    font-size: 0.7rem;
+  }
+
+  .header .search-form button {
+    font-size: 0.85rem;
+  }
+}
+
+/*--------------------------------------------------------------
+# Extra Small (≤ 400px)
+--------------------------------------------------------------*/
+@media (max-width: 400px) {
+  .header .btn-getstarted {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .header .search-form input[type="search"] {
+    padding: 5px 30px 5px 10px;
   }
 }

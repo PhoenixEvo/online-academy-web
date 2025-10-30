@@ -67,7 +67,7 @@ export async function list(req, res, next) {
       return x;
     });
     const [courseResult, categories] = await Promise.all([
-      Course.findPaged({ page, pageSize, sortList, categoryId, search }),
+      Course.findPaged({ page, pageSize, sortList, categoryId, search, includeSubcategories: true }),
       Category.getAll()
     ]);
 
@@ -220,7 +220,8 @@ export async function search_guest(req, res, next) {
       pageSize,
       sortList,
       categoryId,
-      search: searchQuery
+      search: searchQuery,
+      includeSubcategories: true
     });
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -272,7 +273,8 @@ export async function search(req, res, next) {
       pageSize,
       sort,
       categoryId,
-      search: searchQuery
+      search: searchQuery,
+      includeSubcategories: true
     });
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 

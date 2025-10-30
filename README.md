@@ -3,6 +3,8 @@
 ### Overview
 Online Academy is a web application that enables learners to discover, enroll in, and study online courses while instructors can publish and manage their courses. The system follows the MVC pattern with Express.js and Handlebars, uses PostgreSQL via Knex for persistence, and implements authentication, session management, CSRF protection, and email-based OTP verification.
 
+https://online-academy-web.onrender.com/
+
 This README summarizes the scope from the PTUDW specification and the current implementation in the `online-academy` folder.
 
 ### Key Features
@@ -69,33 +71,46 @@ npm install
 ```
 
 ### Environment Configuration
-Create a `.env` file inside `online-academy` based on `env.example`. Suggested variables:
+Create a `.env` file inside `online-academy` based on `env.example`. Key variables:
 ```env
 # Server
 PORT=3000
+NODE_ENV=development
 
 # Session
 SESSION_SECRET=replace-with-a-long-random-string
 
 # Database (choose one style)
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DBNAME?sslmode=require
-# or
+# or use discrete fields (used by knexfile.js when no URL provided)
+DB_CONNECTION=postgres://USER:PASSWORD@HOST:PORT/DBNAME?sslmode=require
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=postgres
 DB_USER=postgres
-DB_PASSWORD=postgres
+DB_PASSWORD=
+DB_SSL=false
 
 # Mail (Nodemailer)
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=example@example.com
-SMTP_PASSWORD=example-password
-MAIL_FROM="Online Academy <no-reply@example.com>"
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USER=example@example.com
+MAIL_PASS=example-password
+MAIL_FROM="Mentor Online Academy <no-reply@online.com>"
+
+# Google Authentication (optional)
+GOOGLE_CLIENT_ID=placeholder
+GOOGLE_CLIENT_SECRET=placeholder
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+
+# Supabase (Storage + Database, optional)
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_ANON_KEY=
+SUPABASE_BUCKET=
 ```
 
-Update `knexfile.js` to read from your environment variables or set the connection fields to match your PostgreSQL instance. Do not commit secrets.
+`knexfile.js` will prefer `DATABASE_URL` or `DB_CONNECTION` when provided; otherwise it falls back to individual `DB_*` fields. Do not commit secrets.
 
 ### Database Migration and Seed
 ```bash
@@ -107,10 +122,14 @@ npm run rollback
 ```
 
 Migrations included:
-- `001_init_users_categories_courses`
-- `002_lessons_enrollments_watchlist_reviews`
-- `003_progress_otp_tokens`
+- `20251001142417_001_init_users_categories_courses`
+- `20251001142548_002_lessons_enrollments_watchlist_reviews`
+- `20251001142556_003_progress_otp_tokens`
 - `20250102000000_add_is_verified_to_users`
+- `20250123000000_add_fulltext_search_index`
+- `20251007135714_add_google_fields_to_users`
+
+For details about enabling full-text search, see `SETUP_FULLTEXT_SEARCH.md`.
 
 ### Running the App
 ```bash
@@ -122,6 +141,24 @@ npm start
 ```
 
 The server starts at `http://localhost:3000` by default.
+
+### Deployment
+
+This application can be deployed to various platforms. **Render** is recommended for easy setup.
+
+**Quick Render Deploy:**
+1. Push code to GitHub (with `render.yaml` file)
+2. Go to https://render.com → "New" → "Blueprint"
+3. Connect GitHub repo → Render auto-detects `render.yaml`
+4. Set environment variables (MAIL_*, GOOGLE_*, SUPABASE_*)
+5. Wait for deploy → Run migrations in Shell:
+   ```bash
+   npm run migrate
+   npm run seed
+   ```
+
+See [RENDER_DEPLOY.md](./RENDER_DEPLOY.md) for detailed Render deployment guide.  
+See [DEPLOY.md](./DEPLOY.md) for other platforms (Heroku, Railway).
 
 ### Security Notes
 - **Helmet CSP** is configured to restrict script/style sources and fonts

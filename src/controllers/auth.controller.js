@@ -356,6 +356,67 @@ export async function doResetPassword(req, res, next) {
   }
 }
 
+// API: Check email availability (for Ajax validation)
+// Supports excludeUserId parameter for edit forms (to exclude current user's email)
+export async function checkEmail(req, res, next) {
+  try {
+    const { email, excludeUserId } = req.query;
+    
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Normalize email
+    const normalizedEmail = email.trim().toLowerCase();
+    
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      return res.json({
+        success: true,
+        available: false,
+        message: 'Invalid email format'
+      });
+    }
+
+    // Build query to check if email exists
+    let query = db('users').where({ email: normalizedEmail });
+    
+    // If excludeUserId is provided, exclude that user (for edit forms)
+    if (excludeUserId) {
+      const userId = parseInt(excludeUserId);
+      if (!isNaN(userId)) {
+        query = query.whereNot('id', userId);
+      }
+    }
+
+    const existingUser = await query.first();
+    
+    if (existingUser) {
+      return res.json({
+        success: true,
+        available: false,
+        message: 'This email is already registered'
+      });
+    }
+
+    return res.json({
+      success: true,
+      available: true,
+      message: 'Email is available'
+    });
+  } catch (e) {
+    console.error('Check email error:', e);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while checking email'
+    });
+  }
+}
+
 export function restrict(req, res, next) {
   if (req.isAuthenticated()) {
     return next();

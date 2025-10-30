@@ -165,6 +165,8 @@ app.use(async function (req, res, next) {
 // ROUTES (thin, no logic)
 app.use('/', indexRoute);
 app.use('/auth', authRoute);
+// API routes for Ajax validation (GET requests don't need CSRF)
+app.use('/api/auth', authRoute);
 app.use('/profile', profileRoute);
 //app.use('/courses', courseRoute);
 app.use('/admins/categories', requireAdmin, adminCategoryRoute);

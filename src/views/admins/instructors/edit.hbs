@@ -15,7 +15,8 @@
 
       <div class="form-group">
         <label>Email</label>
-        <input type="email" name="email" value="{{instructor.email}}" class="form-input" required>
+        <input type="email" name="email" id="instructorEmailEdit" value="{{instructor.email}}" class="form-input" required>
+        <div id="instructorEmailEditValidationMessage" class="ajax-validation-message" style="display: none; margin-top: 5px; font-size: 0.875rem;"></div>
       </div>
 
       <div class="form-group">
@@ -105,3 +106,13 @@
   .btn-primary, .btn-secondary { justify-content: center; width: 100%; }
 }
 </style>
+
+<script src="/js/ajax-email-validation.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize email validation for edit instructor form
+  // Exclude current instructor's user ID
+  const userId = {{#if instructor}}{{instructor.user_id}}{{else}}null{{/if}};
+  initializeEmailValidation('instructorEmailEdit', 'instructorEmailEditValidationMessage', userId);
+});
+</script>

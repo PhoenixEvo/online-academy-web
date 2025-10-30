@@ -62,7 +62,7 @@ export const courseModel = {
       throw new Error(`Error checking category: ${error.message}`);
     }
   },
-// ADD NEW METHOD HERE: Get all courses with enrollment count
+//Get all courses with enrollment count
   async getCoursesWithEnrollmentCount() {
     try {
       return await db('courses')
@@ -85,9 +85,20 @@ export const courseModel = {
       console.error('Error fetching courses with enrollment count:', error);
       throw new Error(`Error fetching courses: ${error.message}`);
     }
+  },
+  // Get all published courses
+async getAllPublished() {
+  try {
+    return await db('courses')
+      .select('*')
+      .where({ status: 'published' })
+      .orderBy('created_at', 'desc');
+  } catch (error) {
+    console.error('Error fetching published courses:', error);
+    throw new Error(`Error fetching published courses: ${error.message}`);
   }
-
-};
+},
+  };
 
 // Find course by ID with instructor and category info
 export async function findById(id) {
@@ -108,7 +119,7 @@ export async function findById(id) {
 }
 
 // Find courses with pagination and sorting
-export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList = null, categoryId = null, search = null } = {}) {
+export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList = null, categoryId = null, search = null, includeSubcategories = false } = {}) {
     const offset = (page - 1) * pageSize;
 
     let query = db('courses')
@@ -138,7 +149,28 @@ export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList
 
     // Filter by category
     if (categoryId) {
-        query = query.where('courses.category_id', categoryId);
+        if (includeSubcategories) {
+            // Get all subcategory IDs recursively
+            const getAllSubcategoryIds = async (parentId) => {
+                const subcategories = await db('categories')
+                    .select('id')
+                    .where('parent_id', parentId);
+
+                let allIds = [parentId]; // Include the parent category itself
+
+                for (const sub of subcategories) {
+                    const subIds = await getAllSubcategoryIds(sub.id);
+                    allIds = allIds.concat(subIds);
+                }
+
+                return allIds;
+            };
+
+            const categoryIds = await getAllSubcategoryIds(categoryId);
+            query = query.whereIn('courses.category_id', categoryIds);
+        } else {
+            query = query.where('courses.category_id', categoryId);
+        }
     }
 
     // Full-text search functionality

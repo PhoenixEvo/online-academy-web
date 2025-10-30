@@ -72,10 +72,10 @@
   <ul class="pagination justify-content-center">
     {{#if (gt currentPage 1)}}
       <li class="page-item">
-        <a class="page-link" href="?page={{decrement currentPage}}">Previous</a>
+        <a class="page-link" href="?page={{decrement currentPage}}">«</a>
       </li>
     {{else}}
-      <li class="page-item disabled"><a class="page-link">Previous</a></li>
+      <li class="page-item disabled"><a class="page-link">«</a></li>
     {{/if}}
 
     {{#each pages}}
@@ -92,10 +92,10 @@
 
     {{#if (lt currentPage totalPages)}}
       <li class="page-item">
-        <a class="page-link" href="?page={{increment currentPage}}">Next</a>
+        <a class="page-link" href="?page={{increment currentPage}}">»</a>
       </li>
     {{else}}
-      <li class="page-item disabled"><a class="page-link">Next</a></li>
+      <li class="page-item disabled"><a class="page-link">»</a></li>
     {{/if}}
   </ul>
 </nav>

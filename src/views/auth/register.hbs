@@ -49,6 +49,8 @@
       value="{{#if values}}{{values.email}}{{/if}}"
     />
     <p class="helper helper1">email@domain.com</p>
+    <!-- Ajax validation message -->
+    <div id="emailValidationMessage" class="ajax-validation-message" style="display: none; margin-top: 5px; font-size: 0.875rem;"></div>
   </div>
 
   <!-- Password -->
@@ -130,7 +132,7 @@
   </div>
 
   <!-- Link to login -->
-  <div class="inputGroup inputGroup6">
+  <div class="inputGroup inputGroup6" style="text-align: center;">
     <p class="helper helperAlt" style="font-size:1em; margin-top:0.75em;">
       Already have an account? <a href="/auth/login">Log in</a>
     </p>
