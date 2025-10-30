@@ -1,17 +1,16 @@
 <div class="admin-wrapper">
   <div class="admin-header">
     <h1 class="admin-title">
-      Add New User
+      Add New Admin
     </h1>
     <a href="/admins/users" class="btn-back">
       Back
     </a>
   </div>
 
-  <!-- HIỂN THỊ LỖI -->
   {{#if error}}
     <div class="alert alert-danger">
-      <strong>Lỗi:</strong> {{error}}
+      <strong>Error:</strong> {{error}}
     </div>
   {{/if}}
 
@@ -32,11 +31,12 @@
         />
       </div>
 
-      <!-- Email - Highlight nếu lỗi liên quan đến email -->
+      <!-- Email -->
       <div class="form-group">
         <label class="form-label">Email</label>
         <input
           type="email"
+          id="userEmail"
           class="form-input {{#if (eq error 'Email already exists')}}is-invalid{{/if}}"
           name="email"
           value="{{old.email}}"
@@ -44,8 +44,9 @@
           placeholder="Enter email..."
         />
         {{#if (eq error 'Email already exists')}}
-          <small class="text-danger">Email này đã được sử dụng</small>
+          <small class="text-danger">This email is already in use</small>
         {{/if}}
+        <div id="userEmailValidationMessage" class="ajax-validation-message" style="display: none; margin-top: 5px; font-size: 0.875rem;"></div>
       </div>
 
       <!-- Password -->
@@ -256,3 +257,11 @@
     }
   }
 </style>
+
+<script src="/js/ajax-email-validation.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize email validation for add user form
+  initializeEmailValidation('userEmail', 'userEmailValidationMessage', null);
+});
+</script>
