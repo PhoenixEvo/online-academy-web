@@ -41,6 +41,9 @@ r.post("/register", authCtrl.validateRegister, authCtrl.doRegister);
 r.post("/resend-otp", authCtrl.resendOtp);
 r.post("/verify-otp", authCtrl.validateOtp, authCtrl.verifyOtp);
 
+// API: Check email availability (Ajax validation)
+r.get("/check-email", authCtrl.checkEmail);
+
 // forgot password
 r.get("/forgot-password", authCtrl.showForgotPassword);
 r.post("/forgot-password", authCtrl.validateForgotPassword, authCtrl.sendResetOtp);
