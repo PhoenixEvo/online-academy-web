@@ -117,6 +117,7 @@
                             <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="email" value="{{#if values.email}}{{values.email}}{{else}}{{user.email}}{{/if}}" required>
                             <div class="invalid-feedback">Please provide a valid email address.</div>
+                            <div id="profileEmailValidationMessage" class="ajax-validation-message" style="display: none; margin-top: 5px; font-size: 0.875rem;"></div>
                           </div>
                         </div>
 
@@ -357,9 +358,10 @@
                   </div>
 
                   <div class="col-md-6 mb-3">
-                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control" id="email" name="email" value="{{#if values.email}}{{values.email}}{{else}}{{user.email}}{{/if}}" required>
+                    <label for="email2" class="form-label">Email Address <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email2" name="email" value="{{#if values.email}}{{values.email}}{{else}}{{user.email}}{{/if}}" required>
                     <div class="invalid-feedback">Please provide a valid email address.</div>
+                    <div id="profileEmailValidationMessage2" class="ajax-validation-message" style="display: none; margin-top: 5px; font-size: 0.875rem;"></div>
                   </div>
                 </div>
 
@@ -461,3 +463,24 @@
     {{/if}}
   </div>
 </section><!-- End Profile Section -->
+
+{{#fill_section 'js'}}
+<script src="/js/ajax-email-validation.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize email validation for profile forms
+  // Exclude current user's ID so they can keep their own email
+  const userId = {{#if user}}{{user.id}}{{else}}null{{/if}};
+  
+  // For instructor profile form (first form)
+  if (document.getElementById('email') && document.getElementById('profileEmailValidationMessage')) {
+    initializeEmailValidation('email', 'profileEmailValidationMessage', userId);
+  }
+  
+  // For student profile form (second form)
+  if (document.getElementById('email2') && document.getElementById('profileEmailValidationMessage2')) {
+    initializeEmailValidation('email2', 'profileEmailValidationMessage2', userId);
+  }
+});
+</script>
+{{/fill_section}}
