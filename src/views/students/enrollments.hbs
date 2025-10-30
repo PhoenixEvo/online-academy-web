@@ -33,32 +33,54 @@
 
       <div class="row">
         {{#if courses.length}}
-          {{#each courses}}
-            <div
-              class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0 mb-4"
-              data-aos="zoom-in"
-              data-aos-delay="300"
-            >
-              <div class="course-item">
-                <img src="{{thumbnailUrl}}" class="img-fluid" alt="" />
-                <div class="course-content">
-                  <div
-                    class="d-flex justify-content-between align-items-center mb-3"
-                  >
-                    <p class="category">{{categoryName}}</p>
-                    <p class="price">₫{{format_number price}}</p>
-                  </div>
-                  <h3><a href="/students/enrolled/learn/{{this.id}}">{{title}}</a></h3>
-                  <p class="description">{{shortDesc}}</p>
+        {{#each courses}}
+        <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0 mb-4" data-aos="zoom-in"
+          data-aos-delay="300">
+          <div class="course-item"
+            style="display:flex; flex-direction:column; height:100%; width:100%; border-radius:6px; overflow:hidden; background:#fff;">
+            <img src="{{thumbnailUrl}}" class="img-fluid"
+              style="width:100%; height:200px; object-fit:cover; border-bottom:1px solid #eee;" alt="" />
+
+            <div class="course-content"
+              style="display:flex; flex-direction:column; justify-content:space-between; flex:1 1 auto; min-height:0; padding:16px;">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <p class="category"
+                    style="margin:0; padding:4px 8px; background:#0c85c6; border-radius:5px; font-size:13px;">
+                    {{categoryName}}
+                  </p>
+                  <p class="price" style="margin:0; font-weight:700;">₫{{format_number price}}</p>
                 </div>
+
+                <h3 style="margin:0 0 8px 0;"><a href="/students/enrolled/learn/{{this.id}}"
+                    style="color:inherit; text-decoration:none;">
+                    {{title}}
+                  </a></h3>
+
+                <p class="description" style="color:#666; margin:0 0 8px 0;">{{shortDesc}}</p>
               </div>
-            </div>
-          {{/each}}
+
+              {{#if isCompleted}}
+              <div
+                style="background-color:#e8f5e9; color:#2e7d32; font-weight:600; padding:8px 10px; border-radius:6px; text-align:center; margin-top:8px;">
+                <i class="bi bi-check-circle"></i> Completed
+              </div>
+              {{else}}
+              <div
+                style="background-color:#fff3cd; color:#856404; font-weight:600; padding:8px 10px; border-radius:6px; text-align:center; margin-top:8px;">
+                <i class="bi bi-hourglass-split"></i> In Progress
+              </div>
+              {{/if}}
+            </div> <!-- /.course-content -->
+          </div> <!-- /.course-item -->
+        </div> <!-- /.col -->
+        {{/each}}
         {{else}}
-          <div class="col-12">
-            <p class="text-center">No courses found.</p>
-          </div>
+        <div class="col-12">
+          <p class="text-center">No courses found.</p>
+        </div>
         {{/if}}
+
 
       </div>
 
@@ -71,31 +93,31 @@
 <nav aria-label="Page navigation example" class="mt-3">
   <ul class="pagination justify-content-center">
     {{#if (gt currentPage 1)}}
-      <li class="page-item">
-        <a class="page-link" href="?page={{decrement currentPage}}">«</a>
-      </li>
+    <li class="page-item">
+      <a class="page-link" href="?page={{decrement currentPage}}">«</a>
+    </li>
     {{else}}
-      <li class="page-item disabled"><a class="page-link">«</a></li>
+    <li class="page-item disabled"><a class="page-link">«</a></li>
     {{/if}}
 
     {{#each pages}}
-      {{#if isCurrent}}
-        <li class="page-item active" aria-current="page">
-          <a class="page-link" href="?page={{this.value}}">{{this.value}}</a>
-        </li>
-      {{else}}
-        <li class="page-item">
-          <a class="page-link" href="?page={{this.value}}">{{this.value}}</a>
-        </li>
-      {{/if}}
+    {{#if isCurrent}}
+    <li class="page-item active" aria-current="page">
+      <a class="page-link" href="?page={{this.value}}">{{this.value}}</a>
+    </li>
+    {{else}}
+    <li class="page-item">
+      <a class="page-link" href="?page={{this.value}}">{{this.value}}</a>
+    </li>
+    {{/if}}
     {{/each}}
 
     {{#if (lt currentPage totalPages)}}
-      <li class="page-item">
-        <a class="page-link" href="?page={{increment currentPage}}">»</a>
-      </li>
+    <li class="page-item">
+      <a class="page-link" href="?page={{increment currentPage}}">»</a>
+    </li>
     {{else}}
-      <li class="page-item disabled"><a class="page-link">»</a></li>
+    <li class="page-item disabled"><a class="page-link">»</a></li>
     {{/if}}
   </ul>
 </nav>
