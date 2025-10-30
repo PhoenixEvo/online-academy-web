@@ -62,35 +62,26 @@ export const courseModel = {
       throw new Error(`Error checking category: ${error.message}`);
     }
   },
-<<<<<<< HEAD
 //Get all courses with enrollment count
-=======
-// ADD NEW METHOD HERE: Get all courses with enrollment count
->>>>>>> main
-  async getCoursesWithEnrollmentCount() {
-    try {
-      return await db('courses')
-        .select(
-          'courses.*',
-          'categories.name as category',
-          db.raw('COALESCE(enrollment_counts.student_count, 0) as student_count')
-        )
-        .leftJoin('categories', 'courses.category_id', 'categories.id')
-        .leftJoin(
-          db('enrollments')
-            .select('course_id')
-            .count('user_id as student_count')
-            .groupBy('course_id')
-            .as('enrollment_counts'),
-          'courses.id', 'enrollment_counts.course_id'
-        )
-        .orderBy('courses.created_at', 'desc');
-    } catch (error) {
-      console.error('Error fetching courses with enrollment count:', error);
-      throw new Error(`Error fetching courses: ${error.message}`);
-    }
-<<<<<<< HEAD
-  },
+getCoursesWithEnrollmentCount() {
+  return db('courses')
+    .select(
+      'courses.*',
+      'categories.name as category',
+      db.raw('COALESCE(enrollment_counts.student_count, 0) as student_count')
+    )
+    .leftJoin('categories', 'courses.category_id', 'categories.id')
+    .leftJoin(
+      db('enrollments')
+        .select('course_id')
+        .count('user_id as student_count')
+        .groupBy('course_id')
+        .as('enrollment_counts'),
+      'courses.id', 'enrollment_counts.course_id'
+    )
+    .orderBy('courses.created_at', 'desc');
+}
+,
   // Get all published courses
 async getAllPublished() {
   try {
@@ -104,11 +95,6 @@ async getAllPublished() {
   }
 },
   };
-=======
-  }
-
-};
->>>>>>> main
 
 // Find course by ID with instructor and category info
 export async function findById(id) {

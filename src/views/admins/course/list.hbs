@@ -4,10 +4,6 @@
       Course Management
     </h1>
   </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> main
   <!-- Stats Cards -->
   <div class="row mb-4">
     <div class="col-md-3">
@@ -47,7 +43,36 @@
       </div>
     </div>
   </div>
+<!-- Filters -->
+<div class="filters mb-4">
+  <form method="GET" class="row g-3 align-items-end">
+    <div class="col-md-5">
+      <label class="form-label small fw-bold">Category</label>
+      <select name="category" class="form-select form-select-sm">
+        <option value="all">All Categories</option>
+        {{#each categories}}
+          <option value="{{id}}" {{selected ../selectedCategory this.id}}>{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
 
+    <div class="col-md-5">
+      <label class="form-label small fw-bold">Instructor</label>
+      <select name="instructor" class="form-select form-select-sm">
+        <option value="all">All Instructors</option>
+        {{#each instructors}}
+          <option value="{{id}}" {{selected ../selectedInstructor this.id}}>{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary btn-sm w-100">
+        Filter
+      </button>
+    </div>
+  </form>
+</div>
   <!-- Table -->
   <div class="table-container">
     <div class="table-responsive">
@@ -270,5 +295,27 @@
   }
   .course-title + small { display: none; }
   .students { display: none; }
+}
+.filters {
+  background: var(--surface-color);
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.filters .form-select {
+  font-size: 0.875rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.filters .btn-primary {
+  background: var(--accent-color);
+  border: none;
+  font-size: 0.875rem;
+  padding: 6px;
+  border-radius: 6px;
+  font-weight: 600;
 }
 </style>

@@ -5,23 +5,38 @@ import { db } from '../models/db.js';
 
 export const list = async (req, res) => {
   try {
-    const courses = await courseModel.getCoursesWithEnrollmentCount();
+    const { category, instructor } = req.query;
+    let query = courseModel.getCoursesWithEnrollmentCount();
+
+    if (category && category !== 'all') {
+      query = query.where('courses.category_id', category);
+    }
+    if (instructor && instructor !== 'all') {
+      query = query.where('courses.instructor_id', instructor);
+    }
+    const courses = await query;
     const totalLessons = await db('lessons').count('* as count').first();
     const totalEnrollments = await db('enrollments').count('* as count').first();
-<<<<<<< HEAD
     const totalStudents = await db('enrollments').countDistinct('user_id as count').first();
-=======
->>>>>>> main
+
+
+    const categories = await categoryModel.findAll();
+    const instructors = await db('users')
+      .join('courses', 'users.id', 'courses.instructor_id')
+      .select('users.id', 'users.name')
+      .groupBy('users.id', 'users.name')
+      .orderBy('users.name', 'asc');
 
     return res.render('admins/course/list', {
       layout: 'main',
       courses,
+      categories,
+      instructors,
+      selectedCategory: category || 'all',
+      selectedInstructor: instructor || 'all',
       totalLessons: parseInt(totalLessons.count),
       totalEnrollments: parseInt(totalEnrollments.count),
-<<<<<<< HEAD
       totalStudents: parseInt(totalStudents.count),
-=======
->>>>>>> main
       title: 'Course Management',
       success: req.flash('success'),
       error: req.flash('error'),

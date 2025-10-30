@@ -1,27 +1,16 @@
 <div class="admin-wrapper">
   <div class="admin-header">
     <h1 class="admin-title">
-<<<<<<< HEAD
       Add New Admin
-=======
-      Add New User
->>>>>>> main
     </h1>
     <a href="/admins/users" class="btn-back">
       Back
     </a>
   </div>
 
-<<<<<<< HEAD
   {{#if error}}
     <div class="alert alert-danger">
       <strong>Error:</strong> {{error}}
-=======
-  <!-- HIỂN THỊ LỖI -->
-  {{#if error}}
-    <div class="alert alert-danger">
-      <strong>Lỗi:</strong> {{error}}
->>>>>>> main
     </div>
   {{/if}}
 
@@ -42,11 +31,7 @@
         />
       </div>
 
-<<<<<<< HEAD
       <!-- Email -->
-=======
-      <!-- Email - Highlight nếu lỗi liên quan đến email -->
->>>>>>> main
       <div class="form-group">
         <label class="form-label">Email</label>
         <input
@@ -59,11 +44,7 @@
           placeholder="Enter email..."
         />
         {{#if (eq error 'Email already exists')}}
-<<<<<<< HEAD
           <small class="text-danger">This email is already in use</small>
-=======
-          <small class="text-danger">Email này đã được sử dụng</small>
->>>>>>> main
         {{/if}}
         <div id="userEmailValidationMessage" class="ajax-validation-message" style="display: none; margin-top: 5px; font-size: 0.875rem;"></div>
       </div>
@@ -84,10 +65,6 @@
       <div class="form-group">
         <label class="form-label">Role</label>
         <select class="form-select" name="role" required>
-<<<<<<< HEAD
-=======
-          <option value="student" {{#if (eq old.role 'student')}}selected{{/if}}>Student</option>
->>>>>>> main
           <option value="admin" {{#if (eq old.role 'admin')}}selected{{/if}}>Admin</option>
         </select>
       </div>
