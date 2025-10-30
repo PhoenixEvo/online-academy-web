@@ -3,6 +3,8 @@
 ### Overview
 Online Academy is a web application that enables learners to discover, enroll in, and study online courses while instructors can publish and manage their courses. The system follows the MVC pattern with Express.js and Handlebars, uses PostgreSQL via Knex for persistence, and implements authentication, session management, CSRF protection, and email-based OTP verification.
 
+https://online-academy-web.onrender.com/
+
 This README summarizes the scope from the PTUDW specification and the current implementation in the `online-academy` folder.
 
 ### Key Features
