@@ -3,6 +3,8 @@
 ### Overview
 Online Academy is a web application that enables learners to discover, enroll in, and study online courses while instructors can publish and manage their courses. The system follows the MVC pattern with Express.js and Handlebars, uses PostgreSQL via Knex for persistence, and implements authentication, session management, CSRF protection, and email-based OTP verification.
 
+https://online-academy-web.onrender.com/
+
 This README summarizes the scope from the PTUDW specification and the current implementation in the `online-academy` folder.
 
 ### Key Features
@@ -139,6 +141,24 @@ npm start
 ```
 
 The server starts at `http://localhost:3000` by default.
+
+### Deployment
+
+This application can be deployed to various platforms. **Render** is recommended for easy setup.
+
+**Quick Render Deploy:**
+1. Push code to GitHub (with `render.yaml` file)
+2. Go to https://render.com → "New" → "Blueprint"
+3. Connect GitHub repo → Render auto-detects `render.yaml`
+4. Set environment variables (MAIL_*, GOOGLE_*, SUPABASE_*)
+5. Wait for deploy → Run migrations in Shell:
+   ```bash
+   npm run migrate
+   npm run seed
+   ```
+
+See [RENDER_DEPLOY.md](./RENDER_DEPLOY.md) for detailed Render deployment guide.  
+See [DEPLOY.md](./DEPLOY.md) for other platforms (Heroku, Railway).
 
 ### Security Notes
 - **Helmet CSP** is configured to restrict script/style sources and fonts

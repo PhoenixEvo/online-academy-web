@@ -68,20 +68,104 @@ function initRegisterForm() {
     });
   }
 
-  // Email validation with visual feedback
+  // Email validation with visual feedback and Ajax check
   if (registerEmail) {
+    let emailCheckTimeout = null;
+    const emailValidationMessage = document.getElementById("emailValidationMessage");
+    const inputGroup = registerEmail.closest(".inputGroup");
+    
     registerEmail.addEventListener("input", (e) => {
-      const value = e.target.value;
-      const inputGroup = e.target.closest(".inputGroup");
+      const value = e.target.value.trim();
+
+      // Clear previous timeout
+      if (emailCheckTimeout) {
+        clearTimeout(emailCheckTimeout);
+      }
+
+      // Hide validation message initially
+      if (emailValidationMessage) {
+        emailValidationMessage.style.display = "none";
+        emailValidationMessage.textContent = "";
+      }
 
       if (value.length === 0) {
         inputGroup.classList.remove("valid", "invalid");
-      } else if (value.includes("@") && value.includes(".")) {
-        inputGroup.classList.remove("invalid");
-        inputGroup.classList.add("valid");
-      } else {
+        return;
+      }
+
+      // Basic format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
         inputGroup.classList.remove("valid");
         inputGroup.classList.add("invalid");
+        return;
+      }
+
+      // Debounce Ajax check (wait 500ms after user stops typing)
+      emailCheckTimeout = setTimeout(async () => {
+        try {
+          // Show loading state
+          inputGroup.classList.remove("valid", "invalid");
+          if (emailValidationMessage) {
+            emailValidationMessage.style.display = "block";
+            emailValidationMessage.textContent = "Checking email availability...";
+            emailValidationMessage.style.color = "#6c757d";
+          }
+
+          // Make Ajax request to check email
+          const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(value)}`, {
+            method: "GET",
+            headers: {
+              "Accept": "application/json",
+              "X-Requested-With": "XMLHttpRequest"
+            }
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            if (data.available) {
+              // Email is available
+              inputGroup.classList.remove("invalid");
+              inputGroup.classList.add("valid");
+              if (emailValidationMessage) {
+                emailValidationMessage.textContent = "✓ " + (data.message || "Email is available");
+                emailValidationMessage.style.color = "#28a745";
+              }
+            } else {
+              // Email is not available
+              inputGroup.classList.remove("valid");
+              inputGroup.classList.add("invalid");
+              if (emailValidationMessage) {
+                emailValidationMessage.textContent = "✗ " + (data.message || "Email is already registered");
+                emailValidationMessage.style.color = "#dc3545";
+              }
+            }
+          } else {
+            // Server error
+            inputGroup.classList.remove("valid", "invalid");
+            if (emailValidationMessage) {
+              emailValidationMessage.textContent = "⚠ " + (data.message || "Unable to verify email");
+              emailValidationMessage.style.color = "#ffc107";
+            }
+          }
+        } catch (error) {
+          console.error("Email check error:", error);
+          inputGroup.classList.remove("valid", "invalid");
+          if (emailValidationMessage) {
+            emailValidationMessage.textContent = "⚠ Network error. Please try again.";
+            emailValidationMessage.style.color = "#ffc107";
+          }
+        }
+      }, 500); // Wait 500ms after user stops typing
+    });
+
+    // Also validate on blur
+    registerEmail.addEventListener("blur", () => {
+      const value = registerEmail.value.trim();
+      if (value.length > 0 && !inputGroup.classList.contains("valid")) {
+        // Trigger validation if not already validated
+        registerEmail.dispatchEvent(new Event("input"));
       }
     });
   }

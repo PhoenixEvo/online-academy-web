@@ -108,7 +108,7 @@ export async function findById(id) {
 }
 
 // Find courses with pagination and sorting
-export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList = null, categoryId = null, search = null } = {}) {
+export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList = null, categoryId = null, search = null, includeSubcategories = false } = {}) {
     const offset = (page - 1) * pageSize;
 
     let query = db('courses')
@@ -138,7 +138,28 @@ export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList
 
     // Filter by category
     if (categoryId) {
-        query = query.where('courses.category_id', categoryId);
+        if (includeSubcategories) {
+            // Get all subcategory IDs recursively
+            const getAllSubcategoryIds = async (parentId) => {
+                const subcategories = await db('categories')
+                    .select('id')
+                    .where('parent_id', parentId);
+
+                let allIds = [parentId]; // Include the parent category itself
+
+                for (const sub of subcategories) {
+                    const subIds = await getAllSubcategoryIds(sub.id);
+                    allIds = allIds.concat(subIds);
+                }
+
+                return allIds;
+            };
+
+            const categoryIds = await getAllSubcategoryIds(categoryId);
+            query = query.whereIn('courses.category_id', categoryIds);
+        } else {
+            query = query.where('courses.category_id', categoryId);
+        }
     }
 
     // Full-text search functionality
