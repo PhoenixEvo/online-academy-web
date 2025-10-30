@@ -42,3 +42,45 @@ export function getPublicUrl(path) {
     .getPublicUrl(path);
   return data.publicUrl;
 }
+
+// Extract the object path (key) from a Supabase public URL.
+// Example: https://<proj>.supabase.co/storage/v1/object/public/<bucket>/folder/file.mp4
+//  -> returns "folder/file.mp4"
+export function extractPathFromPublicUrl(publicUrl) {
+  try {
+    const u = new URL(publicUrl);
+    const parts = u.pathname.split('/').filter(Boolean);
+    // expect: ['storage','v1','object','public', '<bucket>', ...path]
+    const idx = parts.findIndex(p => p === 'public');
+    if (idx !== -1 && parts[idx + 1]) {
+      const bucket = parts[idx + 1];
+      const rest = parts.slice(idx + 2).join('/');
+      if (!rest) return null;
+      // If SUPABASE_BUCKET is set and does not match, still return rest (caller may decide)
+      return rest;
+    }
+  } catch {}
+  return null;
+}
+
+export async function deleteObjectByPath(path) {
+  if (!SUPABASE_BUCKET) {
+    console.warn('SUPABASE_BUCKET is not configured; skip deleting object');
+    return false;
+  }
+  const { data, error } = await supabase
+    .storage
+    .from(SUPABASE_BUCKET)
+    .remove([path]);
+  if (error) {
+    console.warn('Supabase remove failed:', error);
+    return false;
+  }
+  return true;
+}
+
+export async function deleteObjectByPublicUrl(publicUrl) {
+  const p = extractPathFromPublicUrl(publicUrl);
+  if (!p) return false;
+  return deleteObjectByPath(p);
+}
