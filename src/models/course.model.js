@@ -62,7 +62,11 @@ export const courseModel = {
       throw new Error(`Error checking category: ${error.message}`);
     }
   },
+<<<<<<< HEAD
 //Get all courses with enrollment count
+=======
+// ADD NEW METHOD HERE: Get all courses with enrollment count
+>>>>>>> main
   async getCoursesWithEnrollmentCount() {
     try {
       return await db('courses')
@@ -85,6 +89,7 @@ export const courseModel = {
       console.error('Error fetching courses with enrollment count:', error);
       throw new Error(`Error fetching courses: ${error.message}`);
     }
+<<<<<<< HEAD
   },
   // Get all published courses
 async getAllPublished() {
@@ -99,6 +104,11 @@ async getAllPublished() {
   }
 },
   };
+=======
+  }
+
+};
+>>>>>>> main
 
 // Find course by ID with instructor and category info
 export async function findById(id) {

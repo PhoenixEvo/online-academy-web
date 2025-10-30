@@ -8,14 +8,20 @@ export const list = async (req, res) => {
     const courses = await courseModel.getCoursesWithEnrollmentCount();
     const totalLessons = await db('lessons').count('* as count').first();
     const totalEnrollments = await db('enrollments').count('* as count').first();
+<<<<<<< HEAD
     const totalStudents = await db('enrollments').countDistinct('user_id as count').first();
+=======
+>>>>>>> main
 
     return res.render('admins/course/list', {
       layout: 'main',
       courses,
       totalLessons: parseInt(totalLessons.count),
       totalEnrollments: parseInt(totalEnrollments.count),
+<<<<<<< HEAD
       totalStudents: parseInt(totalStudents.count),
+=======
+>>>>>>> main
       title: 'Course Management',
       success: req.flash('success'),
       error: req.flash('error'),
