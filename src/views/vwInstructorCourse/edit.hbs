@@ -54,15 +54,25 @@
       let t; return function(...args){ clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); };
     }
 
-    async function uploadFile(file){
+    async function uploadFile(file, toLocal){
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'videos');
-      const res = await fetch('/api/uploads/file', {
+      const endpoint = toLocal ? '/api/uploads/local' : '/api/uploads/file';
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' },
+        credentials: 'same-origin',
         body: formData
       });
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await res.text().catch(() => '');
+        if (res.status === 302 || (text && text.includes('<!DOCTYPE'))) {
+          throw new Error('Authentication required or unexpected HTML response. Please login again and retry.');
+        }
+        throw new Error(text || 'Unexpected non-JSON response');
+      }
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || 'Upload failed');
       return data.publicUrl;
@@ -196,6 +206,7 @@
       const form = btn.closest('form');
       const urlInput = form?.querySelector('input[name="video_url"]');
       const durInput = form?.querySelector('input[name="duration_sec"]');
+      const toLocal = !!form?.querySelector('input[name="upload_to_server"]:checked');
       const tmp = document.createElement('input');
       tmp.type = 'file';
       tmp.accept = 'video/*';
@@ -206,13 +217,14 @@
         const file = tmp.files?.[0];
         if (!file) { document.body.removeChild(tmp); return; }
         try {
-          const publicUrl = await uploadFile(file);
+          const publicUrl = await uploadFile(file, toLocal);
           if (urlInput) urlInput.value = publicUrl;
           autoFillDurationFromUrl(publicUrl, durInput);
           await Swal.fire({ icon: 'success', title: 'Uploaded', text: 'Video URL has been set into the form.' });
         } catch (err) {
           console.error(err);
-          Swal.fire({ icon: 'error', title: 'Upload failed', text: 'Please try again.' });
+          const msg = (err && err.message) ? err.message : 'Please try again.';
+          Swal.fire({ icon: 'error', title: 'Upload failed', text: msg });
         } finally {
           document.body.removeChild(tmp);
         }
@@ -253,8 +265,15 @@
         const fd = new FormData();
         fd.append('file', f);
         fd.append('folder', 'course-thumbnails');
-        const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' }, body: fd });
-        const data = await res.json();
+        const res = await fetch('/api/uploads/file', { method: 'POST', headers: { 'x-csrf-token': csrfToken, 'Accept': 'application/json' }, credentials: 'same-origin', body: fd });
+        const ct = res.headers.get('content-type') || '';
+        let data = {};
+        if (ct.includes('application/json')) {
+          data = await res.json();
+        } else {
+          const text = await res.text().catch(() => '');
+          throw new Error(text || 'Unexpected non-JSON response');
+        }
         if (res.ok && data.success) {
           if (urlInput) urlInput.value = data.publicUrl;
           if (preview) preview.src = data.publicUrl;
@@ -488,8 +507,8 @@
                                                         {{else}}
                                                           {{#if this.video_url}}
                                                             <video width="320" height="180" controls>
-                                                              <source src="{{this.video_url}}">
-                                                              Your browser does not support the video tag. <a href="{{this.video_url}}" target="_blank" rel="noopener">Open video</a>
+                                                              <source src="{{resolveVideoUrl this.video_url}}">
+                                                              Your browser does not support the video tag. <a href="{{resolveVideoUrl this.video_url}}" target="_blank" rel="noopener">Open video</a>
                                                             </video>
                                                           {{/if}}
                                                         {{/if}}
@@ -508,7 +527,7 @@
                                                     <input type="text" class="form-control" name="title" placeholder="Lesson title" required>
                                                   </div>
                                                   <div class="col-md-5">
-                                                    <input type="url" class="form-control" name="video_url" placeholder="Video URL (mp4 or YouTube link)" required>
+                                                    <input type="text" class="form-control" name="video_url" placeholder="Video URL (YouTube/mp4) or local path begin by /uploads/..." required>
                                                   </div>
                                                   <div class="col-md-3 col-12">
                                                     <div class="d-flex gap-2">
@@ -540,7 +559,10 @@
                                                     </div>
                                                   </div>
                                                   <div class="col-md-2 d-flex align-items-center">
-                                                    {{!-- <button type="submit" class="btn btn-outline-success" style="color:#4eb8dd;">Add Lesson</button> --}}
+                                                    <div class="form-check">
+                                                      <input class="form-check-input" type="checkbox" name="upload_to_server" value="1" id="upload-{{id}}">
+                                                      <label class="form-check-label" for="upload-{{id}}">Upload to Server</label>
+                                                    </div>
                                                   </div>
                                                   <div class="col-md-1 d-flex align-items-center">
                                                     {{!-- <button type="submit" class="btn btn-outline-success" style="color:#4eb8dd;">Add Lesson</button> --}}
