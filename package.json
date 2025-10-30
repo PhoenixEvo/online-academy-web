@@ -7,10 +7,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/app.js",
+    "start": "node src/app.js",
     "migrate": "knex migrate:latest --knexfile ./knexfile.js",
     "rollback": "knex migrate:rollback --knexfile ./knexfile.js",
-    "seed": "knex seed:run --knexfile ./knexfile.js",
-    "start": "nodemon src/app.js"
+    "seed": "knex seed:run --knexfile ./knexfile.js"
   },
   "keywords": [],
   "author": "",
