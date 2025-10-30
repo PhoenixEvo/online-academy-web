@@ -335,3 +335,76 @@ form[role="search"] input.form-control[type="search"]:focus:not(.is-invalid):not
   border-color: #000 !important;
   box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.12);
 }
+
+/* Accordion border */
+#lessons-tab-pane .accordion .accordion-item {
+  border: 1.5px solid #000 !important;
+  border-radius: 0.5rem;
+}
+
+/* Accordion header visual separation */
+#lessons-tab-pane .accordion .accordion-header::before {
+  border: 1.5px solid transparent; /* keep layout, avoid jump */
+  border-radius: 0.5rem;
+}
+
+/* Add Section input border */
+#lessons-tab-pane form[action*="/sections"] input.form-control[name="title"] {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+#lessons-tab-pane form[action*="/sections"] input.form-control[name="title"]:focus {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.12);
+}
+
+/* Lesson form inputs: title, video_url, duration */
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] input.form-control[name="title"],
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] input.form-control[name="video_url"],
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] input.form-control[name="duration_sec"] {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] input.form-control[name="title"]:focus,
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] input.form-control[name="video_url"]:focus,
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] input.form-control[name="duration_sec"]:focus {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.12);
+}
+
+/* Lesson checkboxes: preview + upload-to-server */
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] .form-check-input {
+  border-color: #000 !important;
+  border-width: 1.5px;
+  accent-color: #4eb8dd; /* theme accent */
+}
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] .form-check-input:focus {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.15rem rgba(0,0,0,0.10);
+}
+
+/* Upload video button next to video_url */
+#lessons-tab-pane [data-upload-for] {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+
+/* ---- Show a black bottom border only when the accordion title is expanded ---- */
+#lessons-tab-pane .accordion .accordion-button {
+  box-shadow: none !important; /* remove default inset shadow */
+  border-bottom: none !important;
+}
+#lessons-tab-pane .accordion .accordion-button:not(.collapsed) {
+  border-bottom: 1.5px solid #000 !important;
+  background-color: #e6f7fc; /* lighter than #4eb8dd */
+}
+
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] .input-group .form-control[name="duration_sec"],
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] .input-group .input-group-text {
+  border-color: #000 !important;
+  border-width: 1.5px;
+}
+#lessons-tab-pane form[action*="/sections/"][action$="/lessons"] .input-group .form-control[name="duration_sec"]:focus {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.12);
+}
