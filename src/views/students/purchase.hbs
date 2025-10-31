@@ -114,10 +114,10 @@
                 </div>
                 <div class="text-end">
                   {{#if course.sale_price}}
-                    <span class="fw-bold text-danger fs-5 d-block">₫{{format_number course.sale_price}}</span>
-                    <span class="text-decoration-line-through text-muted small">₫{{format_number course.price}}</span>
+                    <span class="fw-bold text-danger fs-5 d-block">{{format_number course.sale_price}}</span>
+                    <span class="text-decoration-line-through text-muted small">{{format_number course.price}}</span>
                   {{else}}
-                    <span class="fw-bold text-dark fs-5">₫{{format_number course.price}}</span>
+                    <span class="fw-bold text-dark fs-5">{{format_number course.price}}</span>
                   {{/if}}
                 </div>
               </div>
@@ -132,13 +132,13 @@
               
               <div class="d-flex justify-content-between mb-2">
                 <span>Original Price:</span>
-                <span class="fw-semibold">₫{{format_number course.price}}</span>
+                <span class="fw-semibold">{{format_number course.price}}</span>
               </div>
               
               {{#if course.sale_price}}
               <div class="d-flex justify-content-between text-success mb-2">
                 <span><i class="bi bi-tag-fill me-1"></i>Discount:</span>
-                <span class="fw-semibold">-₫{{format_number (subtract course.price course.sale_price)}}</span>
+                <span class="fw-semibold">-{{format_number (subtract course.price course.sale_price)}}</span>
               </div>
               {{/if}}
               
@@ -147,9 +147,9 @@
               <div class="d-flex justify-content-between fw-bold fs-4 mb-3">
                 <span>Total:</span>
                 {{#if course.sale_price}}
-                  <span class="text-danger">₫{{format_number course.sale_price}}</span>
+                  <span class="text-danger">{{format_number course.sale_price}}</span>
                 {{else}}
-                  <span class="text-primary">₫{{format_number course.price}}</span>
+                  <span class="text-primary">{{format_number course.price}}</span>
                 {{/if}}
               </div>
 
@@ -205,9 +205,9 @@
                         <p class="text-muted small mb-2">{{course.category_name}}</p>
                         <p class="text-success fw-bold mb-0 fs-5">
                           {{#if course.sale_price}}
-                            ₫{{format_number course.sale_price}}
+                            {{format_number course.sale_price}}
                           {{else}}
-                            ₫{{ format_number course.price}}
+                            {{ format_number course.price}}
                           {{/if}}
                         </p>
                       </div>
