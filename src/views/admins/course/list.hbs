@@ -121,6 +121,18 @@
               >
                 <i class="bi bi-trash"></i>
               </a>
+             <form action="/admins/courses/{{id}}/toggle-status" method="POST" style="display: inline;">
+  <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+  <button type="submit" 
+          class="btn-action {{#if (eq status 'draft')}}enable{{else}}disable{{/if}}" 
+          title="{{#if (eq status 'draft')}}Enable{{else}}Disable{{/if}}">
+    {{#if (eq status 'draft')}}
+      <i class="bi bi-play-circle"></i>
+    {{else}}
+      <i class="bi bi-pause-circle"></i>
+    {{/if}}
+  </button>
+</form>
             </td>
           </tr>
           {{else}}
@@ -317,5 +329,39 @@
   padding: 6px;
   border-radius: 6px;
   font-weight: 600;
+}
+.btn-action.enable,
+.btn-action.disable {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;           /* Bo tròn hoàn toàn */
+  margin-left: 8px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+
+.btn-action.disable {
+  background: #ffc107;         
+}
+.btn-action.disable:hover {
+  background: #e0a800;
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+.btn-action.enable {
+  background: var(--accent-color); 
+}
+.btn-action.enable:hover {
+  background: color-mix(in srgb, var(--accent-color), black 15%);
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 </style>

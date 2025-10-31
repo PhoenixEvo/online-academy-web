@@ -94,6 +94,31 @@ async getAllPublished() {
     throw new Error(`Error fetching published courses: ${error.message}`);
   }
 },
+// Disable course (set status to 'disabled')
+async disableCourse(id) {
+  try {
+    const result = await db('courses')
+      .where({ id })
+      .update({ status: 'draft' });
+    return result > 0;
+  } catch (error) {
+    console.error('Error disabling course:', error);
+    throw new Error(`Error disabling course: ${error.message}`);
+  }
+},
+
+// Enable course (set status to 'published')
+async enableCourse(id) {
+  try {
+    const result = await db('courses')
+      .where({ id })
+      .update({ status: 'published' });
+    return result > 0;
+  } catch (error) {
+    console.error('Error enabling course:', error);
+    throw new Error(`Error enabling course: ${error.message}`);
+  }
+},
   };
 
 // Find course by ID with instructor and category info

@@ -112,3 +112,37 @@ export const deleteCourse = async (req, res) => {
     return res.redirect('/admins/courses');
   }
 };
+export const toggleCourseStatus = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const course = await courseModel.getCourseById(id);
+    if (!course) {
+      req.flash('error', 'Course does not exist');
+      return res.redirect('/admins/courses');
+    }
+
+    // Toggle status
+    if (course.status === 'draft') {
+      const result = await courseModel.enableCourse(id);
+      if (!result) {
+        req.flash('error', 'Failed to enable course');
+      } else {
+        req.flash('success', 'Course enabled successfully');
+      }
+    } else {
+      const result = await courseModel.disableCourse(id);
+      if (!result) {
+        req.flash('error', 'Failed to disable course');
+      } else {
+        req.flash('success', 'Course disabled successfully');
+      }
+    }
+
+    return res.redirect('/admins/courses');
+  } catch (error) {
+    console.error('Error toggling course status:', error);
+    req.flash('error', 'System error while updating course status');
+    return res.redirect('/admins/courses');
+  }
+};
