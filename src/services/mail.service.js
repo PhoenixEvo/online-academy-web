@@ -1,46 +1,33 @@
-// src/services/mail.service.js
-import nodemailer from 'nodemailer';
+// src/services/mail.service.js - SendGrid version
+import sgMail from '@sendgrid/mail';
 import crypto from 'crypto';
 
 const {
-  MAIL_HOST,
-  MAIL_PORT,
-  MAIL_USER,
-  MAIL_PASS,
-  MAIL_FROM,     // tuỳ chọn: "Online Academy <no-reply@domain.com>"
+  SENDGRID_API_KEY,
+  MAIL_FROM,
   NODE_ENV
 } = process.env;
 
-// ---- Transporter (pool) ----
-let transporter;
-function buildTransporter() {
-  if (!MAIL_HOST || !MAIL_PORT || !MAIL_USER || !MAIL_PASS) {
-    // Fallback dev: log ra console, KHÔNG gửi thật
-    return {
-      sendMail: async (opts) => {
-        if (NODE_ENV !== 'production') {
-          // tránh lộ OTP/mật khẩu trên console ở production
-          // Development mode - emails are not sent
-          return { messageId: 'dev-' + crypto.randomUUID() };
-        }
-        throw new Error('SMTP not configured in production.');
-      }
-    };
-  }
-
-  return nodemailer.createTransport({
-    host: MAIL_HOST,
-    port: Number(MAIL_PORT) || 587,
-    secure: Number(MAIL_PORT) === 465, // true if using 465
-    auth: { user: MAIL_USER, pass: MAIL_PASS },
-    pool: true,      // kết nối pool
-    maxConnections: 5,
-    maxMessages: 50
-  });
+// Initialize SendGrid
+if (SENDGRID_API_KEY) {
+  sgMail.setApiKey(SENDGRID_API_KEY);
 }
-transporter = buildTransporter();
 
-// ---- Helper: render HTML cơ bản (không dùng user input chưa sanitize) ----
+// Fallback transporter for development
+const fallbackTransporter = {
+  sendMail: async (opts) => {
+    if (NODE_ENV !== 'production') {
+      console.log('[DEV] Email would be sent:', {
+        to: opts.to,
+        subject: opts.subject
+      });
+      return { messageId: 'dev-' + crypto.randomUUID() };
+    }
+    throw new Error('SendGrid API key not configured in production.');
+  }
+};
+
+// ---- Helper: render HTML template ----
 function baseHtmlTemplate(title, bodyHtml) {
   return `
   <!doctype html>
@@ -68,19 +55,34 @@ function baseHtmlTemplate(title, bodyHtml) {
 
 // ---- Public API ----
 /**
- * Send general email
+ * Send general email using SendGrid
  * @param {{to:string, subject:string, text?:string, html?:string}} options
  */
 export async function sendMail(options) {
-  const from = MAIL_FROM || `Online Academy <${MAIL_USER || 'no-reply@local.test'}>`;
-  const info = await transporter.sendMail({
-    from,
+  if (!SENDGRID_API_KEY) {
+    return fallbackTransporter.sendMail(options);
+  }
+
+  const from = MAIL_FROM || 'no-reply@online-academy.com';
+  
+  const msg = {
     to: options.to,
+    from: from,
     subject: options.subject,
     text: options.text,
     html: options.html
-  });
-  return info;
+  };
+
+  try {
+    const response = await sgMail.send(msg);
+    return { 
+      messageId: response[0].headers['x-message-id'],
+      response: response[0].statusCode
+    };
+  } catch (error) {
+    console.error('SendGrid error:', error.response?.body || error.message);
+    throw error;
+  }
 }
 
 /**
@@ -145,12 +147,17 @@ export async function sendCourseNotice(to, { title, message, ctaUrl, ctaText='Vi
   return sendMail({ to, subject, text, html });
 }
 
-// ---- Health check (tuỳ chọn bật ở route /_mail/verify) ----
+/**
+ * Health check for SendGrid
+ */
 export async function verifySmtp() {
-  if (!transporter.verify) return { ok: true, note: 'Dev fallback transporter' };
+  if (!SENDGRID_API_KEY) {
+    return { ok: false, error: 'SendGrid API key not configured' };
+  }
+  
   try {
-    const ok = await transporter.verify();
-    return { ok };
+    // SendGrid doesn't have a verify method, so we just check if API key exists
+    return { ok: true, provider: 'SendGrid' };
   } catch (e) {
     return { ok: false, error: e.message };
   }
