@@ -70,7 +70,7 @@ export async function home(req, res, next) {
     }));
 
     // Get popular categories
-    const popularCategories = await getPopularWeekly(6);
+    const popularCategories = await getPopularWeekly(5);
 
     res.render("home", {
       featuredThisWeek: transformedFeatured,
@@ -91,13 +91,13 @@ export async function about(req, res, next) {
     const stats = await Promise.all([
       // Count active students (users with role 'student')
       db('users').count('* as count').where('role', 'student').first(),
-      
+
       // Count published courses
       db('courses').count('* as count').where('status', 'published').first(),
-      
+
       // Count instructors (users with role 'instructor')
       db('users').count('* as count').where('role', 'instructor').first(),
-      
+
       // Calculate success rate (students who completed courses / total enrolled students)
       // Since enrollments table doesn't have status column, we'll calculate based on progress completion
       db('progress')
@@ -106,13 +106,13 @@ export async function about(req, res, next) {
         .first()
         .then(async (completed) => {
           const totalEnrolled = await db('enrollments').countDistinct('user_id as count').first();
-          const successRate = totalEnrolled.count > 0 ? 
+          const successRate = totalEnrolled.count > 0 ?
             Math.round((completed.completed_users / totalEnrolled.count) * 100) : 0;
           return { count: successRate };
         })
     ]);
 
-    res.render("about", { 
+    res.render("about", {
       title: "About",
       stats: {
         activeStudents: stats[0].count,
