@@ -1,4 +1,8 @@
 import { db } from '../models/db.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { deleteObjectByPublicUrl } from '../services/supabase.service.js';
 import {searchByTitle,getReviewsByCourseId,getCourseInformation,courseTaughtBy,getInstructorId,findById, getSectionsByCourseId} from '../models/instructor-course.model.js';
 // Edit info, upload video, mark completed
 export async function editCourse(req, res, next) {
@@ -327,6 +331,32 @@ export async function deleteLessonOfCourse(req, res, next) {
       req.flash?.('error', 'Lesson not found in this course');
       return res.redirect(`/instructor/courses/edit/${courseId}/sections`);
     }
+    // Load lesson to get its video_url
+    const lesson = await db('lessons').where({ id: lessonId }).first();
+    // Attempt to delete local or supabase file if referenced
+    try {
+      const url = (lesson?.video_url || '').toString();
+      if (url.startsWith('/uploads/')) {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const publicRoot = path.resolve(__dirname, '..', 'public');
+        const rel = url.replace(/^\/+/, '');
+        const abs = path.resolve(publicRoot, rel);
+        // Ensure path is within public directory (safety)
+        if (abs.startsWith(publicRoot)) {
+          await fs.promises.unlink(abs).catch((err) => {
+            if (err && err.code !== 'ENOENT') {
+              console.warn('Failed to delete local upload:', abs, err);
+            }
+          });
+        }
+      } else if (/^https?:\/\//i.test(url) && /\/storage\/v1\/object\/public\//.test(url)) {
+        // Supabase public URL; best-effort delete
+        await deleteObjectByPublicUrl(url).catch(err => console.warn('Supabase delete failed:', err));
+      }
+    } catch (e) {
+      console.warn('Error while trying to delete local video file:', e);
+    }
     await db('lessons').where({ id: lessonId }).del();
     if (req.xhr || (req.get('accept') || '').includes('json')) {
       return res.json({ success: true });
@@ -374,6 +404,31 @@ export async function deleteSectionOfCourse(req, res, next) {
       return res.redirect(`/instructor/courses/edit/${courseId}/sections`);
     }
 
+    // Load lessons in this section to delete local files if any
+    const lessons = await db('lessons').where({ section_id: sectionId });
+    try {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const publicRoot = path.resolve(__dirname, '..', 'public');
+      await Promise.all((lessons || []).map(async (l) => {
+        const url = (l?.video_url || '').toString();
+        if (url.startsWith('/uploads/')) {
+          const rel = url.replace(/^\/+/, '');
+          const abs = path.resolve(publicRoot, rel);
+          if (abs.startsWith(publicRoot)) {
+            await fs.promises.unlink(abs).catch((err) => {
+              if (err && err.code !== 'ENOENT') {
+                console.warn('Failed to delete local upload:', abs, err);
+              }
+            });
+          }
+        } else if (/^https?:\/\//i.test(url) && /\/storage\/v1\/object\/public\//.test(url)) {
+          await deleteObjectByPublicUrl(url).catch(err => console.warn('Supabase delete failed:', err));
+        }
+      }));
+    } catch (e) {
+      console.warn('Error while trying to delete files for section:', e);
+    }
     await db.transaction(async (trx) => {
       await trx('lessons').where({ section_id: sectionId }).del();
       await trx('sections').where({ id: sectionId, course_id: courseId }).del();

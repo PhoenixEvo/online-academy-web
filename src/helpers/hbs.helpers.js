@@ -227,6 +227,19 @@ Handlebars.registerHelper('convertToYouTubeEmbed', function(url) {
     return convertToYouTubeEmbed(url);
 });
 
+// Resolve a stored video value to a usable URL:
+// - If it's an absolute http(s) URL, return as-is
+// - If it starts with '/', assume it's already a site-relative path and return as-is
+// - Otherwise, treat as a filename/path under the default base '/uploads/videos/'
+Handlebars.registerHelper('resolveVideoUrl', function (urlOrPath, baseFolder) {
+    const v = (urlOrPath || '').toString();
+    if (!v) return '';
+    if (/^https?:\/\//i.test(v)) return v;
+    if (v.startsWith('/')) return v;
+    const base = (baseFolder && baseFolder.toString()) || '/uploads/videos/';
+    return (base.endsWith('/') ? base : base + '/') + v.replace(/^\/+/, '');
+});
+
 // Format duration from seconds to human readable
 export function formatDuration(seconds) {
     if (!seconds) return '0:00';

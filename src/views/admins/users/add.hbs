@@ -1,17 +1,16 @@
 <div class="admin-wrapper">
   <div class="admin-header">
     <h1 class="admin-title">
-      Add New User
+      Add New Admin
     </h1>
     <a href="/admins/users" class="btn-back">
       Back
     </a>
   </div>
 
-  <!-- HIỂN THỊ LỖI -->
   {{#if error}}
     <div class="alert alert-danger">
-      <strong>Lỗi:</strong> {{error}}
+      <strong>Error:</strong> {{error}}
     </div>
   {{/if}}
 
@@ -32,7 +31,7 @@
         />
       </div>
 
-      <!-- Email - Highlight nếu lỗi liên quan đến email -->
+      <!-- Email -->
       <div class="form-group">
         <label class="form-label">Email</label>
         <input
@@ -45,7 +44,7 @@
           placeholder="Enter email..."
         />
         {{#if (eq error 'Email already exists')}}
-          <small class="text-danger">Email này đã được sử dụng</small>
+          <small class="text-danger">This email is already in use</small>
         {{/if}}
         <div id="userEmailValidationMessage" class="ajax-validation-message" style="display: none; margin-top: 5px; font-size: 0.875rem;"></div>
       </div>
@@ -66,7 +65,6 @@
       <div class="form-group">
         <label class="form-label">Role</label>
         <select class="form-select" name="role" required>
-          <option value="student" {{#if (eq old.role 'student')}}selected{{/if}}>Student</option>
           <option value="admin" {{#if (eq old.role 'admin')}}selected{{/if}}>Admin</option>
         </select>
       </div>

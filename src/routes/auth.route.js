@@ -9,10 +9,15 @@ r.get("/login", authCtrl.showLogin);
 r.post(
   "/login",
   passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/auth/login",
-    failureFlash: true,
-  })
+  failureRedirect: "/auth/login",
+  failureFlash: true,}),
+  (req, res) => {
+    if (req.user.role === 'admin') {
+      req.flash('success', 'Welcome back, Admin!');
+      return res.redirect('/admins/users');
+    }
+    return res.redirect('/');
+  }
 );
 
 // Google OAuth: capture desired role then start auth
@@ -29,10 +34,16 @@ r.get("/google", (req, res, next) => {
 r.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: "/",
     failureRedirect: "/auth/login",
     failureFlash: true,
-  })
+  }),
+  (req, res) => {
+    if (req.user.role === 'admin') {
+      req.flash('success', 'Welcome back, Admin!');
+      return res.redirect('/admins/users');
+    }
+    return res.redirect('/');
+  }
 );
 
 // register
