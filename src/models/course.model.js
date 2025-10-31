@@ -62,32 +62,64 @@ export const courseModel = {
       throw new Error(`Error checking category: ${error.message}`);
     }
   },
-// ADD NEW METHOD HERE: Get all courses with enrollment count
-  async getCoursesWithEnrollmentCount() {
-    try {
-      return await db('courses')
-        .select(
-          'courses.*',
-          'categories.name as category',
-          db.raw('COALESCE(enrollment_counts.student_count, 0) as student_count')
-        )
-        .leftJoin('categories', 'courses.category_id', 'categories.id')
-        .leftJoin(
-          db('enrollments')
-            .select('course_id')
-            .count('user_id as student_count')
-            .groupBy('course_id')
-            .as('enrollment_counts'),
-          'courses.id', 'enrollment_counts.course_id'
-        )
-        .orderBy('courses.created_at', 'desc');
-    } catch (error) {
-      console.error('Error fetching courses with enrollment count:', error);
-      throw new Error(`Error fetching courses: ${error.message}`);
-    }
+//Get all courses with enrollment count
+getCoursesWithEnrollmentCount() {
+  return db('courses')
+    .select(
+      'courses.*',
+      'categories.name as category',
+      db.raw('COALESCE(enrollment_counts.student_count, 0) as student_count')
+    )
+    .leftJoin('categories', 'courses.category_id', 'categories.id')
+    .leftJoin(
+      db('enrollments')
+        .select('course_id')
+        .count('user_id as student_count')
+        .groupBy('course_id')
+        .as('enrollment_counts'),
+      'courses.id', 'enrollment_counts.course_id'
+    )
+    .orderBy('courses.created_at', 'desc');
+}
+,
+  // Get all published courses
+async getAllPublished() {
+  try {
+    return await db('courses')
+      .select('*')
+      .where({ status: 'published' })
+      .orderBy('created_at', 'desc');
+  } catch (error) {
+    console.error('Error fetching published courses:', error);
+    throw new Error(`Error fetching published courses: ${error.message}`);
   }
+},
+// Disable course (set status to 'disabled')
+async disableCourse(id) {
+  try {
+    const result = await db('courses')
+      .where({ id })
+      .update({ status: 'draft' });
+    return result > 0;
+  } catch (error) {
+    console.error('Error disabling course:', error);
+    throw new Error(`Error disabling course: ${error.message}`);
+  }
+},
 
-};
+// Enable course (set status to 'published')
+async enableCourse(id) {
+  try {
+    const result = await db('courses')
+      .where({ id })
+      .update({ status: 'published' });
+    return result > 0;
+  } catch (error) {
+    console.error('Error enabling course:', error);
+    throw new Error(`Error enabling course: ${error.message}`);
+  }
+},
+  };
 
 // Find course by ID with instructor and category info
 export async function findById(id) {

@@ -4,7 +4,6 @@
       Course Management
     </h1>
   </div>
-
   <!-- Stats Cards -->
   <div class="row mb-4">
     <div class="col-md-3">
@@ -44,7 +43,36 @@
       </div>
     </div>
   </div>
+<!-- Filters -->
+<div class="filters mb-4">
+  <form method="GET" class="row g-3 align-items-end">
+    <div class="col-md-5">
+      <label class="form-label small fw-bold">Category</label>
+      <select name="category" class="form-select form-select-sm">
+        <option value="all">All Categories</option>
+        {{#each categories}}
+          <option value="{{id}}" {{selected ../selectedCategory this.id}}>{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
 
+    <div class="col-md-5">
+      <label class="form-label small fw-bold">Instructor</label>
+      <select name="instructor" class="form-select form-select-sm">
+        <option value="all">All Instructors</option>
+        {{#each instructors}}
+          <option value="{{id}}" {{selected ../selectedInstructor this.id}}>{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary btn-sm w-100">
+        Filter
+      </button>
+    </div>
+  </form>
+</div>
   <!-- Table -->
   <div class="table-container">
     <div class="table-responsive">
@@ -93,6 +121,18 @@
               >
                 <i class="bi bi-trash"></i>
               </a>
+             <form action="/admins/courses/{{id}}/toggle-status" method="POST" style="display: inline;">
+  <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+  <button type="submit" 
+          class="btn-action {{#if (eq status 'draft')}}enable{{else}}disable{{/if}}" 
+          title="{{#if (eq status 'draft')}}Enable{{else}}Disable{{/if}}">
+    {{#if (eq status 'draft')}}
+      <i class="bi bi-play-circle"></i>
+    {{else}}
+      <i class="bi bi-pause-circle"></i>
+    {{/if}}
+  </button>
+</form>
             </td>
           </tr>
           {{else}}
@@ -267,5 +307,61 @@
   }
   .course-title + small { display: none; }
   .students { display: none; }
+}
+.filters {
+  background: var(--surface-color);
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.filters .form-select {
+  font-size: 0.875rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.filters .btn-primary {
+  background: var(--accent-color);
+  border: none;
+  font-size: 0.875rem;
+  padding: 6px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.btn-action.enable,
+.btn-action.disable {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;           /* Bo tròn hoàn toàn */
+  margin-left: 8px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+
+.btn-action.disable {
+  background: #ffc107;         
+}
+.btn-action.disable:hover {
+  background: #e0a800;
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+.btn-action.enable {
+  background: var(--accent-color); 
+}
+.btn-action.enable:hover {
+  background: color-mix(in srgb, var(--accent-color), black 15%);
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 </style>

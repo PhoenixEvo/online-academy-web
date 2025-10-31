@@ -3,7 +3,8 @@ import express from 'express';
 import { 
   list,               
   renderDeleteCourse, 
-  deleteCourse        
+  deleteCourse,
+  toggleCourseStatus       
 } from '../controllers/admincourse.controller.js';
 import { requireAdmin } from '../middlewares/authGuard.js';
 
@@ -15,5 +16,5 @@ router.get('/', requireAdmin, list);
 
 router.get('/:id/delete', requireAdmin, renderDeleteCourse);
 router.post('/:id/delete', requireAdmin, deleteCourse);
-
+router.post('/:id/toggle-status', requireAdmin, toggleCourseStatus);
 export default router;
