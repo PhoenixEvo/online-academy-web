@@ -245,12 +245,7 @@ function initRegisterForm() {
             isValid = false;
           }
         }
-        // Other input validation
-        else if (!input.value.trim()) {
-          inputGroup.classList.add("invalid");
-          isValid = false;
-        } 
-        // Password validation
+        // Password validation (checking both password fields separately)
         else if (input.type === "password") {
           if (input.value.length < 8) {
             inputGroup.classList.add("invalid");
@@ -261,6 +256,13 @@ function initRegisterForm() {
         else if (input.name === "acceptTerms") {
           if (!input.checked) {
             inputGroup.classList.add("invalid");
+            isValid = false;
+          }
+        }
+        // Role radio validation
+        else if (input.name === "role") {
+          // Radio buttons are handled by browser required attribute
+          if (!input.checked && !form.querySelector('input[name="role"]:checked')) {
             isValid = false;
           }
         }

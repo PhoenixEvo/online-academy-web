@@ -7,7 +7,7 @@ import methodOverride from 'method-override';
 import flash from 'connect-flash';
 
 import { setupHandlebars } from './config/handlebars.js';
-import { setupSession } from './config/session.js';
+import { setupSession } from './config/session.js'; // Back to PostgreSQL session store
 import { setupPassport } from './config/passport.js';
 import { addCategoriesToLocals } from './middlewares/categories.js';
 import indexRoute from './routes/index.route.js';
@@ -130,7 +130,19 @@ app.use((err, req, res, next) => {
       });
     }
     req.flash('error', 'Session expired or CSRF is invalid. Please try again.');
-    return res.redirect('back');
+    // Redirect to specific page based on the original URL
+    if (req.originalUrl && req.originalUrl.startsWith('/auth/register')) {
+      return res.redirect('/auth/register');
+    }
+    if (req.originalUrl && req.originalUrl.startsWith('/auth/verify-otp')) {
+      return res.redirect('/auth/verify-otp');
+    }
+    // Fallback: use referer or go to login
+    const referer = req.get('Referer');
+    if (referer) {
+      return res.redirect(referer);
+    }
+    return res.redirect('/auth/login');
   }
   return next(err);
 });

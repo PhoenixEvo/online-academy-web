@@ -28,6 +28,18 @@ export function showResetPassword(req,res){
     // values: formData
   }); 
 }
+export function showVerifyOtp(req,res){ 
+  const email = req.session.verifyOtpEmail || req.query.email || '';
+  // Don't delete email from session yet - keep it until verification succeeds
+  // It will be cleared in verifyOtp after successful verification
+  res.render('auth/verify-otp', { 
+    layout: 'auth', 
+    page: 'verify-otp', 
+    title: 'Verify OTP',
+    email: email,
+    success: req.query.success ? 'OTP code has been sent to your email' : undefined
+  }); 
+}
 
 // validation rules for registration
 export const validateRegister = [
@@ -50,7 +62,6 @@ export const validateRegister = [
 // register a new user
 export async function doRegister(req, res, next) {
   try {
-    
     // check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -95,12 +106,16 @@ export async function doRegister(req, res, next) {
     // send OTP email
     await sendOtpEmail(email, otp);
 
-    res.render('auth/verify-otp', { 
-      layout: 'auth',
-      page: 'verify-otp',
-      title: 'Verify OTP',
-      email,
-      success: 'OTP code has been sent to your email'
+    // Store email in session and redirect to verify-otp page
+    req.session.verifyOtpEmail = email;
+    
+    // Save session before redirect to ensure it's persisted
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return next(err);
+      }
+      res.redirect('/auth/verify-otp?success=true');
     });
   } catch (e) { 
     console.error('Registration error:', e);
@@ -242,10 +257,11 @@ export async function verifyOtp(req, res, next) {
     // Mark user as verified (if you have is_verified column)
     await db('users').where({ id: token.user_id }).update({ is_verified: true });
 
+    // Clear email from session after successful verification
+    delete req.session.verifyOtpEmail;
+
     // Set flash message and redirect
-    console.log('Setting flash success message and redirecting...');
     req.flash('success', 'Verification successful! You can now log in.');
-    console.log('Flash message set, redirecting to /auth/login');
     res.redirect('/auth/login');
   } catch (e) { 
     console.error('OTP verification error:', e);
