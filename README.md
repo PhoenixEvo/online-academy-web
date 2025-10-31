@@ -35,7 +35,7 @@ This README summarizes the scope from the PTUDW specification and the current im
 - **Database**: PostgreSQL with Knex migrations and seeds
 - **Auth**: Passport (Local strategy), `express-session`
 - **Security**: Helmet CSP, CSRF (`csurf`), input validation (`express-validator`)
-- **Mail**: Nodemailer
+- **Mail**: SendGrid (HTTP API)
 - **Utilities**: Day.js, UUID, method-override, morgan
 
 ### Repository Structure
@@ -91,12 +91,9 @@ DB_USER=postgres
 DB_PASSWORD=
 DB_SSL=false
 
-# Mail (Nodemailer)
-MAIL_HOST=smtp.example.com
-MAIL_PORT=587
-MAIL_USER=example@example.com
-MAIL_PASS=example-password
-MAIL_FROM="Mentor Online Academy <no-reply@online.com>"
+# Mail (SendGrid - required for production on Render)
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+MAIL_FROM="Mentor Online Academy <verified-email@gmail.com>"
 
 # Google Authentication (optional)
 GOOGLE_CLIENT_ID=placeholder
@@ -150,14 +147,29 @@ This application can be deployed to various platforms. **Render** is recommended
 1. Push code to GitHub (with `render.yaml` file)
 2. Go to https://render.com → "New" → "Blueprint"
 3. Connect GitHub repo → Render auto-detects `render.yaml`
-4. Set environment variables (MAIL_*, GOOGLE_*, SUPABASE_*)
+4. Set environment variables:
+   - `DATABASE_URL` (provided by Render PostgreSQL)
+   - `SESSION_SECRET` (generate a random string)
+   - `SENDGRID_API_KEY` (see SendGrid Setup below)
+   - `MAIL_FROM` (must match verified email in SendGrid)
+   - Optional: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SUPABASE_*`
 5. Wait for deploy → Run migrations in Shell:
    ```bash
    npm run migrate
    npm run seed
    ```
 
-See [RENDER_DEPLOY.md](./RENDER_DEPLOY.md) for detailed Render deployment guide.  
+**SendGrid Setup (Required for Email on Render):**
+
+Render blocks SMTP ports, so you must use SendGrid's HTTP API:
+
+1. Sign up at https://signup.sendgrid.com/ (free tier: 100 emails/day)
+2. Get API Key: Settings → API Keys → Create API Key → Copy `SG.xxx...`
+3. Verify sender: Settings → Sender Authentication → Verify a Single Sender → Verify your Gmail
+4. Set on Render:
+   - `SENDGRID_API_KEY` = `SG.xxxxxxxxxxxxxx`
+   - `MAIL_FROM` = `"Mentor Online Academy <your-verified-email@gmail.com>"`
+
 See [DEPLOY.md](./DEPLOY.md) for other platforms (Heroku, Railway).
 
 ### Security Notes
