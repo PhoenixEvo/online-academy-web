@@ -74,7 +74,7 @@ npm install
 Create a `.env` file inside `online-academy` based on `env.example`. Key variables:
 ```env
 # Server
-PORT=3000
+PORT=10000 #based on Port variable on Render
 NODE_ENV=development
 
 # Session
@@ -137,7 +137,7 @@ npm run dev
 npm start
 ```
 
-The server starts at `http://localhost:3000` by default.
+The server starts at `http://localhost:3000` by default or `http://localhost:10000` by `PORT` value .
 
 ### Deployment
 
