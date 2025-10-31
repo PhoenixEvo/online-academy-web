@@ -30,20 +30,25 @@ export function setupSession(app) {
     });
   }
 
+  const store = new PgSession({
+    pool,
+    tableName: 'user_sessions',
+    createTableIfMissing: true,
+    errorLog: (err) => {
+      console.error('Session store error:', err);
+    }
+  });
+
   app.use(session({
-    store: new PgSession({
-      pool,
-      tableName: 'user_sessions',
-      createTableIfMissing: true, // create table if not exists
-      // pruneSessionInterval: 60 // prune session interval (minutes) – optional
-    }),
+    store,
     secret: process.env.SESSION_SECRET || 'fallback-secret-key-for-development-only-123456789',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
+    rolling: true,
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production', // true when deployed to HTTPS
+      secure: false,
       maxAge: 1000 * 60 * 60 * 4, // 4 hours
     }
   }));
