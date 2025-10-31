@@ -144,9 +144,11 @@ Handlebars.registerHelper("eq", (a, b) => a === b);
 
 // Format number with commas
 Handlebars.registerHelper("format_number", (value) => {
-    return new Intl.NumberFormat('en-US').format(value);
+  const n = Number(value) || 0;
+  // vi-VN sẽ dùng dấu chấm cho hàng nghìn, không có phần thập phân
+  const formatted = new Intl.NumberFormat('vi-VN').format(Math.round(n));
+  return `${formatted}đ`;
 });
-
 // ========== VIDEO HELPERS ==========
 
 // Check if URL is YouTube
