@@ -43,10 +43,15 @@ function initRegisterForm() {
   // Show/hide password functionality
   const toggle = document.getElementById("showPasswordCheck");
   const pwd = document.getElementById("registerPassword");
+  const pwdConfirm = document.getElementById("registerPasswordConfirm");
 
   if (toggle && pwd) {
     toggle.addEventListener("change", () => {
-      pwd.type = toggle.checked ? "text" : "password";
+      const newType = toggle.checked ? "text" : "password";
+      pwd.type = newType;
+      if (pwdConfirm) {
+        pwdConfirm.type = newType;
+      }
     });
   }
   // Full name validation
