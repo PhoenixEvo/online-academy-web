@@ -22,5 +22,6 @@ router.post('/:id/unlock', requireAdmin, adminUserController.unlockUser);
 // Delete (render + confirm)
 router.get('/:id/delete', requireAdmin, adminUserController.renderDeleteUser);
 router.delete('/:id', requireAdmin, adminUserController.deleteUser);
+router.post('/:id/delete', requireAdmin, adminUserController.deleteUser);
 
 export default router;
