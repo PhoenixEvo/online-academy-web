@@ -1,3 +1,4 @@
+<DOCUMENT filename="edit.hbs">
 <div class="admin-wrapper">
   <div class="admin-header">
     <h1 class="admin-title">Edit Instructor</h1>
@@ -33,10 +34,9 @@
         <label>Avatar URL</label>
         <input type="url" name="avatar_url" value="{{instructor.image_50x50}}" class="form-input">
       </div>
-
       <div class="form-group">
-        <label>Verified</label>
-        <input type="checkbox" name="is_verified" {{checked instructor.is_verified}}>
+        <label>Active (Unlock Account)</label>
+        <input type="checkbox" name="is_active" {{checked instructor.is_active}}>
       </div>
 
       <div class="form-actions">

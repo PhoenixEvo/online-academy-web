@@ -2,7 +2,17 @@
 import { db } from './db.js';
 
 export const courseModel = {
-
+async findByCategoryId(categoryId) {
+    try {
+      return await db('courses')
+        .select('*')
+        .where({ category_id: categoryId })
+        .orderBy('created_at', 'desc');
+    } catch (error) {
+      console.error('Error fetching courses by category ID:', error);
+      throw new Error(`Error fetching courses by category ID: ${error.message}`);
+    }
+    },
    async findAll() {
     try {
       return await db('courses').select('*').orderBy('created_at', 'desc');
@@ -193,7 +203,7 @@ export async function findPaged({ page = 1, pageSize = 12, sort = null, sortList
             query = query.where('courses.category_id', categoryId);
         }
     }
-
+    
     // Full-text search functionality
     if (search) {
         query = query.where(function () {
@@ -495,3 +505,5 @@ export async function getInstructorInfo(userId) {
         .select('id', 'name', 'display_name', 'job_title', 'image_50x50', 'image_100x100')
         .first();
 }
+
+   

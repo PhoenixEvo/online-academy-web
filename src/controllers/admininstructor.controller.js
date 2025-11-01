@@ -59,7 +59,7 @@ const add = async (req, res) => {
         if (!password?.trim()) {
           throw new Error('Password is required for new user');
         }
-
+          
         user = await userModel.createUser(
           {
             name,
@@ -67,6 +67,7 @@ const add = async (req, res) => {
             password,
             role: 'instructor',
             avatar_url: avatar_url || null,
+            is_verified: true,
           },
           { transaction: trx }
         );
@@ -128,7 +129,7 @@ const renderEdit = async (req, res) => {
 
 const update = async (req, res) => {
   const { id } = req.params;
-  const { name, email, password, job_title, avatar_url, is_verified } = req.body;
+  const { name, email, password, job_title, avatar_url, is_verified, is_active } = req.body;
 
   try {
     await db.transaction(async (trx) => {
@@ -140,17 +141,17 @@ const update = async (req, res) => {
       if (existingUser && existingUser.id !== instructor.user_id) {
         throw new Error('Email already in use by another user');
       }
-
+const activeStatus = is_active === 'on' ? true : false;
 
       const updateUserData = {
         name,
         email,
         avatar_url: avatar_url || null,
         is_verified: !!is_verified,
+        is_active: activeStatus,
       };
       if (password?.trim()) {
-        const bcrypt = await import('bcryptjs');
-        updateUserData.password = await bcrypt.hash(password, 10);
+        updateUserData.password = password;
       }
       await userModel.updateUser(instructor.user_id, updateUserData, { transaction: trx });
 
@@ -221,8 +222,47 @@ const deleteInstructor = async (req, res) => {
     res.redirect('/admins/instructors');
   }
 };
+const lock = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.transaction(async (trx) => {
+      const instructor = await instructorModel.getInstructorById(id, { transaction: trx });
+      if (!instructor) {
+        throw new Error('Instructor not found');
+      }
 
+      await userModel.updateUser(instructor.user_id, { is_active: false }, { transaction: trx });
+    });
 
+    req.flash('success', 'Instructor locked successfully');
+    res.redirect('/admins/instructors');
+  } catch (error) {
+    console.error('[instructor.lock] Error:', error);
+    req.flash('error', error.message || 'Lock failed');
+    res.redirect('/admins/instructors');
+  }
+};
+
+const unlock = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.transaction(async (trx) => {
+      const instructor = await instructorModel.getInstructorById(id, { transaction: trx });
+      if (!instructor) {
+        throw new Error('Instructor not found');
+      }
+
+      await userModel.updateUser(instructor.user_id, { is_active: true }, { transaction: trx });
+    });
+
+    req.flash('success', 'Instructor unlocked successfully');
+    res.redirect('/admins/instructors');
+  } catch (error) {
+    console.error('[instructor.unlock] Error:', error);
+    req.flash('error', error.message || 'Unlock failed');
+    res.redirect('/admins/instructors');
+  }
+};
 export const adminInstructorController = {
   list,
   renderAdd,
@@ -231,4 +271,6 @@ export const adminInstructorController = {
   update,
   renderDelete,
   delete: deleteInstructor,
+  lock,
+  unlock,
 };

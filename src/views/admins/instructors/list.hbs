@@ -1,8 +1,7 @@
+<DOCUMENT filename="list.hbs">
 <div class="admin-wrapper">
   <div class="admin-header">
-    <h1 class="admin-title">
-      Instructor Management
-    </h1>
+    <h1 class="admin-title">Instructor Management</h1>
     <a href="/admins/instructors/add" class="btn-add-category">
       <i class="bi bi-plus-circle me-2"></i>Add Instructor
     </a>
@@ -19,6 +18,7 @@
             <th><i class="bi bi-envelope"></i> Email</th>
             <th><i class="bi bi-briefcase"></i> Job Title</th>
             <th><i class="bi bi-check-circle"></i> Verified</th>
+            <th><i class="bi bi-lock"></i> Active</th>
             <th><i class="bi bi-gear"></i> Actions</th>
           </tr>
         </thead>
@@ -47,6 +47,13 @@
                 <i class="bi bi-x-circle text-secondary"></i>
               {{/if}}
             </td>
+            <td class="active text-center">
+              {{#if is_active}}
+                <i class="bi bi-check-circle text-success"></i>
+              {{else}}
+                <i class="bi bi-x-circle text-danger"></i>
+              {{/if}}
+            </td>
             <td class="actions text-center">
               <a href="/admins/instructors/{{id}}/edit" class="btn-action edit" title="Edit">
                 <i class="bi bi-pencil"></i>
@@ -55,13 +62,28 @@
                  onclick="return confirm('Delete {{display_name}}?')">
                 <i class="bi bi-trash"></i>
               </a>
+              {{#if is_active}}
+                <form action="/admins/instructors/{{id}}/lock" method="POST" style="display:inline;">
+                 <input type="hidden" name="_csrf" value="{{../csrfToken}}"> 
+                  <button type="submit" class="btn-action lock" title="Khóa tài khoản" onclick="return confirm('Khóa {{display_name}}?')">
+                    <i class="bi bi-lock-fill"></i>
+                  </button>
+                </form>
+              {{else}}
+                <form action="/admins/instructors/{{id}}/unlock" method="POST" style="display:inline;">
+                 <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                  <button type="submit" class="btn-action unlock" title="Mở khóa tài khoản" onclick="return confirm('Mở khóa {{display_name}}?')">
+                    <i class="bi bi-unlock-fill"></i>
+                  </button>
+                </form>
+              {{/if}}
             </td>
           </tr>
           {{else}}
           <tr>
-            <td colspan="7" class="empty-state">
-              <i class="bi bi-person-x"></i>
-              <p>No instructors yet. <a href="/admins/instructors/add">Create one!</a></p>
+            <td colspan="8" class="empty-state">
+              <i class="bi bi-people-x"></i>
+              <p>No instructors yet. <a href="/admins/instructors/add">Add one!</a></p>
             </td>
           </tr>
           {{/each}}
@@ -203,6 +225,22 @@
 .btn-action.delete:hover { 
   background: #c82333; 
   transform: scale(1.1); 
+}
+.btn-action.lock {
+  background: #ffc107;
+  color: #000;
+}
+.btn-action.lock:hover {
+  transform: scale(1.1);
+  background: #e0a800;
+}
+.btn-action.unlock {
+  background: #28a745;
+  color: #fff;
+}
+.btn-action.unlock:hover {
+  transform: scale(1.1);
+  background: #218838;
 }
 .empty-state { 
   text-align: center; 

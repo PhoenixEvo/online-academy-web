@@ -16,7 +16,8 @@ export const instructorModel = {
           'i.created_at',
           'i.updated_at',
           'u.email',
-          'u.is_verified'
+          'u.is_verified',
+          'u.is_active'
         )
         .orderBy('i.created_at', 'desc');
 
@@ -43,7 +44,8 @@ export const instructorModel = {
           'i.created_at',
           'i.updated_at',
           'u.email',
-          'u.is_verified'
+          'u.is_verified',
+          'u.is_active'
         )
         .where('i.id', id)
         .first();

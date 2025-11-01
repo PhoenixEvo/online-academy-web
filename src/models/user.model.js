@@ -16,7 +16,8 @@ export const userModel = {
           'updated_at',
           'is_verified',
           'google_id',
-          'provider'
+          'provider',
+          'is_active'
         )
         .orderBy('created_at', 'desc');
 
@@ -45,7 +46,8 @@ export const userModel = {
           'is_verified',
           'google_id',
           'provider',
-          'password_hash'
+          'password_hash',
+          'is_active'
         )
         .first();
 
@@ -62,7 +64,7 @@ export const userModel = {
   async createUser({ name, email, password, role, avatar_url }, options = {}) {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const isVerified = role === 'admin' ? true : false;  // ĐÚNG
+    const isVerified = true;
 
     let query = db('users')
       .insert({
@@ -73,7 +75,7 @@ export const userModel = {
         avatar_url: avatar_url || '',
         is_verified: isVerified,  
         provider: 'email',
-        created_at: new Date(),
+        is_active: true,
         updated_at: new Date()
       })
       .returning([
@@ -92,14 +94,15 @@ export const userModel = {
   }
 },
 
-  async updateUser(id, { name, email, password, role, avatar_url, is_verified }, options = {}) {
+  async updateUser(id, { name, email, password, role, avatar_url, is_verified, is_active }, options = {}) {
     try {
       const updateData = {
         name,
         email,
         role,
         avatar_url: avatar_url || null,
-        is_verified,
+        is_verified: true,
+        is_active,
         updated_at: new Date()
       };
 
@@ -119,7 +122,8 @@ export const userModel = {
           'created_at',
           'updated_at',
           'is_verified',
-          'provider'
+          'provider',
+          'is_active'
         ]);
 
       if (options.transaction) query = query.transacting(options.transaction);
@@ -164,7 +168,8 @@ export const userModel = {
           'updated_at',
           'is_verified',
           'provider',
-          'password_hash'
+          'password_hash',
+          'is_active'
         )
         .first();
 

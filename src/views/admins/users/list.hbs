@@ -1,3 +1,4 @@
+<DOCUMENT filename="list.hbs">
 <div class="admin-wrapper">
   <div class="admin-header">
     <h1 class="admin-title">
@@ -48,6 +49,7 @@
         <th>Email</th>
         <th>Role</th>
         <th>Verified</th>
+        <th>Active</th>  
         <th>Actions</th>
       </tr>
     </thead>
@@ -81,27 +83,45 @@
             <i class="bi bi-x-circle text-secondary"></i>
           {{/if}}
         </td>
-        <td class="actions text-center">
-          {{#if (or (eq role 'admin') (eq role 'student'))}}
-            <a href="/admins/users/{{id}}/edit" class="btn-action edit" title="Edit">
-              <i class="bi bi-pencil"></i>
-            </a>
-            {{#unless (eq id '34')}}
-              <a href="/admins/users/{{id}}/delete" class="btn-action delete" title="Delete"
-                 onclick="return confirm('Are you sure you want to delete {{name}}?')">
-                <i class="bi bi-trash"></i>
-              </a>
-            {{/unless}}
+        <td class="active text-center">  
+          {{#if is_active}}
+            <i class="bi bi-check-circle text-success"></i>
           {{else}}
-            <span class="text-muted" title="Managed elsewhere">—</span>
+            <i class="bi bi-x-circle text-danger"></i>
           {{/if}}
         </td>
+        <td class="actions text-center">
+          <a href="/admins/users/{{id}}/edit" class="btn-action edit" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <a href="/admins/users/{{id}}/delete" class="btn-action delete" title="Delete"
+             onclick="return confirm('Delete {{name}}?')">
+            <i class="bi bi-trash"></i>
+          </a>
+          
+          {{#if is_active}}
+    
+    <form action="/admins/users/{{id}}/lock" method="POST" style="display:inline;">
+      <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+      <button type="submit" class="btn-action lock" title="Lock {{name}}?" onclick="return confirm('Lock {{name}}?')">
+        <i class="bi bi-lock"></i> 
+      </button>
+    </form>
+  {{else}}
+    <form action="/admins/users/{{id}}/unlock" method="POST" style="display:inline;">
+      <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+      <button type="submit" class="btn-action unlock" title="Unlock {{name}}?" onclick="return confirm('Unlock {{name}}?')">
+        <i class="bi bi-unlock"></i>
+      </button>
+    </form>
+  {{/if}}
+</td>
       </tr>
       {{else}}
       <tr>
-        <td colspan="7" class="empty-state">
-          <i class="bi bi-person-x"></i>
-          <p>No users found.</p>
+        <td colspan="8" class="empty-state">  
+          <i class="bi bi-people-x"></i>
+          <p>No users yet. <a href="/admins/users/add">Add one!</a></p>
         </td>
       </tr>
       {{/each}}
@@ -209,6 +229,7 @@
   transform: scale(1.1);
   background: color-mix(in srgb, var(--accent-color), black 20%);
 }
+
 .btn-action.delete {
   background: #dc3545;
   color: #fff;
@@ -221,6 +242,22 @@
   text-align: center;
   padding: 30px;
   color: var(--default-color);
+}
+.btn-action.lock {
+  background: #ffc107;
+  color: #000;
+}
+.btn-action.lock:hover {
+  transform: scale(1.1);
+  background: #e0a800;
+}
+.btn-action.unlock {
+  background: #28a745;
+  color: #fff;
+}
+.btn-action.unlock:hover {
+  transform: scale(1.1);
+  background: #218838;
 }
 
 .filter-tabs {

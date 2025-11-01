@@ -23,7 +23,11 @@ passport.use(
             message: "Account email not verified",
           });
         }
-
+        if (!user.is_active) {
+          return done(null, false, {
+            message: "Your account has been locked. Please contact the administrator.",
+          });
+        }
         // Check if user is a instructor, student or admin
         if (
           user.role === "instructor" ||
@@ -88,6 +92,9 @@ if (
 
           let user = await db("users").where({ google_id: googleId }).first();
           if (user) {
+            if (!user.is_active) {
+          return done(null, false, { message: "Account has been locked" });
+             }
             return done(null, {
               id: user.id,
               name: user.name,
