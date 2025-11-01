@@ -191,3 +191,140 @@ This backend module completes the entire **student learning workflow**, includin
 --- 
 **Course:** Web Application Development — HCMUTE  
 **Branch:** Student Backend Module  
+
+# Instructor Backend Implementation Documentation (instructor)
+
+**ID:** 23110060 — **Tran Huynh Xuan Thanh**
+
+This documentation describes the backend responsibilities, routes, controllers, models, helpers, client scripts, and views for the "Instructor" role. It follows the same organization as the student documentation and focuses on course authoring, lesson management, analytics, and payout simulation.
+
+---
+
+## 1. Routing Layer
+
+Instructor endpoints are typically mounted under `/instructor` or `/instructors` and protected by `authGuard` plus an `instructorGuard` that ensures the user is an approved instructor.
+
+Common routes (examples):
+
+| Method | Endpoint                                              | Description                                             |
+| ------ | ----------------------------------------------------- | ------------------------------------------------------- |
+| GET    | `/instructor/dashboard`                               | Instructor dashboard (courses summary, recent activity) |
+| GET    | `/instructor/courses`                                 | List instructor's courses (pagination, search)          |
+| GET    | `/instructor/courses/add`                             | Show create course form                                 |
+| POST   | `/instructor/courses`                                 | Create course (metadata + draft)                        |
+| GET    | `/instructor/courses/:id/edit`                        | Edit course metadata and content                        |
+| POST   | `/instructor/courses/:id`                             | Update course metadata                                  |
+| POST   | `/instructor/courses/:id/sections`                    | Add a section to a course                               |
+| POST   | `/instructor/courses/:id/sections/:sectionId/lessons` | Add lesson to a section (video/file upload)             |
+| POST   | `/instructor/lessons/:lessonId/delete`                | Delete a lesson                                         |
+| GET    | `/instructor/enrollments/:courseId`                   | View enrolled students for a course                     |
+| GET    | `/instructor/analytics/:courseId`                     | Course analytics (JSON)                                 |
+| POST   | `/instructor/payouts/request`                         | Create a payout request (simulated)                     |
+
+All these routes return HTML views for management pages; analytics and uploads often expose JSON endpoints for the client JS.
+
+---
+
+## 2. Controllers
+
+Key controller responsibilities:
+
+- `dashboard()` — Aggregate quick stats for the instructor: total courses, active students, recent enrollments, pending reviews, balance.
+- `listCourses()` — Return paginated list of instructor-owned courses with counts and statuses.
+- `showCreateCourse()` / `createCourse()` — Render and handle create-course form. Validate inputs and create initial draft.
+- `showEditCourse()` / `updateCourse()` — Load course and associated sections/lessons, handle updates, and manage publishing state.
+- `addSection()` / `addLesson()` — Support adding course structure and media references.
+- `deleteLesson()` / `deleteSection()` — Soft removal with reordering of remaining items.
+- `viewEnrollments()` — Expose student enrollments with progress for a course.
+- `analytics()` — Return time-series and aggregate metrics (views, enrollments, completion) in JSON to feed charts.
+- `requestPayout()` — Create a payout request after validating minimum balance and record history.
+
+Input validation should use `express-validator`; uploads are orchestrated via `supabase.service` or `upload.service` with signed URLs.
+
+---
+
+## 3. Models
+
+Instructor-related models (representative functions):
+
+- `instructor.model.js`: findByUserId(), create(), update(), getInstructorStats(), getInstructorCourses().
+- `course.model.js` (instructor methods): create(), update(), softDelete(), listByInstructor(), getCourseWithLessons().
+- `section.model.js` / `lesson.model.js`: create/update/remove, attach file pointers, compute duration.
+- `enrollment.model.js`: listStudentsByCourse(), compute completion per user.
+- `payout.model.js`: getInstructorBalance(), createPayoutRequest(), listPayouts().
+- `review.model.js`: listByCourse(), moderateReview(), computeCourseRatings().
+
+Data considerations:
+
+- Keep soft-deletes for audit and analytics.
+- Store file pointers (URLs) rather than binary blobs; prefer signed uploads to object storage.
+- Maintain audit logs for payouts and refunds.
+
+---
+
+## 4. Services & Helpers
+
+- `supabase.service.js` / `upload.service.js` — Generate signed upload URLs, validate file types, and store thumbnails/videos.
+- `mail.service.js` — Notify instructors on new enrollments, reviews, and payout updates.
+- `analytics.helper.js` — Compute aggregates used in dashboard and analytics endpoints.
+- `middlewares/instructorGuard.js` — Ensure user is an instructor and optionally approved.
+- `middlewares/ownershipGuard.js` — Ensure the acting instructor owns the resource being changed.
+
+---
+
+## 5. Client-Side JavaScript (`src/public/js/instructor.js`)
+
+Typical client features:
+
+- Course builder UI (drag & drop ordering for sections/lessons).
+- File upload progress and resumable/chunked uploads.
+- Debounced autosave for course metadata and draft state.
+- Analytics widgets (Chart.js) fetching JSON from analytics endpoints.
+- Payout request flow with modal confirmation and balance display.
+
+Use `fetch`/AJAX for JSON endpoints and show in-app toast confirmations for save/publish actions.
+
+---
+
+## 6. Views
+
+Instructor templates (examples):
+
+| Template                             | Purpose                           |
+| ------------------------------------ | --------------------------------- |
+| `instructor/dashboard.hbs`           | Overview and quick actions        |
+| `vwInstructorCourse/mycourses.hbs`   | List instructor courses           |
+| `vwInstructorCourse/course-form.hbs` | Create/edit course                |
+| `vwInstructorCourse/edit.hbs`        | Course editor (sections, lessons) |
+| `vwInstructorCourse/details.hbs`     | Course detail & reviews           |
+| `instructor/enrollments.hbs`         | Student list for a course         |
+| `instructor/analytics.hbs`           | Analytics page with charts        |
+
+Views receive variables such as `courses`, `course`, `lessons`, `enrollments`, `analyticsData`, and `csrfToken`.
+
+---
+
+## 7. Operational Notes & Edge Cases
+
+- Onboarding: an `applyToBeInstructor` flow and admin approval step is recommended before enabling payouts and publish.
+- Uploads: large video uploads should be handled by direct-to-storage flows (signed URLs). Backend must still validate type/duration.
+- Publishing: prevent publishing when a course has zero lessons; UI should show a helpful warning.
+- Refunds: keep a ledger/audit to correct instructor earnings when refunds occur.
+- Quotas and rate limits: protect heavy endpoints (analytics, uploads) to prevent abuse.
+
+Edge cases:
+
+1. Interrupted uploads — support retry/resume or show clear recovery steps.
+2. Ownership violation attempts — `ownershipGuard` must block modifications.
+3. Duplicate lesson ordering — use an integer position and normalize after inserts/deletes.
+
+---
+
+## 8. Quick Contract
+
+- Inputs: authenticated instructor requests, multipart uploads (files), JSON for analytics filters.
+- Outputs: HTML views for management pages, JSON for client widgets and analytics, and email notifications.
+- Error modes: validation (400), auth (401/403), file/storage errors (5xx), rate-limit (429).
+## ✅ Summary
+
+This section documents the Instructor role: authoring and managing courses, lesson uploads, analytics, enrollments, and payout requests (simulated). It complements the student documentation and provides a blueprint for implementing instructor workflows and UI.
