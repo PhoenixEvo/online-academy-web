@@ -217,12 +217,26 @@
         const file = tmp.files?.[0];
         if (!file) { document.body.removeChild(tmp); return; }
         try {
+          // Show loading alert while uploading the video
+          try {
+            Swal.fire({
+              title: 'Uploading…',
+              html: 'Please wait while the video is uploaded.',
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+              didOpen: () => {
+                Swal.showLoading();
+              }
+            });
+          } catch {}
           const publicUrl = await uploadFile(file, toLocal);
+          try { Swal.close(); } catch {}
           if (urlInput) urlInput.value = publicUrl;
           autoFillDurationFromUrl(publicUrl, durInput);
           await Swal.fire({ icon: 'success', title: 'Uploaded', text: 'Video URL has been set into the form.' });
         } catch (err) {
           console.error(err);
+          try { Swal.close(); } catch {}
           const msg = (err && err.message) ? err.message : 'Please try again.';
           Swal.fire({ icon: 'error', title: 'Upload failed', text: msg });
         } finally {
@@ -473,7 +487,7 @@
                                                       {{increment @index}}. {{this.title}}
                                                     </button>
                                               
-                                                    <!-- Nút X: nằm ngoài vùng click chính nhưng trên cùng nhờ z-index -->
+                                                    <!-- X button: placed outside the main clickable area but kept on top via z-index -->
                                                     {{#unless (eq ../course.status "completed")}}
                                                       <button type="button"
                                                         class="btn btn-sm btn-danger btn-delete-section"
