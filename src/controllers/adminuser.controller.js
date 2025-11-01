@@ -117,7 +117,7 @@ async list(req, res) {
 
   async updateUser(req, res) {
   const { id } = req.params;
-  const { name, email, password, role, avatar_url, is_verified } = req.body;
+  const { name, email, password, role, avatar_url, is_verified, is_active } = req.body;
   const currentUser = req.user;
 const oldUser = await userModel.getUserById(id);
   try {
@@ -156,7 +156,8 @@ if (role === 'instructor' && currentUser.role !== 'admin') {
       email,
       role,
       avatar_url: avatar_url || null,
-      is_verified: is_verified === 'on'
+      is_verified: is_verified === 'on',
+      is_active: is_active === 'on',
     };
 
    
@@ -204,6 +205,52 @@ return res.redirect('/admins/users');
     return res.redirect(`/admins/users/${id}/edit`);
   }
 },
+async lockUser(req, res) {
+    const { id } = req.params;
+    try {
+      const user = await userModel.getUserById(id);
+      if (!user || !['admin', 'student'].includes(user.role)) {
+        req.flash('error', 'User not found or not allowed');
+        return res.redirect('/admins/users');
+      }
+      
+      if (user.role === 'admin' && req.user.id.toString() !== '113') {
+        req.flash('error', 'Only Super Admin can lock admin accounts');
+        return res.redirect('/admins/users');
+      }
+      if (user.id.toString() === '113' || req.user.id.toString() === id) {
+        req.flash('error', 'Cannot lock this account');
+        return res.redirect('/admins/users');
+      }
+
+      await userModel.updateUser(id, { is_active: false });
+      req.flash('success', 'User locked successfully');
+      res.redirect('/admins/users');
+    } catch (error) {
+      console.error('[lockUser] Error:', error);
+      req.flash('error', 'Lock failed');
+      res.redirect('/admins/users');
+    }
+  },
+
+  async unlockUser(req, res) {
+    const { id } = req.params;
+    try {
+      const user = await userModel.getUserById(id);
+      if (!user || !['admin', 'student'].includes(user.role)) {
+        req.flash('error', 'User not found or not allowed');
+        return res.redirect('/admins/users');
+      }
+
+      await userModel.updateUser(id, { is_active: true });
+      req.flash('success', 'User unlocked successfully');
+      res.redirect('/admins/users');
+    } catch (error) {
+      console.error('[unlockUser] Error:', error);
+      req.flash('error', 'Unlock failed');
+      res.redirect('/admins/users');
+    }
+  },
 
   async renderDeleteUser(req, res) {
   const { id } = req.params;

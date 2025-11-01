@@ -15,4 +15,7 @@ router.post('/:id/update', requireAdmin, adminInstructorController.update);
 router.get('/:id/delete', requireAdmin, adminInstructorController.renderDelete);
 router.post('/:id/delete', requireAdmin, adminInstructorController.delete);
 
+router.post('/:id/lock', requireAdmin, adminInstructorController.lock);
+router.post('/:id/unlock', requireAdmin, adminInstructorController.unlock);
+
 export default router;

@@ -1,22 +1,27 @@
-import express from 'express';
+import { Router } from 'express';
 import { adminUserController } from '../controllers/adminuser.controller.js';
 import { requireAdmin } from '../middlewares/authGuard.js';
 
-const router = express.Router();
+const router = Router();
 
-// 📋 Danh sách user
+// List users (admins & students)
 router.get('/', requireAdmin, adminUserController.list);
 
-// ➕ Thêm user
+// Add new user
 router.get('/add', requireAdmin, adminUserController.renderAddUser);
 router.post('/add', requireAdmin, adminUserController.addUser);
 
-// ✏️ Sửa user
+// Edit user
 router.get('/:id/edit', requireAdmin, adminUserController.renderEditUser);
 router.post('/:id/update', requireAdmin, adminUserController.updateUser);
 
-// ❌ Xóa user
+// Lock / Unlock
+router.post('/:id/lock', requireAdmin, adminUserController.lockUser);
+router.post('/:id/unlock', requireAdmin, adminUserController.unlockUser);
+
+// Delete (render + confirm)
 router.get('/:id/delete', requireAdmin, adminUserController.renderDeleteUser);
+router.delete('/:id', requireAdmin, adminUserController.deleteUser);
 router.post('/:id/delete', requireAdmin, adminUserController.deleteUser);
 
 export default router;
